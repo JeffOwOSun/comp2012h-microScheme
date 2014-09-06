@@ -1,12 +1,12 @@
 /**
  * \mainpage COMP2012H Programming Assignment 0, Fall 2014
  *
- * \author **Put your name here**
- * \author **Your studentID**
- * \author **Your email**
- * \author **Your lab session**
+ * \author **SUN Yushi**
+ * \author **20176087**
+ * \author **sunyushi9546@gmail.com**
+ * \author **LA1**
  *
- * \date **Fill in the date**
+ * \date **2014.09.06**
  *
  * Instructor: <a href="http://www.cs.ust.hk/~dekai/">Dekai Wu</a>
  * Due: 2014.09.16 at 23:00 by CASS
@@ -33,7 +33,7 @@ struct Cell {
     int int_m;
     double double_m;
     char* symbol_m;
-  };
+  }data;
 };
 
 #endif // CELL_HPP

@@ -20,6 +20,10 @@
  */
 inline Cell* make_int(int i)
 {
+  Cell* my_cell = new Cell();
+  my_cell->tag_m = type_int;
+  my_cell->int_m = i;
+  return my_cell;
 }
 
 /**
@@ -28,6 +32,10 @@ inline Cell* make_int(int i)
  */
 inline Cell* make_double(double d)
 {
+  Cell* my_cell = new Cell();
+  my_cell->tag_m = type_double;
+  my_cell->double_m = d;
+  return my_cell;
 }
 
 /**
@@ -36,6 +44,10 @@ inline Cell* make_double(double d)
  */
 inline Cell* make_symbol(const char* s)
 {
+  Cell* my_cell = new Cell();
+  my_cell->tag_m = type_symbol;
+  my_cell->symbol_m = s;
+  return my_cell;
 }
 
 
@@ -46,6 +58,7 @@ inline Cell* make_symbol(const char* s)
  */
 inline Node* make_node(Cell* my_elem, Node* my_next)
 {
+  return new Node(my_elem, my_next);
 }
 
 /**
@@ -54,6 +67,7 @@ inline Node* make_node(Cell* my_elem, Node* my_next)
  */
 inline bool intp(const Cell* c)
 {
+  return c->tag_m == type_int;
 }
 
 /**
@@ -62,6 +76,7 @@ inline bool intp(const Cell* c)
  */
 inline bool doublep(const Cell* c)
 {
+  return c->tab_m == type_double;
 }
 
 /**
@@ -70,6 +85,7 @@ inline bool doublep(const Cell* c)
  */
 inline bool symbolp(const Cell* c)
 {
+  return c->tab_m == type_symbol;
 }
 
 /**
@@ -78,6 +94,12 @@ inline bool symbolp(const Cell* c)
  */
 inline int get_int(const Cell* c)
 {
+  if (c->tag_m == type_int){
+    return c->int_m;
+  } else {
+    //print out error
+    stderr << "Cell type not match!" <<std::endl;
+  }
 }
 
 /**
@@ -86,6 +108,12 @@ inline int get_int(const Cell* c)
  */
 inline double get_double(const Cell* c)
 {
+  if (c->tag_m == type_double){
+    return c->double_m;
+  } else {
+    //print out error
+    stderr << "Cell type not match!" <<std::endl;
+  }  
 }
 
 /**
@@ -95,6 +123,12 @@ inline double get_double(const Cell* c)
  */
 inline char* get_symbol(const Cell* c)
 {
+  if (c->tag_m == type_symbol){
+    return c->symbol_m;
+  } else {
+    //print out error
+    stderr << "Cell type not match!" <<std::endl;
+  }
 }
 
 /**
@@ -103,6 +137,7 @@ inline char* get_symbol(const Cell* c)
  */
 inline Cell* get_elem(const Node* n)
 {
+  return n->elem_m;
 }
 
 /**
@@ -111,6 +146,7 @@ inline Cell* get_elem(const Node* n)
  */
 inline Node* get_next(const Node* n)
 {
+  return n->next_m;
 }
 
 /**
@@ -120,6 +156,7 @@ inline Node* get_next(const Node* n)
  */
 inline std::ostream& operator<<(std::ostream& os, const Node& n)
 {
+  
 }
 
 #endif // LINKEDLIST_INTERNALS_HPP
