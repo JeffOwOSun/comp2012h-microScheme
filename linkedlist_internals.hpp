@@ -156,7 +156,14 @@ inline Node* get_next(const Node* n)
  */
 inline std::ostream& operator<<(std::ostream& os, const Node& n)
 {
-  
+  if (intp(n->elem_m)) {
+    os<<get_int(n->elem_m);
+  } else if (doublep(n->elem_m)){
+    os<<get_double(n->elem_m);
+  } else if (symbolp(n->elem_m)){
+    os<<get_symbol(n->elem_m);
+  }
+  return os;
 }
 
 #endif // LINKEDLIST_INTERNALS_HPP
