@@ -33,7 +33,7 @@ struct Cell {
     int int_m;
     double double_m;
     char* symbol_m;
-  }data;
+  };
 };
 
 #endif // CELL_HPP

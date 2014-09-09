@@ -28,3 +28,6 @@
 
 # temp files
 *~
+
+# compiled file
+main

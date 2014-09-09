@@ -44,9 +44,13 @@ inline Cell* make_double(double d)
  */
 inline Cell* make_symbol(const char* s)
 {
+std::cerr<<"linkedlist_internals.hpp make_symbol line 1"<<std::endl;
   Cell* my_cell = new Cell();
+std::cerr<<"linkedlist_internals.hpp make_symbol line 49"<<std::endl;
   my_cell->tag_m = type_symbol;
-  my_cell->symbol_m = s;
+std::cerr<<"linkedlist_internals.hpp make_symbol line 51"<<std::endl;
+  strcpy(my_cell->symbol_m,s);
+std::cerr<<"linkedlist_internals.hpp make_symbol line 53"<<std::endl;
   return my_cell;
 }
 
@@ -76,7 +80,7 @@ inline bool intp(const Cell* c)
  */
 inline bool doublep(const Cell* c)
 {
-  return c->tab_m == type_double;
+  return c->tag_m == type_double;
 }
 
 /**
@@ -85,7 +89,7 @@ inline bool doublep(const Cell* c)
  */
 inline bool symbolp(const Cell* c)
 {
-  return c->tab_m == type_symbol;
+  return c->tag_m == type_symbol;
 }
 
 /**
@@ -98,7 +102,7 @@ inline int get_int(const Cell* c)
     return c->int_m;
   } else {
     //print out error
-    stderr << "Cell type not match!" <<std::endl;
+    std::cerr << "Cell type not match!" <<std::endl;
   }
 }
 
@@ -112,7 +116,7 @@ inline double get_double(const Cell* c)
     return c->double_m;
   } else {
     //print out error
-    stderr << "Cell type not match!" <<std::endl;
+    std::cerr << "Cell type not match!" <<std::endl;
   }  
 }
 
@@ -127,7 +131,7 @@ inline char* get_symbol(const Cell* c)
     return c->symbol_m;
   } else {
     //print out error
-    stderr << "Cell type not match!" <<std::endl;
+    std::cerr << "Cell type not match!" <<std::endl;
   }
 }
 
@@ -156,13 +160,21 @@ inline Node* get_next(const Node* n)
  */
 inline std::ostream& operator<<(std::ostream& os, const Node& n)
 {
-  if (intp(n->elem_m)) {
-    os<<get_int(n->elem_m);
-  } else if (doublep(n->elem_m)){
-    os<<get_double(n->elem_m);
-  } else if (symbolp(n->elem_m)){
-    os<<get_symbol(n->elem_m);
-  }
+  const Node* p = &n;
+  do {
+    if (intp(p->elem_m)) {
+      os<<get_int(p->elem_m);
+    } else if (doublep(p->elem_m)){
+      os<<get_double(p->elem_m);
+    } else if (symbolp(p->elem_m)){
+      os<<get_symbol(p->elem_m);
+    }
+    //move to the next node if exsits
+    //otherwise break the loop
+    if (p->next_m) {
+      p = p->next_m;
+    } else break;
+  } while (true);
   return os;
 }
 

@@ -7,18 +7,18 @@ int main(int argc, char** argv) {
   Node* mixed_list = make_node(make_int(1),NULL);
   Node* mixed_list_rev = make_node(make_int(1),NULL);
   Node* pos = mixed_list_rev;
-
+  std::cerr<<"main.cpp line 10"<<std::endl;
   for (int i = 2; i <= 5; ++i) {
     list_insert_int(mixed_list, NULL, i);
     list_insert_int(mixed_list_rev, pos, i);
   }
-
+std::cerr<<"main.cpp line 15"<<std::endl;
   for (int i = 1; i <=5; ++i) {
     double d = i * 0.1;
     list_insert_double(mixed_list, NULL, d);
     list_insert_double(mixed_list_rev, pos, d);
   }
-
+std::cerr<<"main.cpp line 21"<<std::endl;
   for (char c = 'a'; c < 'f'; ++c) {
     char* str = new char[1];
     str[0] = c;
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     list_insert_symbol(mixed_list, NULL, str);
     list_insert_symbol(mixed_list_rev, pos, str);
   }
-  
+  std::cerr<<"main.cpp line 29"<<std::endl;
   // Get all the even positioned elements (head at 1) and delete them
   int size = list_size(mixed_list);
 
