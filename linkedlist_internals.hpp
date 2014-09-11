@@ -134,20 +134,20 @@ inline char* get_symbol(const Cell* c)
 
 /**
  * \brief Accessor.
- * \return The elem pointer in the linked list node pointed to by c.
+ * \return The REFERENCE to elem pointer in the linked list node pointed to by c, so that the return value can be a lvalue.
  */
-inline Cell* get_elem(const Node* n)
+inline Cell*& get_elem(const Node* n)
 {
-  return n->elem_m;
+  return (Cell*&)n->elem_m;
 }
 
 /**
  * \brief Accessor.
- * \return The next pointer in the linked list node pointed to by c.
+ * \return The REFERENCE to next pointer in the linked list node pointed to by c, so that the return value can be a lvalue.
  */
-inline Node* get_next(const Node* n)
+inline Node*& get_next(const Node* n)
 {
-  return n->next_m;
+  return (Node*&)n->next_m;
 }
 
 /**
@@ -158,20 +158,33 @@ inline Node* get_next(const Node* n)
 inline std::ostream& operator<<(std::ostream& os, const Node& n)
 {
   const Node* p = &n;
-  do {
-    if (intp(p->elem_m)) {
-      os<<get_int(p->elem_m);
-    } else if (doublep(p->elem_m)){
-      os<<get_double(p->elem_m);
-    } else if (symbolp(p->elem_m)){
-      os<<get_symbol(p->elem_m);
+  //print the opening paren
+  os << "(";
+
+  //an "infinite loop" printing each node
+  //break upon end
+  while(true) {
+    
+    if (intp(get_elem(p))) {
+      os<<get_int(get_elem(p));
+    } else if (doublep(get_elem(p))){
+      os<<get_double(get_elem(p));
+    } else if (symbolp(get_elem(p))){
+      os<<get_symbol(get_elem(p));
     }
+    
     //move to the next node if exsits
     //otherwise break the loop
-    if (p->next_m) {
-      p = p->next_m;
+    if (get_next(p)) {
+      //remeber to print a space
+      os << " ";
+      p = get_next(p);
     } else break;
-  } while (true);
+  }
+
+  //print the closing paren
+  os << ")";
+  
   return os;
 }
 

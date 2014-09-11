@@ -8,9 +8,9 @@ int list_size(const Node* n) {
   if (pos){
     count++;
     //count on
-    while (pos->next_m){
+    while (get_next(pos)){
       count++;
-      pos=pos->next_m;
+      pos = get_next(pos);
     }
   }
   //count will be 0 if n doesn't point to a valid node
@@ -21,8 +21,8 @@ Cell* list_ith(Node* n, unsigned int i) {
   Node* pos = n;
   unsigned int remaining = i;
   //find and count the remaining nodes
-  while (pos->next_m && remaining >0) {
-    pos = pos->next_m;
+  while (get_next(pos) && remaining >0) {
+    pos = get_next(pos);
   }
 
   //If we have reached the end of the list but not the required index,
@@ -31,7 +31,7 @@ Cell* list_ith(Node* n, unsigned int i) {
     std::cerr << "Position index exceeded maximum length!" <<std::endl;
     return NULL;
   } else {
-    return pos->elem_m;
+    return get_elem(pos);
   }
 }
 
@@ -39,11 +39,11 @@ Node* list_erase(Node* n, Node* pos) {
   Node* p = pos;
   if ( n == p) {
     //Go to the second node, and assign its address to the first node's elem_m.
-    p = n->next_m;
-    n->elem_m = p->elem_m;
+    p = get_next(n);
+    get_elem(n) = get_elem(p);
     //Make sure second node's elem_m is cleared so that it's not affected
     //by the delete operation later on.
-    p->elem_m = NULL;
+    get_elem(p) = NULL;
     //now the problem is the same as non-root situation
     //and will be processed by the remaining code
   }
@@ -52,55 +52,55 @@ Node* list_erase(Node* n, Node* pos) {
   if ( n != p ) {
     //Now that our given node is not root,
     
-    //Search the list from n until i->next_m is pos
+    //Search the list from n until get_next(i) is pos
     Node* i = n;
-    while ( i->next_m != p) {
-      i = i->next_m;
+    while ( get_next(i) != p) {
+      i = get_next(i);
     }
 
     //now i is the node right before pos
-    //let i->next_m = pos->next_m
-    i->next_m = p->next_m;
+    //let get_next(i) = get_next(pos)
+    get_next(i) = get_next(p);
     
     //destroy pos
-    //first destroy pos->elem_m
-    delete p->elem_m;
+    //first destroy get_elem(pos)
+    delete get_elem(p);
     //then destroy pos
     delete p;
     
-    return i->next_m;
+    return get_next(i);
   }
 }
 
 Node* list_insert(Node* n, Node* pos, Cell* c) {
   //If again our pos equals to n, which is the head node
   if (n == pos) {
-    if (n->next_m) {
+    if (get_next(n)) {
       //then we first insert a Node AFTER head.
       //this node has next_m as original second node
       //and a elem_m that's originally head's.
-      n->next_m = make_node(n->elem_m, n->next_m);
+      get_next(n) = make_node(get_elem(n), get_next(n));
       //append c to head node
-      n->elem_m = c;
+      get_elem(n) = c;
     } else {
       //now that n is the only node in our linked list,
-      n->next_m = make_node(n->elem_m, NULL);
-      n->elem_m = c;
+      get_next(n) = make_node(get_elem(n), NULL);
+      get_elem(n) = c;
     }
     return n;
   } else {
     //normal situation, where we are not inserting in front of head :-)
-    //search the list until i->next_m is pos
+    //search the list until get_next(i) is pos
     Node* i = n;
-    while (i->next_m != pos) {
-      i = i->next_m;
+    while (get_next(i) != pos) {
+      i = get_next(i);
     }
 
     //make a new node with the cell appended, and pointing to pos
     //append this node after i
-    i->next_m = make_node(c, pos);
+    get_next(i) = make_node(c, pos);
     
-    return i->next_m;
+    return get_next(i);
   }
 }
 
