@@ -44,13 +44,10 @@ inline Cell* make_double(double d)
  */
 inline Cell* make_symbol(const char* s)
 {
-std::cerr<<"linkedlist_internals.hpp make_symbol line 1"<<std::endl;
   Cell* my_cell = new Cell();
-std::cerr<<"linkedlist_internals.hpp make_symbol line 49"<<std::endl;
   my_cell->tag_m = type_symbol;
-std::cerr<<"linkedlist_internals.hpp make_symbol line 51"<<std::endl;
+  my_cell->symbol_m = new char[strlen(s)+1];
   strcpy(my_cell->symbol_m,s);
-std::cerr<<"linkedlist_internals.hpp make_symbol line 53"<<std::endl;
   return my_cell;
 }
 

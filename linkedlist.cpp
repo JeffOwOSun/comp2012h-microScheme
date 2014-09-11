@@ -73,7 +73,6 @@ Node* list_erase(Node* n, Node* pos) {
 }
 
 Node* list_insert(Node* n, Node* pos, Cell* c) {
-std::cerr<<"linkedlist.cpp function list_insert Line1"<<std::endl;
   //If again our pos equals to n, which is the head node
   if (n == pos) {
     if (n->next_m) {
