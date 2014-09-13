@@ -64,29 +64,29 @@ inline Node* make_node(Cell* my_elem, Node* my_next)
 
 /**
  * \brief Check if d points to an int node.
- * \return True iff d points to an int node.
+ * \return True iff d points to an int node. Also false if c is NULL.
  */
 inline bool intp(const Cell* c)
 {
-  return c->tag_m == type_int;
+  return c ? c->tag_m == type_int : false;
 }
 
 /**
  * \brief Check if d points to a double node.
- * \return True iff d points to a double node.
+ * \return True iff d points to a double node. Also false if c is NULL.
  */
 inline bool doublep(const Cell* c)
 {
-  return c->tag_m == type_double;
+  return c ?  c->tag_m == type_double : false;
 }
 
 /**
  * \brief Check if d points to a symbol node.
- * \return True iff d points to a symbol node.
+ * \return True iff d points to a symbol node. Also false if c is NULL.
  */
 inline bool symbolp(const Cell* c)
 {
-  return c->tag_m == type_symbol;
+  return c ? c->tag_m == type_symbol : false;
 }
 
 /**
@@ -95,11 +95,12 @@ inline bool symbolp(const Cell* c)
  */
 inline int get_int(const Cell* c)
 {
-  if (c->tag_m == type_int){
+  if (intp(c)){
     return c->int_m;
   } else {
     //print out error
     std::cerr << "Cell type not match!" <<std::endl;
+    exit(1);
   }
 }
 
@@ -109,11 +110,12 @@ inline int get_int(const Cell* c)
  */
 inline double get_double(const Cell* c)
 {
-  if (c->tag_m == type_double){
+  if (doublep(c)){
     return c->double_m;
   } else {
     //print out error
     std::cerr << "Cell type not match!" <<std::endl;
+    exit(1);
   }  
 }
 
@@ -124,30 +126,32 @@ inline double get_double(const Cell* c)
  */
 inline char* get_symbol(const Cell* c)
 {
-  if (c->tag_m == type_symbol){
+  if (symbolp(c)){
     return c->symbol_m;
   } else {
     //print out error
     std::cerr << "Cell type not match!" <<std::endl;
+    exit(1);
   }
 }
 
 /**
  * \brief Accessor.
- * \return The REFERENCE to elem pointer in the linked list node pointed to by c, so that the return value can be a lvalue.
+ * \return The elem pointer in the linked list node pointed to by c. NULL if n is not a valid Node*.
  */
-inline Cell*& get_elem(const Node* n)
+inline Cell* get_elem(const Node* n)
 {
-  return (Cell*&)n->elem_m;
+  //make sure passed in n points to a valid Node*
+  return n ? n->elem_m : (Cell*)NULL;
 }
 
 /**
  * \brief Accessor.
- * \return The REFERENCE to next pointer in the linked list node pointed to by c, so that the return value can be a lvalue.
+ * \return The pointer in the linked list node pointed to by c. NULL if n is not a valid Node*.
  */
-inline Node*& get_next(const Node* n)
+inline Node* get_next(const Node* n)
 {
-  return (Node*&)n->next_m;
+  return n ? n->next_m : (Node*)NULL;
 }
 
 /**
@@ -163,7 +167,7 @@ inline std::ostream& operator<<(std::ostream& os, const Node& n)
 
   //an "infinite loop" printing each node
   //break upon end
-  while(true) {
+  while(p) {
     
     if (intp(get_elem(p))) {
       os<<get_int(get_elem(p));

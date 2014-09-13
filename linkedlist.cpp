@@ -18,87 +18,118 @@ int list_size(const Node* n) {
 }
 
 Cell* list_ith(Node* n, unsigned int i) {
+  if (!(n)){
+    std::cerr<<"In function list_ith, param n invalid!"<<std::endl;
+    exit(1);
+  }
   Node* pos = n;
   unsigned int remaining = i;
   //find and count the remaining nodes
   while (get_next(pos) && remaining >0) {
     pos = get_next(pos);
+    remaining--;
   }
 
   //If we have reached the end of the list but not the required index,
   if (remaining >0){
     //Give an error
-    std::cerr << "Position index exceeded maximum length!" <<std::endl;
-    return NULL;
+    std::cerr << "Position index i exceeded maximum length!:" <<i<<std::endl;
+    exit(1);
   } else {
     return get_elem(pos);
   }
 }
 
 Node* list_erase(Node* n, Node* pos) {
+  if (!(n && pos)){
+    std::cerr<<"In function list_erase, param n or pos invalid!"<<std::endl;
+    exit(1);
+  }
+  
   Node* p = pos;
-  if ( n == p) {
-    //Go to the second node, and assign its address to the first node's elem_m.
+  if (n == p) {
+    //if n doesn't have any descendant then exit code with error;
+    if (!get_next(n)){
+      std::cerr<<"Can't delete when there's only one element in the list!"<<std::endl;
+      exit(1);
+    }
+    //Go to the second node, and copy its elem_m to the first node's elem_m.
     p = get_next(n);
-    get_elem(n) = get_elem(p);
+    n->elem_m = get_elem(p);
     //Make sure second node's elem_m is cleared so that it's not affected
     //by the delete operation later on.
-    get_elem(p) = NULL;
+    p->elem_m = NULL;
     //now the problem is the same as non-root situation
     //and will be processed by the remaining code
   }
 
-  //We deal with erasing non-root nodes.
-  if ( n != p ) {
-    //Now that our given node is not root,
-    
-    //Search the list from n until get_next(i) is pos
-    Node* i = n;
-    while ( get_next(i) != p) {
-      i = get_next(i);
-    }
-
-    //now i is the node right before pos
-    //let get_next(i) = get_next(pos)
-    get_next(i) = get_next(p);
-    
-    //destroy pos
-    //first destroy get_elem(pos)
-    delete get_elem(p);
-    //then destroy pos
-    delete p;
-    
-    return get_next(i);
+  //From now on we deal with erasing non-root nodes.
+  //Now that our given node is not root,
+  //search the list from n until get_next(i) is pos
+  Node* i = n;
+  while ( get_next(i) && get_next(i) != p) {
+    i = get_next(i);
   }
+    
+  //exit the code if pos is not a descendant of n
+  if (!get_next(i)) {
+    std::cerr<<"pos not a descendant of n!"<<std::endl;
+    exit(1);
+  }
+
+  //now i is the node right before pos
+  //let get_next(i) = get_next(pos)
+  i->next_m = get_next(p);
+
+  //delete[] char* of the Cell if exists
+  if (symbolp(get_elem(p))){
+    delete[] get_elem(p)->symbol_m;
+  }
+
+  //destroy the Cell
+  delete p->elem_m;
+    
+  //then destroy the Node
+  delete p;
+
+  return get_next(i);
 }
 
 Node* list_insert(Node* n, Node* pos, Cell* c) {
+  if (!(n)){
+    std::cerr<<"In function list_insert, param n invalid!"<<std::endl;
+    exit(1);
+  }
   //If again our pos equals to n, which is the head node
   if (n == pos) {
     if (get_next(n)) {
       //then we first insert a Node AFTER head.
-      //this node has next_m as original second node
+      //this node has original second node as next_m
       //and a elem_m that's originally head's.
-      get_next(n) = make_node(get_elem(n), get_next(n));
+      n->next_m = make_node(get_elem(n), get_next(n));
       //append c to head node
-      get_elem(n) = c;
+      n->elem_m = c;
     } else {
       //now that n is the only node in our linked list,
-      get_next(n) = make_node(get_elem(n), NULL);
-      get_elem(n) = c;
+      n->next_m = make_node(get_elem(n), NULL);
+      n->elem_m = c;
     }
     return n;
   } else {
     //normal situation, where we are not inserting in front of head :-)
     //search the list until get_next(i) is pos
     Node* i = n;
-    while (get_next(i) != pos) {
+    while (get_next(i) && get_next(i) != pos) {
       i = get_next(i);
     }
-
+    //exit the code if pos is not NULL (tail) but not a descendant of n
+    if (!get_next(i) && pos) {
+      std::cerr<<"pos not a descendant of n!"<<std::endl;
+      exit(1);
+    }
     //make a new node with the cell appended, and pointing to pos
     //append this node after i
-    get_next(i) = make_node(c, pos);
+    i->next_m = make_node(c, pos);
     
     return get_next(i);
   }
