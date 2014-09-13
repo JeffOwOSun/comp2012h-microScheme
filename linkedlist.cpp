@@ -19,7 +19,7 @@ int list_size(const Node* n) {
 
 Cell* list_ith(Node* n, unsigned int i) {
   if (!(n)){
-    std::cerr<<"In function list_ith, param n invalid!"<<std::endl;
+    std::cerr<<"ERROR"<<std::endl;
     exit(1);
   }
   Node* pos = n;
@@ -33,7 +33,7 @@ Cell* list_ith(Node* n, unsigned int i) {
   //If we have reached the end of the list but not the required index,
   if (remaining >0){
     //Give an error
-    std::cerr << "Position index i exceeded maximum length!:" <<i<<std::endl;
+    std::cerr << "ERROR" <<std::endl;
     exit(1);
   } else {
     return get_elem(pos);
@@ -42,7 +42,7 @@ Cell* list_ith(Node* n, unsigned int i) {
 
 Node* list_erase(Node* n, Node* pos) {
   if (!(n && pos)){
-    std::cerr<<"In function list_erase, param n or pos invalid!"<<std::endl;
+    std::cerr<<"ERROR"<<std::endl;
     exit(1);
   }
   
@@ -50,7 +50,7 @@ Node* list_erase(Node* n, Node* pos) {
   if (n == p) {
     //if n doesn't have any descendant then exit code with error;
     if (!get_next(n)){
-      std::cerr<<"Can't delete when there's only one element in the list!"<<std::endl;
+      std::cerr<<"ERROR"<<std::endl;
       exit(1);
     }
     //Go to the second node, and copy its elem_m to the first node's elem_m.
@@ -73,7 +73,7 @@ Node* list_erase(Node* n, Node* pos) {
     
   //exit the code if pos is not a descendant of n
   if (!get_next(i)) {
-    std::cerr<<"pos not a descendant of n!"<<std::endl;
+    std::cerr<<"ERROR"<<std::endl;
     exit(1);
   }
 
@@ -97,7 +97,7 @@ Node* list_erase(Node* n, Node* pos) {
 
 Node* list_insert(Node* n, Node* pos, Cell* c) {
   if (!(n)){
-    std::cerr<<"In function list_insert, param n invalid!"<<std::endl;
+    std::cerr<<"ERROR"<<std::endl;
     exit(1);
   }
   //If again our pos equals to n, which is the head node
@@ -124,7 +124,7 @@ Node* list_insert(Node* n, Node* pos, Cell* c) {
     }
     //exit the code if pos is not NULL (tail) but not a descendant of n
     if (!get_next(i) && pos) {
-      std::cerr<<"pos not a descendant of n!"<<std::endl;
+      std::cerr<<"ERROR"<<std::endl;
       exit(1);
     }
     //make a new node with the cell appended, and pointing to pos

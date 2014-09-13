@@ -99,7 +99,7 @@ inline int get_int(const Cell* c)
     return c->int_m;
   } else {
     //print out error
-    std::cerr << "Cell type not match!" <<std::endl;
+    std::cerr << "ERROR" <<std::endl;
     exit(1);
   }
 }
@@ -114,7 +114,7 @@ inline double get_double(const Cell* c)
     return c->double_m;
   } else {
     //print out error
-    std::cerr << "Cell type not match!" <<std::endl;
+    std::cerr << "ERROR" <<std::endl;
     exit(1);
   }  
 }
@@ -130,7 +130,7 @@ inline char* get_symbol(const Cell* c)
     return c->symbol_m;
   } else {
     //print out error
-    std::cerr << "Cell type not match!" <<std::endl;
+    std::cerr << "ERROR" <<std::endl;
     exit(1);
   }
 }
