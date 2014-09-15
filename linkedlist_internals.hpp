@@ -20,7 +20,7 @@
  */
 inline Cell* make_int(int i)
 {
-  Cell* my_cell = new Cell();
+  Cell* my_cell = (Cell*) malloc(sizeof(Cell));
   my_cell->tag_m = type_int;
   my_cell->int_m = i;
   return my_cell;
@@ -32,7 +32,7 @@ inline Cell* make_int(int i)
  */
 inline Cell* make_double(double d)
 {
-  Cell* my_cell = new Cell();
+  Cell* my_cell = (Cell*) malloc(sizeof(Cell));
   my_cell->tag_m = type_double;
   my_cell->double_m = d;
   return my_cell;
@@ -44,9 +44,9 @@ inline Cell* make_double(double d)
  */
 inline Cell* make_symbol(const char* s)
 {
-  Cell* my_cell = new Cell();
+  Cell* my_cell = (Cell*) malloc(sizeof(Cell));
   my_cell->tag_m = type_symbol;
-  my_cell->symbol_m = new char[strlen(s)+1];
+  my_cell->symbol_m =(char*) malloc(strlen(s)+1);
   strcpy(my_cell->symbol_m,s);
   return my_cell;
 }
@@ -59,7 +59,10 @@ inline Cell* make_symbol(const char* s)
  */
 inline Node* make_node(Cell* my_elem, Node* my_next)
 {
-  return new Node(my_elem, my_next);
+  Node* my_node = (Node*)malloc(sizeof(Node));
+  my_node->elem_m = my_elem;
+  my_node->next_m = my_next;
+  return my_node;
 }
 
 /**

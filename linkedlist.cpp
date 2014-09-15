@@ -83,14 +83,14 @@ Node* list_erase(Node* n, Node* pos) {
 
   //delete[] char* of the Cell if exists
   if (symbolp(get_elem(p))){
-    delete[] get_elem(p)->symbol_m;
+    free(get_elem(p)->symbol_m);
   }
 
   //destroy the Cell
-  delete p->elem_m;
+  free(p->elem_m);
     
   //then destroy the Node
-  delete p;
+  free(p);
 
   return get_next(i);
 }
