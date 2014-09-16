@@ -46,7 +46,9 @@ Node* list_erase(Node* n, Node* pos) {
     exit(1);
   }
   
-  Node* p = pos;
+  //make a copy of parameter pos so that I can changed it later on
+  Node* p = pos; //p: a temparary pointer
+
   if (n == p) {
     //if n doesn't have any descendant then exit code with error;
     if (!get_next(n)){
@@ -118,6 +120,7 @@ Node* list_insert(Node* n, Node* pos, Cell* c) {
   } else {
     //normal situation, where we are not inserting in front of head :-)
     //search the list until get_next(i) is pos
+    //i: the temporary pointer to the Node I'm searching
     Node* i = n;
     while (get_next(i) && get_next(i) != pos) {
       i = get_next(i);
