@@ -16,11 +16,9 @@
  * \class Node
  * \brief A node within a singly linked list.
  */
-struct Node {
-  Node(Cell* elem, Node* next) : elem_m(elem), next_m(next) {}
-
+typedef struct Node{
   Cell* elem_m;
-  Node* next_m;
-};
+  struct Node* next_m;
+}Node;
 
 #endif // NODE_HPP

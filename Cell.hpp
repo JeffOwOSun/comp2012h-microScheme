@@ -27,13 +27,13 @@ enum TypeTag {type_int, type_double, type_symbol};
  * \class Cell
  * \brief Tagged union that holds an int, double, or symbol
  */
-struct Cell {
+typedef struct{
   TypeTag tag_m;
   union {
     int int_m;
     double double_m;
     char* symbol_m;
   };
-};
+}Cell;
 
 #endif // CELL_HPP
