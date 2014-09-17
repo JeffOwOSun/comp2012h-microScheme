@@ -45,32 +45,32 @@ Cell::Cell(const char* s)
 Cell::Cell(const Cell* my_car, const Cell* my_cdr)
 {
   tag_m = type_conspair;
-  conspair_m.car_m = my_car;
-  conspair_m.cdr_m = my_cdr;
+  conspair_m.car_m = (Cell*) my_car;
+  conspair_m.cdr_m = (Cell*) my_cdr;
   return;
 }
 
-bool Cell::is_int()
+bool Cell::is_int() const
 {
   return tag_m == type_int;
 }
 
-bool Cell::is_double()
+bool Cell::is_double() const
 {
   return tag_m == type_double;
 }
 
-bool Cell::is_symbol()
+bool Cell::is_symbol() const
 {
   return tag_m == type_symbol;
 }
 
-bool Cell::is_cons()
+bool Cell::is_cons() const
 {
   return tag_m == type_conspair;
 }
 
-int Cell::get_int()
+int Cell::get_int() const
 {
   if (is_int()) {
     return int_m;
@@ -80,7 +80,7 @@ int Cell::get_int()
   }
 }
 
-double Cell::get_double()
+double Cell::get_double() const
 {
   if (is_double()) {
     return double_m;
@@ -90,17 +90,17 @@ double Cell::get_double()
   }
 }
 
-string Cell::get_symbol()
+string Cell::get_symbol() const
 {
   if (is_symbol()) {
-    return new string (symbol_m);
+    return string(symbol_m);
   } else {
     cerr << "In function Cell::get_symbol(), the corresponding Cell instance is not a symbol Cell!" << endl;
     exit(1);
   }
 }
 
-Cell* Cell::get_car()
+Cell* Cell::get_car() const
 {
   if (is_cons()) {
     return conspair_m.car_m;
@@ -110,7 +110,7 @@ Cell* Cell::get_car()
   }
 }
 
-Cell* Cell::get_cdr()
+Cell* Cell::get_cdr() const
 {
   if (is_cons()) {
     return conspair_m.cdr_m;
@@ -122,5 +122,6 @@ Cell* Cell::get_cdr()
 
 void Cell::print(ostream& os) const
 {
-  os << sexpr_m;
+  os << "yo";
+  return;
 }

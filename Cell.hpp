@@ -31,16 +31,6 @@
 #include <stack>
 
 /**
- * \struct ConsPair
- * \brief struct ConsPair
- */
-
-struct ConsPair {
-  Cell* car_m;
-  Cell* cdr_m;
-}
-
-/**
  * \class Cell
  * \brief Class Cell
  */
@@ -132,6 +122,14 @@ public:
 private:
   enum TypeTag {type_int, type_double, type_symbol, type_conspair};
   TypeTag tag_m;
+  /**
+   * \struct ConsPair
+   * \brief struct ConsPair
+   */
+  struct ConsPair {
+    Cell* car_m;
+    Cell* cdr_m;
+  };
   union {
     int int_m;
     double double_m; 
