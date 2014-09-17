@@ -30,11 +30,22 @@
 #include <string>
 #include <stack>
 
+/**
+ * \struct ConsPair
+ * \brief struct ConsPair
+ */
+
+struct ConsPair {
+  Cell* car_m;
+  Cell* cdr_m;
+}
 
 /**
  * \class Cell
  * \brief Class Cell
  */
+
+
 class Cell {
 public:
 
@@ -119,9 +130,14 @@ public:
   void print(std::ostream& os = std::cout) const;
 
 private:
-
-  std::string sexpr_m;
-
+  enum TypeTag {type_int, type_double, type_symbol, type_conspair};
+  TypeTag tag_m;
+  union {
+    int int_m;
+    double double_m; 
+    char* symbol_m;
+    ConsPair conspair_m;
+  };
 };
 
 // Reminder: cons.hpp expects nil to be defined somewhere (for this
