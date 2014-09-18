@@ -251,13 +251,13 @@ Cell* parse(string sexpr)
   // such that the first and last character are not white space
   clearwhitespace(sexpr);
 //   if (sexpr.length() == 0) {
-//     return NULL;
+//     return nil;
 //   }
   if (sexpr.length() == 0) {
-    return NULL;
+    return nil;
   }
   if ( !is_legalexpr(sexpr)) {
-    return NULL;
+    return nil;
   }
   // check whether is single symbol
   // i.e. leaf cell
@@ -362,7 +362,7 @@ Cell* separate_parse(string& instr)
 	      Cell* cdr;
 	      Cell* root;
 	      if (length <= 0) {
-		cdr = NULL;
+		cdr = nil;
 	      } else {
 		cdr = parse("(" + instr + ")");       
 	      }
@@ -376,5 +376,5 @@ Cell* separate_parse(string& instr)
     }
   }
 
-  return NULL;
+  return nil;
 }
