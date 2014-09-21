@@ -19,6 +19,10 @@ Cell* eval(Cell* const c)
   if (nullp(c)) {
     return c;
   }
+
+  if (intp(c) || doublep(c) || symbolp(c)){
+    return c;
+  }
   
   if (listp(c)) {
     //get car of c
@@ -32,7 +36,7 @@ Cell* eval(Cell* const c)
 	int int_sum = 0;
 	bool sum_is_double = false;
 
-	//Cell pointer to the current working 
+	//Cell pointer to the current working cell
 	Cell* current_cell = cdr(c);
 
 	//iterate every cons pair until meet a nil cdr
@@ -41,17 +45,12 @@ Cell* eval(Cell* const c)
 	  //current_cell is not nil, and it should be a conspair
 	  if (!listp(current_cell)) {
 	    error_handler();
-	  }    
-
-	  Cell* value_cell;
-	  if (listp(car(current_cell))){
-	    //call eval if it's a list
-	    value_cell = eval(car(current_cell));
-	  } else {
-	    //simply set itself as value_cell;
-	    value_cell = car(current_cell);
 	  }
 
+	  //pointer to the cell that contains the value to be added
+	  //here eval could be used against a conspair or a int/double cell
+	  Cell* value_cell = eval(car(current_cell));
+	  
 	  //deal with value_cell, see if it's int or not
 	  if (intp(value_cell)) {
 	    if (sum_is_double) {
@@ -61,8 +60,8 @@ Cell* eval(Cell* const c)
 	    }
 	  } else {
 	    //if value_cell is not an int cell
-	    if (!sum_is_double) {
-	      int_sum += get_int(value_cell);
+	    if (sum_is_double) {
+	      double_sum += get_double(value_cell);
 	    } else {
 	      //migrate int_sum to double_sum and do related clean-ups
 	      double_sum = int_sum;
@@ -80,9 +79,23 @@ Cell* eval(Cell* const c)
 	return new Cell(sum_is_double ? double_sum : int_sum);
 	break;
       case "ceiling":
+	//current working cell
+	Cell* current_cell = cdr(c);
+	//take the ceiling and return
+	return new Cell(ceiling(eval(car(current_cell))));
 	break;
       case "if":
-	
+	//temporary Cell pointers;
+	Cell* condition = cdr(c);
+	Cell* if_true = cdr(condition);
+	Cell* if_false = cdr(if_true);
+
+	if (nullp(if_false)) {
+	  return eval(car(if_true));
+	} else {
+	  return eval(car(condition)) ? eval(car(if_true)) : eval(car(if_false));
+	}
+	  
 	break;
       default:
 	error_handler();
