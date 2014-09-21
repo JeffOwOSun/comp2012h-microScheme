@@ -16,7 +16,7 @@
 #include "Cell.hpp"
 // Reminder: cons.hpp expects nil to be defined somewhere.  For this
 // implementation, this is the logical place to define it.
-const Cell* nil = 0;
+const Cell* nil = new Cell(0);
 
 using namespace std;
 
@@ -122,6 +122,53 @@ Cell* Cell::get_cdr() const
 
 void Cell::print(ostream& os) const
 {
-  os << "yo";
+  
+  if (is_int()){
+    os << get_int();
+    return;
+  }
+
+  if (is_double()){
+    os << fixed <<setprecision(6) << get_double();
+    return;
+  }
+
+  if (is_symbol()){
+    os << get_symbol();
+    return;
+  }
+  
+  os << "(";
+
+  //THIS is supposed to be the root of a tree
+  const Cell* current_cell = this;
+
+  while (current_cell!=nil){
+  //get car
+  //if car is conspair, call print on the subtree
+    if (current_cell->get_car()->is_cons()){
+      current_cell->get_car()->print(os);
+    } else{
+      //else get the value and output it
+      os << current_cell->to_string();
+    }
+  //loop to the cdr
+    current_cell = current_cell->get_cdr();
+  }
+  os << ")";
   return;
+}
+
+string Cell::to_string() const
+{
+  stringstream ss;
+  if (is_int()) {
+    ss << get_int();
+  } else if (is_double()) {
+    ss << fixed << setprecision(6) << get_double();
+  } else if (is_symbol()) {
+    return get_symbol();
+  } else return "";
+
+  return ss.str();
 }

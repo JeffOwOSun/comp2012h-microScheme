@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -118,6 +119,13 @@ public:
    * \param os The output stream to print to.
    */
   void print(std::ostream& os = std::cout) const;
+  
+  /**
+   * \brief Get the value and print it to string;
+   * \return The string value
+   */
+  std::string to_string() const;
+  
 
 private:
   enum TypeTag {type_int, type_double, type_symbol, type_conspair};

@@ -7,7 +7,7 @@
  */
 
 #include "eval.hpp"
-#include <cmath>
+#include "error.hpp"
 
 /**
  * \brief The evaluation function that calculates the parsed s-expression tree
@@ -29,8 +29,7 @@ Cell* eval(Cell* const c)
     //if car is a symbol cell (it must, otherwise the eval() begins at wrong place)
     if (symbolp(car(c))){
       //get the symbol
-      switch (get_symbol(car(c))){
-      case "+":
+      if (get_symbol(car(c)) == "+"){
 	//temporary sums variables
 	double double_sum = 0;
 	int int_sum = 0;
@@ -77,14 +76,20 @@ Cell* eval(Cell* const c)
 	}
 	
 	return new Cell(sum_is_double ? double_sum : int_sum);
-	break;
-      case "ceiling":
+      } else if (get_symbol(car(c)) == "ceiling") {
 	//current working cell
 	Cell* current_cell = cdr(c);
 	//take the ceiling and return
-	return new Cell(ceiling(eval(car(current_cell))));
-	break;
-      case "if":
+	Cell* returned_value = eval(car(current_cell));
+	if (intp(returned_value)){
+	  return returned_value;
+	} else {
+	  int ceilinged_value = int(get_double(returned_value));
+	  if (ceilinged_value < get_double(returned_value)) ++ceilinged_value;
+	  return new Cell(ceilinged_value);
+	}
+      } else if (get_symbol(car(c)) == "if") {
+
 	//temporary Cell pointers;
 	Cell* condition = cdr(c);
 	Cell* if_true = cdr(condition);
@@ -93,11 +98,18 @@ Cell* eval(Cell* const c)
 	if (nullp(if_false)) {
 	  return eval(car(if_true));
 	} else {
-	  return eval(car(condition)) ? eval(car(if_true)) : eval(car(if_false));
+	  Cell* value_cell = eval(car(condition));
+	  if (intp(value_cell)){
+	    return get_int(value_cell) ? eval(car(if_true)) : eval(car(if_false));
+	  } else if (doublep(value_cell)) {
+	    return get_double(value_cell) ? eval(car(if_true)) : eval(car(if_false));
+	  } else if (symbolp(value_cell)) {
+	    return get_symbol(value_cell)!="" ? eval(car(if_true)) : eval(car(if_false));
+	  } else {
+	    error_handler();
+	  }
 	}
-	  
-	break;
-      default:
+      } else {
 	error_handler();
       }
     } else {

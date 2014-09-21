@@ -254,10 +254,10 @@ Cell* parse(string sexpr)
 //     return nil;
 //   }
   if (sexpr.length() == 0) {
-    return nil;
+    return (Cell*)nil;
   }
   if ( !is_legalexpr(sexpr)) {
-    return nil;
+    return (Cell*)nil;
   }
   // check whether is single symbol
   // i.e. leaf cell
@@ -362,7 +362,7 @@ Cell* separate_parse(string& instr)
 	      Cell* cdr;
 	      Cell* root;
 	      if (length <= 0) {
-		cdr = nil;
+		cdr = (Cell*)nil;
 	      } else {
 		cdr = parse("(" + instr + ")");       
 	      }
@@ -376,5 +376,5 @@ Cell* separate_parse(string& instr)
     }
   }
 
-  return nil;
+  return (Cell*)nil;
 }
