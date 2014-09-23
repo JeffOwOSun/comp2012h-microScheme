@@ -31,34 +31,33 @@
 #include <string>
 #include <stack>
 
+
 /**
  * \class Cell
  * \brief Class Cell
  */
-
-
 class Cell {
 public:
 
   /**
    * \brief Constructor to make int cell.
    */
-  Cell(int i);
+  Cell(const int i);
 
   /**
    * \brief Constructor to make double cell.
    */
-  Cell(double d);
+  Cell(const double d);
 
   /**
    * \brief Constructor to make symbol cell.
    */
-  Cell(const char* s);
+  Cell(const char* const s);
 
   /**
    * \brief Constructor to make cons cell.
    */
-  Cell(const Cell* my_car, const Cell* my_cdr);
+  Cell(Cell* const my_car, Cell* const my_cdr);
 
   /**
    * \brief Check if this is an int cell.
@@ -149,6 +148,6 @@ private:
 // Reminder: cons.hpp expects nil to be defined somewhere (for this
 // implementation, Cell.cpp is the logical place to define it).
 // Here we promise this again, just to be safe.
-extern const Cell* nil;
+extern Cell* const nil;
 
 #endif // CELL_HPP

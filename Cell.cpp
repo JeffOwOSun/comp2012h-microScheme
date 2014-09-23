@@ -16,25 +16,25 @@
 #include "Cell.hpp"
 // Reminder: cons.hpp expects nil to be defined somewhere.  For this
 // implementation, this is the logical place to define it.
-const Cell* nil = new Cell(0);
+Cell* const nil = 0;
 
 using namespace std;
 
-Cell::Cell(int i) 
+Cell::Cell(const int i) 
 {
   tag_m = type_int;
   int_m = i;
   return;
 }
 
-Cell::Cell(double d)
+Cell::Cell(const double d)
 {
   tag_m = type_double;
   double_m = d;
   return;
 }
 
-Cell::Cell(const char* s)
+Cell::Cell(const char* const s)
 {
   tag_m = type_symbol;
   symbol_m = new char[strlen(s)+1];
@@ -42,7 +42,7 @@ Cell::Cell(const char* s)
   return;
 }
 
-Cell::Cell(const Cell* my_car, const Cell* my_cdr)
+Cell::Cell(Cell* const my_car, Cell* const my_cdr)
 {
   tag_m = type_conspair;
   conspair_m.car_m = (Cell*) my_car;

@@ -16,13 +16,13 @@
 /**
  * \brief The null pointer value.
  */
-extern const Cell* nil;
+extern Cell* const nil;
 
 /**
  * \brief Make an int cell.
  * \param i The initial int value to be stored in the new cell.
  */
-inline Cell* make_int(int i)
+inline Cell* make_int(const int i)
 {
   return new Cell(i);
 }
@@ -31,7 +31,7 @@ inline Cell* make_int(int i)
  * \brief Make a double cell.
  * \param d The initial double value to be stored in the new cell.
  */
-inline Cell* make_double(double d)
+inline Cell* make_double(const double d)
 {
   return new Cell(d);
 }
@@ -40,7 +40,7 @@ inline Cell* make_double(double d)
  * \brief Make a symbol cell.
  * \param s The initial symbol name to be stored in the new cell.
  */
-inline Cell* make_symbol(const char* s)
+inline Cell* make_symbol(const char* const s)
 {
   return new Cell(s);
 }
@@ -50,7 +50,7 @@ inline Cell* make_symbol(const char* s)
  * \param my_car The initial car pointer to be stored in the new cell.
  * \param my_cdr The initial cdr pointer to be stored in the new cell.
  */
-inline Cell* cons(const Cell* my_car, const Cell* my_cdr)
+inline Cell* cons(Cell* const my_car, Cell* const my_cdr)
 {
   return new Cell(my_car, my_cdr);
 }
@@ -59,7 +59,7 @@ inline Cell* cons(const Cell* my_car, const Cell* my_cdr)
  * \brief Check if c points to an empty list, i.e., is a null pointer.
  * \return True iff c points to an empty list, i.e., is a null pointer.
  */
-inline bool nullp(const Cell* c)
+inline bool nullp(Cell* const c)
 {
   return (c == nil);
 }
@@ -68,7 +68,7 @@ inline bool nullp(const Cell* c)
  * \brief Check if c points to a list (i.e., nil or a cons cell).
  * \return True iff c points to a list (i.e., nil or a cons cell).
  */
-inline bool listp(const Cell* c)
+inline bool listp(Cell* const c)
 {
   return nullp(c) || c->is_cons();
 }
@@ -77,7 +77,7 @@ inline bool listp(const Cell* c)
  * \brief Check if c points to an int cell.
  * \return True iff c points to an int cell.
  */
-inline bool intp(const Cell* c)
+inline bool intp(Cell* const c)
 {
   return !nullp(c) && c->is_int();
 }
@@ -86,7 +86,7 @@ inline bool intp(const Cell* c)
  * \brief Check if c points to a double cell.
  * \return True iff c points to a double cell.
  */
-inline bool doublep(const Cell* c)
+inline bool doublep(Cell* const c)
 {
   return !nullp(c) && c->is_double();
 }
@@ -95,7 +95,7 @@ inline bool doublep(const Cell* c)
  * \brief Check if c points to a symbol cell.
  * \return True iff c points to a symbol cell.
  */
-inline bool symbolp(const Cell* c)
+inline bool symbolp(Cell* const c)
 {
   return !nullp(c) && c->is_symbol();
 }
@@ -104,7 +104,7 @@ inline bool symbolp(const Cell* c)
  * \brief Accessor (error if c is not an int cell).
  * \return The value in the int cell pointed to by c.
  */
-inline int get_int(const Cell* c)
+inline int get_int(Cell* const c)
 {
   return c->get_int();
 }
@@ -113,7 +113,7 @@ inline int get_int(const Cell* c)
  * \brief Accessor (error if c is not a double cell).
  * \return The value in the double cell pointed to by c.
  */
-inline double get_double(const Cell* c)
+inline double get_double(Cell* const c)
 {
   return c->get_double();
 }
@@ -123,7 +123,7 @@ inline double get_double(const Cell* c)
  * symbol cell).
  * \return The symbol name in the symbol cell pointed to by c.
  */
-inline std::string get_symbol(const Cell* c)
+inline std::string get_symbol(Cell* const c)
 {
   return c->get_symbol();
 }
@@ -132,7 +132,7 @@ inline std::string get_symbol(const Cell* c)
  * \brief Accessor (error if c is not a cons cell).
  * \return The car pointer in the cons cell pointed to by c.
  */
-inline Cell* car(const Cell* c)
+inline Cell* car(Cell* const c)
 {
   return c->get_car();
 }
@@ -141,7 +141,7 @@ inline Cell* car(const Cell* c)
  * \brief Accessor (error if c is not a string cell).
  * \return The cdr pointer in the cons cell pointed to by c.
  */
-inline Cell* cdr(const Cell* c)
+inline Cell* cdr(Cell* const c)
 {
   return c->get_cdr();
 }
