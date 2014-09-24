@@ -26,10 +26,14 @@ Cell* eval(Cell* const c)
   
   if (listp(c)) {
     //get car of c
+    //using eval will automatically evaluate the subtree, if car(c) is itself a conspair
+    Cell* car_value = eval(car(c));
+    
     //if car is a symbol cell (it must, otherwise the eval() begins at wrong place)
-    if (symbolp(car(c))){
+    if (symbolp(car_value)){
       //get the symbol
-      if (get_symbol(car(c)) == "+"){
+      //case 1: +
+      if (get_symbol(car_value) == "+"){
 	//temporary sums variables
 	double double_sum = 0;
 	int int_sum = 0;
@@ -76,7 +80,9 @@ Cell* eval(Cell* const c)
 	}
 	
 	return new Cell(sum_is_double ? double_sum : int_sum);
-      } else if (get_symbol(car(c)) == "ceiling") {
+      }
+      //case 2: ceiling
+      else if (get_symbol(car_value) == "ceiling") {
 	//current working cell
 	Cell* current_cell = cdr(c);
 	//take the ceiling and return
@@ -88,7 +94,9 @@ Cell* eval(Cell* const c)
 	  if (ceilinged_value < get_double(returned_value)) ++ceilinged_value;
 	  return new Cell(ceilinged_value);
 	}
-      } else if (get_symbol(car(c)) == "if") {
+      }
+      //case 3: if
+      else if (get_symbol(car_value) == "if") {
 
 	//temporary Cell pointers;
 	Cell* condition = cdr(c);
@@ -110,11 +118,11 @@ Cell* eval(Cell* const c)
 	  }
 	}
       } else {
-	error_handler();
+	error_handler("operator not one of +, ceiling or if");
       }
     } else {
-      //car is not a symbol cell
-      error_handler();
+      //value_car is not a symbol cell
+      error_handler("s-expression invalid");
     }
   }
 }
