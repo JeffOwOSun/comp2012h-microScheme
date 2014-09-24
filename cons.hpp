@@ -157,4 +157,14 @@ inline std::ostream& operator<<(std::ostream& os, const Cell& c)
   return os;
 }
 
+/**
+ * \brief Custom function that does deep copy of Cell objects
+ * \param source Pointer to the source Cell object
+ * \return Pointer to the copy
+ */
+inline Cell* deep_copy(Cell* source)
+{
+  return source->copy();
+}
+
 #endif // CONS_HPP

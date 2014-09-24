@@ -10,6 +10,7 @@
  *
  * Instructor: <a href="http://www.cs.ust.hk/~dekai/">Dekai Wu</a>
  * Due: 2014.09.26 at 23:00 by CASS
+ * I defined an error handler helper function, and a deep copy helper function
  */
 
 /**
@@ -30,6 +31,9 @@
 #include <sstream>
 #include <string>
 #include <stack>
+
+//my own error handler :-)
+#include "error.hpp"
 
 
 /**
@@ -124,6 +128,12 @@ public:
    * \return The string value
    */
   std::string to_string() const;
+
+  /**
+   * \brief Create a deep copy of the current object
+   * \return Pointer to the copy
+   */
+  Cell* copy() const;
   
 
 private:

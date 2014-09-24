@@ -16,7 +16,7 @@
 #include "Cell.hpp"
 // Reminder: cons.hpp expects nil to be defined somewhere.  For this
 // implementation, this is the logical place to define it.
-Cell* const nil = 0;
+Cell* const nil = new Cell(0);
 
 using namespace std;
 
@@ -122,41 +122,34 @@ Cell* Cell::get_cdr() const
 
 void Cell::print(ostream& os) const
 {
-  
-  if (is_int()){
-    os << get_int();
-    return;
-  }
-
-  if (is_double()){
-    os << fixed <<setprecision(6) << get_double();
-    return;
-  }
-
-  if (is_symbol()){
-    os << get_symbol();
-    return;
+  if (this == nil) {
+    error_handler("Trying to print nil!");
   }
   
-  os << "(";
+  if (is_int() || is_double() || is_symbol()) {
+    os << to_string();
+  } else if (is_cons()) {
+    os << "(";
+    const Cell* current_cell = this;
 
-  //THIS is supposed to be the root of a tree
-  const Cell* current_cell = this;
+    while (current_cell!=nil){
+      //get car
+      //if car is conspair, call print on the subtree
+      if (current_cell->get_car()->is_cons()){
+	current_cell->get_car()->print(os);
+      } else{
+	//else get the value and output it
+	os << current_cell->get_car()->to_string();
+      }
+      //loop to the cdr
+      current_cell = current_cell->get_cdr();
 
-  while (current_cell!=nil){
-  //get car
-  //if car is conspair, call print on the subtree
-    if (current_cell->get_car()->is_cons()){
-      current_cell->get_car()->print(os);
-    } else{
-      //else get the value and output it
-      os << current_cell->to_string();
+      if (current_cell != nil) {
+	os << " ";
+      }
     }
-  //loop to the cdr
-    current_cell = current_cell->get_cdr();
+    os << ")";
   }
-  os << ")";
-  return;
 }
 
 string Cell::to_string() const
@@ -167,8 +160,24 @@ string Cell::to_string() const
   } else if (is_double()) {
     ss << fixed << setprecision(6) << get_double();
   } else if (is_symbol()) {
-    return get_symbol();
-  } else return "";
-
+    ss << get_symbol();
+  } else ss << "";
   return ss.str();
+}
+
+Cell* Cell::copy() const
+{
+  if (this == nil) {
+    return nil;
+  }
+  
+  if (is_int()) {
+    return new Cell(get_int());
+  } else if (is_double()) {
+    return new Cell(get_double());
+  } else if (is_symbol()) {
+    return new Cell(symbol_m);
+  } else if (is_cons()) {
+    return new Cell(get_car(), get_cdr());
+  }
 }

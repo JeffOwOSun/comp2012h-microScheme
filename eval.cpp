@@ -7,7 +7,6 @@
  */
 
 #include "eval.hpp"
-#include "error.hpp"
 
 /**
  * \brief The evaluation function that calculates the parsed s-expression tree
@@ -21,7 +20,7 @@ Cell* eval(Cell* const c)
   }
 
   if (intp(c) || doublep(c) || symbolp(c)){
-    return c;
+    return deep_copy(c);
   }
   
   if (listp(c)) {
@@ -47,7 +46,7 @@ Cell* eval(Cell* const c)
 
 	  //current_cell is not nil, and it should be a conspair
 	  if (!listp(current_cell)) {
-	    error_handler();
+	    error_handler("cdr must be nil or conspair");
 	  }
 
 	  //pointer to the cell that contains the value to be added
@@ -61,8 +60,8 @@ Cell* eval(Cell* const c)
 	    } else {
 	      int_sum += get_int(value_cell);
 	    }
-	  } else {
-	    //if value_cell is not an int cell
+	  } else if (doublep(value_cell)) {
+	    //if value_cell is not a double cell
 	    if (sum_is_double) {
 	      double_sum += get_double(value_cell);
 	    } else {
@@ -73,13 +72,15 @@ Cell* eval(Cell* const c)
 	      
 	      double_sum += get_double(value_cell);
 	    }
+	  } else {
+	    error_handler("s-expression invalid");
 	  }
-
+	  delete value_cell;
 	  //move current_cell forward;
 	  current_cell = cdr(current_cell);
 	}
 	
-	return new Cell(sum_is_double ? double_sum : int_sum);
+	return sum_is_double ? make_double(double_sum) : make_int(int_sum);
       }
       //case 2: ceiling
       else if (get_symbol(car_value) == "ceiling") {
@@ -92,7 +93,8 @@ Cell* eval(Cell* const c)
 	} else {
 	  int ceilinged_value = int(get_double(returned_value));
 	  if (ceilinged_value < get_double(returned_value)) ++ceilinged_value;
-	  return new Cell(ceilinged_value);
+	  delete returned_value;
+	  return make_int(ceilinged_value);
 	}
       }
       //case 3: if
@@ -103,26 +105,38 @@ Cell* eval(Cell* const c)
 	Cell* if_true = cdr(condition);
 	Cell* if_false = cdr(if_true);
 
+	//directly return the second parameter if the third doesn't exist
 	if (nullp(if_false)) {
 	  return eval(car(if_true));
 	} else {
-	  Cell* value_cell = eval(car(condition));
-	  if (intp(value_cell)){
-	    return get_int(value_cell) ? eval(car(if_true)) : eval(car(if_false));
-	  } else if (doublep(value_cell)) {
-	    return get_double(value_cell) ? eval(car(if_true)) : eval(car(if_false));
-	  } else if (symbolp(value_cell)) {
-	    return get_symbol(value_cell)!="" ? eval(car(if_true)) : eval(car(if_false));
+	  Cell* condition_cell = eval(car(condition));
+	  bool flag = false;
+	  
+	  //retrieve values according to their types
+	  if (intp(condition_cell)){
+	    flag = get_int(condition_cell) ? true : false;
+	  } else if (doublep(condition_cell)) {
+	    flag = get_double(condition_cell) ? true : false;
+	  } else if (symbolp(condition_cell)) {
+	    flag = get_symbol(condition_cell)!="" ? true : false;
 	  } else {
-	    error_handler();
+	    error_handler("s-expression invalid: parameter invalid to if");
+	  }
+
+	  delete(condition_cell);
+	  
+	  if (flag) {
+	    return eval(car(if_true));
+	  } else {
+	    return eval(car(if_false));
 	  }
 	}
       } else {
-	error_handler("operator not one of +, ceiling or if");
+	error_handler("s-expression invalid: operator not one of +, ceiling or if");
       }
     } else {
       //value_car is not a symbol cell
-      error_handler("s-expression invalid");
+      error_handler("s-expression invalid: the first element of the tree/subtree is not a proper operator");
     }
   }
 }
