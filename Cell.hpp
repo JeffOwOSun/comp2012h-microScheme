@@ -1,12 +1,12 @@
 /**
  * \mainpage COMP2012H Programming Assignment 1, Fall 2014
  *
- * \author **Put your name here**
- * \author **Your studentID**
- * \author **Your email**
- * \author **Your lab session**
+ * \author SUN Yushi
+ * \author 20176087
+ * \author jeffsun@jowos.moe
+ * \author LA1
  *
- * \date **Fill in the date**
+ * \date Sept. 24 2014
  *
  * Instructor: <a href="http://www.cs.ust.hk/~dekai/">Dekai Wu</a>
  * Due: 2014.09.26 at 23:00 by CASS
