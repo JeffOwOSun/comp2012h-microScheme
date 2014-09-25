@@ -35,6 +35,16 @@
 //my own error handler :-)
 #include "error.hpp"
 
+class Cell;
+
+/**
+ * \struct ConsPair
+ * \brief contains one car pointer one cdr pointer
+ */
+struct ConsPair {
+  Cell* car_m;
+  Cell* cdr_m;
+};
 
 /**
  * \class Cell
@@ -62,6 +72,11 @@ public:
    * \brief Constructor to make cons cell.
    */
   Cell(Cell* const my_car, Cell* const my_cdr);
+
+  /**
+   * \brief Copy constructor
+   */
+  Cell(const Cell& c);
 
   /**
    * \brief Check if this is an int cell.
@@ -134,19 +149,16 @@ public:
    * \return Pointer to the copy
    */
   Cell* copy() const;
-  
+
+  /**
+   * \brief Destructor
+   */
+  ~Cell();
 
 private:
   enum TypeTag {type_int, type_double, type_symbol, type_conspair};
   TypeTag tag_m;
-  /**
-   * \struct ConsPair
-   * \brief struct ConsPair
-   */
-  struct ConsPair {
-    Cell* car_m;
-    Cell* cdr_m;
-  };
+  
   union {
     int int_m;
     double double_m; 
