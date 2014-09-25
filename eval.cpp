@@ -33,6 +33,10 @@ Cell* eval(Cell* const c)
       //get the symbol
       //case 1: +
       if (get_symbol(car_value) == "+"){
+	
+	//delete car_value as it's not needed any more
+	delete car_value;
+
 	//temporary sums variables
 	double double_sum = 0;
 	int int_sum = 0;
@@ -73,9 +77,10 @@ Cell* eval(Cell* const c)
 	      double_sum += get_double(value_cell);
 	    }
 	  } else {
-	    error_handler("s-expression invalid");
+	    if (!nullp(value_cell)) delete value_cell;
+	    error_handler("s-expression invalid: + operands invalid");
 	  }
-	  delete value_cell;
+	  if (!nullp(value_cell)) delete value_cell;
 	  //move current_cell forward;
 	  current_cell = cdr(current_cell);
 	}
@@ -84,26 +89,36 @@ Cell* eval(Cell* const c)
       }
       //case 2: ceiling
       else if (get_symbol(car_value) == "ceiling") {
+	//delete car_value as it's no longer needed
+	delete car_value;
+
 	//current working cell
 	Cell* current_cell = cdr(c);
 	//take the ceiling and return
 	Cell* returned_value = eval(car(current_cell));
 	if (intp(returned_value)){
 	  return returned_value;
-	} else {
+	} else if (doublep(returned_value)){
 	  int ceilinged_value = int(get_double(returned_value));
 	  if (ceilinged_value < get_double(returned_value)) ++ceilinged_value;
 	  delete returned_value;
 	  return make_int(ceilinged_value);
+	} else {
+	  if(!nullp(returned_value)) delete returned_value;
+	  error_handler("trying to apply ceiling to a symbol cell!");
 	}
       }
       //case 3: if
       else if (get_symbol(car_value) == "if") {
-
+	//delete car_value as it's no longer needed
+	delete car_value;
+	
 	//temporary Cell pointers;
 	Cell* condition = cdr(c);
+	if (!listp(condition)) error_handler("s-expression invalid: condition is not a conspair");
 	Cell* if_true = cdr(condition);
-	Cell* if_false = cdr(if_true);
+	if (!listp(if_true)) error_handler("s-expression invalid: the true return value is not a cospair");
+	Cell* if_false = cdr(if_true); 
 
 	//directly return the second parameter if the third doesn't exist
 	if (nullp(if_false)) {
@@ -120,21 +135,24 @@ Cell* eval(Cell* const c)
 	  } else if (symbolp(condition_cell)) {
 	    flag = get_symbol(condition_cell)!="" ? true : false;
 	  } else {
+	    if(!nullp(car_value)) delete condition_cell;
 	    error_handler("s-expression invalid: parameter invalid to if");
 	  }
 
-	  delete(condition_cell);
+	  if(!nullp(car_value)) delete condition_cell;
 	  
-	  if (flag) {
-	    return eval(car(if_true));
-	  } else {
-	    return eval(car(if_false));
-	  }
+	  return flag ? eval(car(if_true)) : eval(car(if_false));
 	}
       } else {
+	//delete car_value as it's no longer needed
+	delete car_value;
+	
 	error_handler("s-expression invalid: operator not one of +, ceiling or if");
       }
     } else {
+      //delete car_value as it's no longer needed
+      if(!nullp(car_value)) delete car_value;
+	
       //value_car is not a symbol cell
       error_handler("s-expression invalid: the first element of the tree/subtree is not a proper operator");
     }

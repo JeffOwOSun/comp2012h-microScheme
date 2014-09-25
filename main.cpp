@@ -25,10 +25,9 @@ void parse_eval_print(string sexpr)
     cout << "()" << endl;
   } else {
     cout << *result << endl;
-    cout << *root << endl;
-    delete result;  
+    //cout << *root << endl;
+    delete result; 
   }
-  
 }
 
 /**

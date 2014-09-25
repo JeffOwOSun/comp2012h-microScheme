@@ -162,9 +162,9 @@ inline std::ostream& operator<<(std::ostream& os, const Cell& c)
  * \param source Pointer to the source Cell object
  * \return Pointer to the copy
  */
-inline Cell* deep_copy(Cell* source)
+inline Cell* deep_copy(const Cell* source)
 {
-  return source->copy();
+  return new Cell(*source);
 }
 
 #endif // CONS_HPP

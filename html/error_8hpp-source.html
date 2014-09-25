@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
-<title>a1: eval.hpp Source File</title>
+<title>a1: error.hpp Source File</title>
 <link href="doxygen.css" rel="stylesheet" type="text/css">
 <link href="tabs.css" rel="stylesheet" type="text/css">
 </head><body>
@@ -17,17 +17,11 @@
     <li><a href="files.html"><span>File&nbsp;List</span></a></li>
     <li><a href="globals.html"><span>File&nbsp;Members</span></a></li>
   </ul></div>
-<h1>eval.hpp</h1><a href="eval_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
-<a name="l00007"></a>00007 <span class="preprocessor">#ifndef EVAL_HPP</span>
-<a name="l00008"></a>00008 <span class="preprocessor"></span><span class="preprocessor">#define EVAL_HPP</span>
-<a name="l00009"></a>00009 <span class="preprocessor"></span>
-<a name="l00010"></a>00010 <span class="preprocessor">#include "<a class="code" href="cons_8hpp.html">cons.hpp</a>"</span>
-<a name="l00011"></a>00011 
-<a name="l00012"></a>00012 <span class="keyword">using namespace </span>std;
-<a name="l00013"></a>00013 
-<a name="l00020"></a>00020 <a class="code" href="classCell.html">Cell</a>* <a class="code" href="eval_8cpp.html#6e55b5c1dddfa3a8b0885d50cdaec560">eval</a>(<a class="code" href="classCell.html">Cell</a>* <span class="keyword">const</span> c);
-<a name="l00021"></a>00021 
-<a name="l00022"></a>00022 <span class="preprocessor">#endif // EVAL_HPP</span>
+<h1>error.hpp</h1><a href="error_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
+<a name="l00006"></a><a class="code" href="error_8hpp.html#d05bad2dd13ddcb5ac54a209a7c11bf9">00006</a> <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="error_8hpp.html#d05bad2dd13ddcb5ac54a209a7c11bf9">error_handler</a>(std::string err_msg=<span class="stringliteral">"ERROR"</span>){
+<a name="l00007"></a>00007   std::cerr &lt;&lt; err_msg &lt;&lt; std::endl;
+<a name="l00008"></a>00008   exit(1);
+<a name="l00009"></a>00009 }
 </pre></div><hr size="1"><address style="align: right;"><small>Generated on 26 Sep 2014 for a1 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
