@@ -16,7 +16,7 @@
 Cell* eval(Cell* const c)
 {
   if (nullp(c)) {
-    return c;
+    error_handler("s-expression invalid: root of tree is nil");
   }
 
   if (intp(c) || doublep(c) || symbolp(c)){
@@ -94,6 +94,9 @@ Cell* eval(Cell* const c)
 
 	//current working cell
 	Cell* current_cell = cdr(c);
+
+	if (!nullp(cdr(current_cell))) error_handler("s-expression invalid: ceiling on more than one operands");
+	
 	//take the ceiling and return
 	Cell* returned_value = eval(car(current_cell));
 	if (intp(returned_value)){
@@ -115,15 +118,17 @@ Cell* eval(Cell* const c)
 	
 	//temporary Cell pointers;
 	Cell* condition = cdr(c);
-	if (!listp(condition)) error_handler("s-expression invalid: condition is not a conspair");
+	if (nullp(condition) || !listp(condition)) error_handler("s-expression invalid: condition is not a conspair");
 	Cell* if_true = cdr(condition);
-	if (!listp(if_true)) error_handler("s-expression invalid: the true return value is not a cospair");
+	if (nullp(if_true) || !listp(if_true)) error_handler("s-expression invalid: the true return value is not a cospair");
 	Cell* if_false = cdr(if_true); 
 
 	//directly return the second parameter if the third doesn't exist
 	if (nullp(if_false)) {
 	  return eval(car(if_true));
 	} else {
+	  if (!nullp(cdr(if_false))) error_handler("s-expression invalid: if operator on more than three operands");
+	  
 	  Cell* condition_cell = eval(car(condition));
 	  bool flag = false;
 	  
@@ -136,7 +141,7 @@ Cell* eval(Cell* const c)
 	    flag = get_symbol(condition_cell)!="" ? true : false;
 	  } else {
 	    if(!nullp(car_value)) delete condition_cell;
-	    error_handler("s-expression invalid: parameter invalid to if");
+	    error_handler("s-expression invalid: condition operand invalid to if");
 	  }
 
 	  if(!nullp(car_value)) delete condition_cell;

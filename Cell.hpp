@@ -139,11 +139,10 @@ public:
   void print(std::ostream& os = std::cout) const;
   
   /**
-   * \brief Get the value and print it to string;
+   * \brief Convert a value cell to string.
    * \return The string value
    */
   std::string to_string() const;
-
 
   /**
    * \brief Destructor

@@ -75,27 +75,26 @@
 <a name="l00140"></a>00140   
 <a name="l00145"></a>00145   std::string <a class="code" href="classCell.html#07fffa139d78f90330cff5d2dec873a0">to_string</a>() <span class="keyword">const</span>;
 <a name="l00146"></a>00146 
-<a name="l00147"></a>00147 
-<a name="l00151"></a>00151   <a class="code" href="classCell.html#9fa559f7a28e2b4336c6879ca09304d8">~Cell</a>();
-<a name="l00152"></a>00152 
-<a name="l00153"></a>00153 <span class="keyword">private</span>:
-<a name="l00154"></a><a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e4">00154</a>   <span class="keyword">enum</span> <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e4">TypeTag</a> {<a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e414fe08fc0d11dfa96dfc91f6db417ce0">type_int</a>, <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e434267f6968c55441dd86ba44e785d6fa">type_double</a>, <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e47f33f00fc32b18aade2bf26b8480a8f6">type_symbol</a>, <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e4e727a287234d7c37c21f8f1590f0e369">type_conspair</a>};
-<a name="l00155"></a><a class="code" href="classCell.html#84940c56fa8164ea6831f166cd53b730">00155</a>   <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e4">TypeTag</a> <a class="code" href="classCell.html#84940c56fa8164ea6831f166cd53b730">tag_m</a>;
-<a name="l00156"></a>00156   
-<a name="l00157"></a>00157   <span class="keyword">union </span>{
-<a name="l00158"></a><a class="code" href="classCell.html#d1170a90214e462e149103270528c720">00158</a>     <span class="keywordtype">int</span> <a class="code" href="classCell.html#d1170a90214e462e149103270528c720">int_m</a>;
-<a name="l00159"></a><a class="code" href="classCell.html#8457c6c5948b3ae8b12fe3d854dfe273">00159</a>     <span class="keywordtype">double</span> <a class="code" href="classCell.html#8457c6c5948b3ae8b12fe3d854dfe273">double_m</a>; 
-<a name="l00160"></a><a class="code" href="classCell.html#0d419d263a2010b444a05f779eb9c683">00160</a>     <span class="keywordtype">char</span>* <a class="code" href="classCell.html#0d419d263a2010b444a05f779eb9c683">symbol_m</a>;
-<a name="l00161"></a><a class="code" href="classCell.html#cee1858ea1803bf0835621c552bee8a5">00161</a>     <a class="code" href="structConsPair.html">ConsPair</a> <a class="code" href="classCell.html#cee1858ea1803bf0835621c552bee8a5">conspair_m</a>;
-<a name="l00162"></a>00162   };
-<a name="l00163"></a>00163 };
-<a name="l00164"></a>00164 
-<a name="l00165"></a>00165 <span class="comment">// Reminder: cons.hpp expects nil to be defined somewhere (for this</span>
-<a name="l00166"></a>00166 <span class="comment">// implementation, Cell.cpp is the logical place to define it).</span>
-<a name="l00167"></a>00167 <span class="comment">// Here we promise this again, just to be safe.</span>
-<a name="l00168"></a>00168 <span class="keyword">extern</span> <a class="code" href="classCell.html">Cell</a>* <span class="keyword">const</span> <a class="code" href="Cell_8cpp.html#6ba6bd894298c71842e8da5c85bf8bfc">nil</a>;
-<a name="l00169"></a>00169 
-<a name="l00170"></a>00170 <span class="preprocessor">#endif // CELL_HPP</span>
+<a name="l00150"></a>00150   <a class="code" href="classCell.html#9fa559f7a28e2b4336c6879ca09304d8">~Cell</a>();
+<a name="l00151"></a>00151 
+<a name="l00152"></a>00152 <span class="keyword">private</span>:
+<a name="l00153"></a><a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e4">00153</a>   <span class="keyword">enum</span> <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e4">TypeTag</a> {<a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e414fe08fc0d11dfa96dfc91f6db417ce0">type_int</a>, <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e434267f6968c55441dd86ba44e785d6fa">type_double</a>, <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e47f33f00fc32b18aade2bf26b8480a8f6">type_symbol</a>, <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e4e727a287234d7c37c21f8f1590f0e369">type_conspair</a>};
+<a name="l00154"></a><a class="code" href="classCell.html#84940c56fa8164ea6831f166cd53b730">00154</a>   <a class="code" href="classCell.html#a57f4fa295209208253fbbd01ace57e4">TypeTag</a> <a class="code" href="classCell.html#84940c56fa8164ea6831f166cd53b730">tag_m</a>;
+<a name="l00155"></a>00155   
+<a name="l00156"></a>00156   <span class="keyword">union </span>{
+<a name="l00157"></a><a class="code" href="classCell.html#d1170a90214e462e149103270528c720">00157</a>     <span class="keywordtype">int</span> <a class="code" href="classCell.html#d1170a90214e462e149103270528c720">int_m</a>;
+<a name="l00158"></a><a class="code" href="classCell.html#8457c6c5948b3ae8b12fe3d854dfe273">00158</a>     <span class="keywordtype">double</span> <a class="code" href="classCell.html#8457c6c5948b3ae8b12fe3d854dfe273">double_m</a>; 
+<a name="l00159"></a><a class="code" href="classCell.html#0d419d263a2010b444a05f779eb9c683">00159</a>     <span class="keywordtype">char</span>* <a class="code" href="classCell.html#0d419d263a2010b444a05f779eb9c683">symbol_m</a>;
+<a name="l00160"></a><a class="code" href="classCell.html#cee1858ea1803bf0835621c552bee8a5">00160</a>     <a class="code" href="structConsPair.html">ConsPair</a> <a class="code" href="classCell.html#cee1858ea1803bf0835621c552bee8a5">conspair_m</a>;
+<a name="l00161"></a>00161   };
+<a name="l00162"></a>00162 };
+<a name="l00163"></a>00163 
+<a name="l00164"></a>00164 <span class="comment">// Reminder: cons.hpp expects nil to be defined somewhere (for this</span>
+<a name="l00165"></a>00165 <span class="comment">// implementation, Cell.cpp is the logical place to define it).</span>
+<a name="l00166"></a>00166 <span class="comment">// Here we promise this again, just to be safe.</span>
+<a name="l00167"></a>00167 <span class="keyword">extern</span> <a class="code" href="classCell.html">Cell</a>* <span class="keyword">const</span> <a class="code" href="Cell_8cpp.html#6ba6bd894298c71842e8da5c85bf8bfc">nil</a>;
+<a name="l00168"></a>00168 
+<a name="l00169"></a>00169 <span class="preprocessor">#endif // CELL_HPP</span>
 </pre></div><hr size="1"><address style="align: right;"><small>Generated on 26 Sep 2014 for a1 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
