@@ -95,12 +95,15 @@ Cell* eval(Cell* const c)
 	//current working cell
 	Cell* current_cell = cdr(c);
 
+	if (nullp(current_cell) || !listp(current_cell)) error_handler("s-expression invalid: invalid ceiling operand!");
+
 	if (!nullp(cdr(current_cell))) error_handler("s-expression invalid: ceiling on more than one operands");
 	
 	//take the ceiling and return
 	Cell* returned_value = eval(car(current_cell));
 	if (intp(returned_value)){
-	  return returned_value;
+	  delete returned_value;
+	  error_handler("s-expression invalid: ceiling on integer!");
 	} else if (doublep(returned_value)){
 	  int ceilinged_value = int(get_double(returned_value));
 	  if (ceilinged_value < get_double(returned_value)) ++ceilinged_value;
@@ -108,7 +111,7 @@ Cell* eval(Cell* const c)
 	  return make_int(ceilinged_value);
 	} else {
 	  if(!nullp(returned_value)) delete returned_value;
-	  error_handler("trying to apply ceiling to a symbol cell!");
+	  error_handler("s-expression invalid: ceiling on symbol!");
 	}
       }
       //case 3: if
