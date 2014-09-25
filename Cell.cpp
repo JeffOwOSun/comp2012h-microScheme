@@ -155,23 +155,6 @@ string Cell::to_string() const
   return ss.str();
 }
 
-Cell* Cell::copy() const
-{
-  if (this == nil) {
-    return nil;
-  }
-  
-  if (is_int()) {
-    return new Cell(get_int());
-  } else if (is_double()) {
-    return new Cell(get_double());
-  } else if (is_symbol()) {
-    return new Cell(symbol_m);
-  } else if (is_cons()) {
-    return new Cell(get_car(), get_cdr());
-  }
-}
-
 Cell::Cell(const Cell& c)
 {
   if (&c == nil) error_handler("trying to deep copy a nil Cell!");

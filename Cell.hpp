@@ -144,11 +144,6 @@ public:
    */
   std::string to_string() const;
 
-  /**
-   * \brief Create a deep copy of the current object
-   * \return Pointer to the copy
-   */
-  Cell* copy() const;
 
   /**
    * \brief Destructor
