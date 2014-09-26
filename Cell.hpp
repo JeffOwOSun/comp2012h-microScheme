@@ -10,7 +10,9 @@
  *
  * Instructor: <a href="http://www.cs.ust.hk/~dekai/">Dekai Wu</a>
  * Due: 2014.09.26 at 23:00 by CASS
- * I defined an error handler helper function, and a deep copy helper function
+ * <p><strong style="color:red">
+ *   Remarks: I defined an error handler helper function, implemented a copy constructor and realized proper destruction.
+ * </strong></p>
  */
 
 /**
