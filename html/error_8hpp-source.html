@@ -18,10 +18,14 @@
     <li><a href="globals.html"><span>File&nbsp;Members</span></a></li>
   </ul></div>
 <h1>error.hpp</h1><a href="error_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><pre class="fragment"><a name="l00001"></a>00001 
-<a name="l00006"></a><a class="code" href="error_8hpp.html#d05bad2dd13ddcb5ac54a209a7c11bf9">00006</a> <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="error_8hpp.html#d05bad2dd13ddcb5ac54a209a7c11bf9">error_handler</a>(std::string err_msg=<span class="stringliteral">"ERROR"</span>){
-<a name="l00007"></a>00007   std::cerr &lt;&lt; err_msg &lt;&lt; std::endl;
-<a name="l00008"></a>00008   exit(1);
-<a name="l00009"></a>00009 }
+<a name="l00006"></a><a class="code" href="error_8hpp.html#888a2784e390a7dc6b6135e8bab26b28">00006</a> <span class="keyword">inline</span> <span class="keywordtype">void</span> <a class="code" href="error_8hpp.html#888a2784e390a7dc6b6135e8bab26b28">error_handler</a>(std::string err_msg=<span class="stringliteral">""</span>){
+<a name="l00007"></a>00007   <span class="keywordflow">if</span> (err_msg == <span class="stringliteral">""</span>) {
+<a name="l00008"></a>00008     std::cerr &lt;&lt; <span class="stringliteral">"ERROR"</span> &lt;&lt; std::endl;
+<a name="l00009"></a>00009   } <span class="keywordflow">else</span> {
+<a name="l00010"></a>00010     std::cerr &lt;&lt; <span class="stringliteral">"ERROR: "</span> &lt;&lt; err_msg &lt;&lt;std::endl;
+<a name="l00011"></a>00011   }
+<a name="l00012"></a>00012   exit(1);
+<a name="l00013"></a>00013 }
 </pre></div><hr size="1"><address style="align: right;"><small>Generated on 26 Sep 2014 for a1 by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
