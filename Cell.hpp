@@ -107,6 +107,11 @@ public:
   virtual Cell* copy() const = 0;
 };
 
+// Reminder: cons.hpp expects nil to be defined somewhere (for this
+// implementation, Cell.cpp is the logical place to define it).
+// Here we promise this again, just to be safe.
+extern Cell* const nil;
+
 /**
  * \class IntCell
  * \brief Class IntCell, derived from Cell to hold int type
@@ -243,7 +248,7 @@ public:
   /**
    * \brief Constructor
    */
-  ConsCell(Cell* const my_car, Cell* const my_cdr);
+  ConsCell(Cell* const my_car, Cell* const my_cdr = nil);
 
   /**
    * \brief Accessor (error if this is not a cons cell).
@@ -284,23 +289,5 @@ private:
   Cell* car_m;
   Cell* cdr_m;
 };
-
-class NilCell: public Cell
-{
-  /**
-   * \brief Will throw error if invoked
-   */
-  void print(std::ostream& os = std::cout) const;
-
-  /**
-   * \brief Will throw error if invoked
-   */
-  Cell* copy() const;
-};
-
-// Reminder: cons.hpp expects nil to be defined somewhere (for this
-// implementation, Cell.cpp is the logical place to define it).
-// Here we promise this again, just to be safe.
-extern Cell* const nil;
 
 #endif // CELL_HPP

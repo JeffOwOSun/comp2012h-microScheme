@@ -16,7 +16,7 @@
 #include "Cell.hpp"
 // Reminder: cons.hpp expects nil to be defined somewhere.  For this
 // implementation, this is the logical place to define it.
-Cell* const nil = new NilCell();
+Cell* const nil = new ConsCell(new IntCell(0));
 
 using namespace std;
 
@@ -196,16 +196,4 @@ ConsCell::~ConsCell()
 {
   delete car_m;
   delete cdr_m;
-}
-
-////////////////////////////////////NilCell///////////////////////////////////////
-
-void NilCell::print(ostream& os) const
-{
-  error_handler("Trying to print Nil Cell");
-}
-
-Cell* NilCell::copy() const
-{
-  error_handler("Trying to copy Nil Cell");
 }
