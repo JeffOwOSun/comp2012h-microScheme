@@ -24,7 +24,7 @@ extern Cell* const nil;
  */
 inline Cell* make_int(const int i)
 {
-  return new Cell(i);
+  return new IntCell(i);
 }
 
 /**
@@ -33,7 +33,7 @@ inline Cell* make_int(const int i)
  */
 inline Cell* make_double(const double d)
 {
-  return new Cell(d);
+  return new DoubleCell(d);
 }
 
 /**
@@ -42,7 +42,7 @@ inline Cell* make_double(const double d)
  */
 inline Cell* make_symbol(const char* const s)
 {
-  return new Cell(s);
+  return new SymbolCell(s);
 }
 
 /**
@@ -52,7 +52,7 @@ inline Cell* make_symbol(const char* const s)
  */
 inline Cell* cons(Cell* const my_car, Cell* const my_cdr)
 {
-  return new Cell(my_car, my_cdr);
+  return new ConsCell(my_car, my_cdr);
 }
 
 /**
@@ -155,6 +155,14 @@ inline std::ostream& operator<<(std::ostream& os, const Cell& c)
 {
   c.print(os);
   return os;
+}
+
+/**
+ * \brief Make deep copy of the given cell
+ */
+inline Cell* deep_copy(const Cell* const c)
+{
+  return c->copy();
 }
 
 #endif // CONS_HPP

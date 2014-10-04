@@ -16,175 +16,196 @@
 #include "Cell.hpp"
 // Reminder: cons.hpp expects nil to be defined somewhere.  For this
 // implementation, this is the logical place to define it.
-Cell* const nil = new Cell(0);
+Cell* const nil = new NilCell();
 
 using namespace std;
 
-Cell::Cell(const int i):tag_m(type_int),int_m(i)
-{}
-
-Cell::Cell(const double d):tag_m(type_double), double_m(d)
-{}
-
-Cell::Cell(const char* const s)
-{
-  tag_m = type_symbol;
-  symbol_m = new char[strlen(s)+1];
-  strcpy (symbol_m, s);
-  return;
-}
-
-Cell::Cell(Cell* const my_car, Cell* const my_cdr):tag_m(type_conspair)
-{
-  conspair_m.car_m = my_car;
-  conspair_m.cdr_m = my_cdr;
-}
+//////////////////////////////////////Cell////////////////////////////////////////
 
 bool Cell::is_int() const
 {
-  return tag_m == type_int;
+  return false;
 }
 
 bool Cell::is_double() const
 {
-  return tag_m == type_double;
+  return false;
 }
 
 bool Cell::is_symbol() const
 {
-  return tag_m == type_symbol;
+  return false;
 }
 
 bool Cell::is_cons() const
 {
-  return tag_m == type_conspair;
+  return false;
 }
 
 int Cell::get_int() const
 {
-  if (is_int()) {
-    return int_m;
-  } else {
-    cerr << "In function Cell::get_int(), the corresponding Cell instance is not a int Cell!" << endl;
-    exit(1);
-  }
+  error_handler("get_int unimplemented");
 }
 
 double Cell::get_double() const
 {
-  if (is_double()) {
-    return double_m;
-  } else {
-    cerr << "In function Cell::get_double(), the corresponding Cell instance is not a double Cell!" << endl;
-    exit(1);
-  }
+  error_handler("get_double unimplemented");
 }
 
 string Cell::get_symbol() const
 {
-  if (is_symbol()) {
-    return string(symbol_m);
-  } else {
-    cerr << "In function Cell::get_symbol(), the corresponding Cell instance is not a symbol Cell!" << endl;
-    exit(1);
-  }
+  error_handler("get_symbol unimplemented");
 }
 
 Cell* Cell::get_car() const
 {
-  if (is_cons()) {
-    return conspair_m.car_m;
-  } else {
-    cerr << "In function Cell::get_car(), the corresponding Cell is not a cons Cell!" << endl;
-    exit(1);
-  }
+  error_handler("get_car unimplemented");
 }
 
 Cell* Cell::get_cdr() const
 {
-  if (is_cons()) {
-    return conspair_m.cdr_m;
-  } else {
-    cerr << "In function Cell::get_cdr(), the corresponding Cell is not a cons Cell!" << endl;
-    exit(1);
-  }
+  error_handler("get_cdr unimplemented");
 }
 
-void Cell::print(ostream& os) const
+/////////////////////////////////////IntCell//////////////////////////////////////
+
+IntCell::IntCell(const int i): int_m(i) {}
+
+int IntCell::get_int() const
 {
-  if (this == nil) {
-    error_handler("Trying to print nil!");
-  }
+  return int_m;
+}
+
+bool IntCell::is_int() const
+{
+  return true;
+}
+
+void IntCell::print(ostream& os) const
+{
+  os << int_m;
+}
+
+Cell* IntCell::copy() const
+{
+  return new IntCell(int_m);
+}
+
+////////////////////////////////////DoubleCell////////////////////////////////////
+
+DoubleCell::DoubleCell(const double d): double_m(d) {}
+
+double DoubleCell::get_double() const
+{
+  return double_m;
+}
+
+bool DoubleCell::is_double() const
+{
+  return true;
+}
+
+void DoubleCell::print(ostream& os) const
+{
+  os << fixed << setprecision(6) << double_m;
+}
+
+Cell* DoubleCell::copy() const
+{
+  return new DoubleCell(double_m);
+}
+
+///////////////////////////////////SymbolCell/////////////////////////////////////
+
+SymbolCell::SymbolCell(const char* const s)
+{
+  symbol_m = new char[strlen(s)+1];
+  strcpy(symbol_m, s);
+}
+
+string SymbolCell::get_symbol() const
+{
+  return string(symbol_m);
+}
+
+bool SymbolCell::is_symbol() const
+{
+  return true;
+}
+
+void SymbolCell::print(ostream& os) const
+{
+  os << symbol_m;
+}
+
+Cell* SymbolCell::copy() const
+{
+  return new SymbolCell(symbol_m);
+}
+
+SymbolCell::~SymbolCell()
+{
+  delete[] symbol_m;
+}
+
+///////////////////////////////////ConsCell/////////////////////////////////////
+
+ConsCell::ConsCell(Cell* const my_car, Cell* const my_cdr): car_m(my_car), cdr_m(my_cdr){}
+
+Cell* ConsCell::get_car() const
+{
+  return car_m;
+}
+
+Cell* ConsCell::get_cdr() const
+{
+  return cdr_m;
+}
+
+bool ConsCell::is_cons() const
+{
+  return true;
+}
+
+void ConsCell::print(ostream& os) const
+{
+  os << "(";
+  const Cell* current_cell = this;
   
-  if (is_int() || is_double() || is_symbol()) {
-    os << to_string();
-  } else if (is_cons()) {
-    os << "(";
-    const Cell* current_cell = this;
-
-    while (current_cell!=nil){
-      //get car
-      //if car is conspair, call print on the subtree
-      if (current_cell->get_car()->is_cons()){
-	current_cell->get_car()->print(os);
-      } else{
-	//else get the value and output it
-	os << current_cell->get_car()->to_string();
-      }
-      //loop to the cdr
-      current_cell = current_cell->get_cdr();
-
-      if (current_cell != nil) {
-	os << " ";
-      }
+  while (current_cell!=nil){
+    //get car
+    //print car
+    current_cell->get_car()->print(os);
+    
+    //loop to the cdr
+    current_cell = current_cell->get_cdr();
+    
+    if (current_cell != nil) {
+      os << " ";
     }
-    os << ")";
   }
+  os << ")";
 }
 
-string Cell::to_string() const
+Cell* ConsCell::copy() const
 {
-  stringstream ss;
-  if (is_int()) {
-    ss << get_int();
-  } else if (is_double()) {
-    ss << fixed << setprecision(6) << get_double();
-  } else if (is_symbol()) {
-    ss << get_symbol();
-  } else ss << "";
-  return ss.str();
+  return new ConsCell(car_m, cdr_m);
 }
 
-Cell::Cell(const Cell& c)
+ConsCell::~ConsCell()
 {
-  if (&c == nil) error_handler("trying to deep copy a nil Cell!");
-  
-  if (c.is_int()){
-    tag_m = type_int;
-    int_m = c.get_int();
-  } else if (c.is_double()){
-    tag_m = type_double;
-    double_m = c.get_double();
-  } else if (c.is_symbol()){
-    tag_m = type_symbol;
-    symbol_m = new char[c.get_symbol().size()+1];
-    strcpy(symbol_m, c.get_symbol().c_str());
-  } else if (c.is_cons()){
-    tag_m = type_conspair;
-    conspair_m.car_m = c.get_car();
-    conspair_m.cdr_m = c.get_cdr();
-  }
+  delete car_m;
+  delete cdr_m;
 }
 
-Cell::~Cell(){
-  
-  //prevent deletion of nil
-  if (this == nil) return;
+////////////////////////////////////NilCell///////////////////////////////////////
 
-  if (is_cons()){
-    delete get_car();
-    delete get_cdr();
-  } else if (is_symbol()) {
-    delete[] symbol_m;
-  }
+void NilCell::print(ostream& os) const
+{
+  error_handler("Trying to print Nil Cell");
+}
+
+Cell* NilCell::copy() const
+{
+  error_handler("Trying to copy Nil Cell");
 }
