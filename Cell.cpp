@@ -285,7 +285,7 @@ Cell* ConsCell::eval() const
       //current working cell
       Cell* current_cell = cdr_m;
 
-      if (current_cell == nil || current_cell -> is_cons()) error_handler("s-expression invalid: invalid ceiling operand!");
+      if (current_cell == nil || !current_cell -> is_cons()) error_handler("s-expression invalid: invalid ceiling operand!");
 
       if (current_cell->get_cdr()!=nil) error_handler("s-expression invalid: ceiling on more than one operands");
 	
