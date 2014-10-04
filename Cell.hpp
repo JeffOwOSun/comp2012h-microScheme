@@ -105,6 +105,11 @@ public:
    * \return Pointer to the newly made Cell;
    */
   virtual Cell* copy() const = 0;
+
+  /**
+   * \brief Evaluate the tree rooted at this Cell
+   */
+  virtual Cell* eval() const = 0;
 };
 
 // Reminder: cons.hpp expects nil to be defined somewhere (for this
@@ -148,6 +153,11 @@ public:
    */
   Cell* copy() const;
 
+  /**
+   * \brief Evaluate the tree rooted at this Cell
+   */
+  Cell* eval() const;
+
 private:
   int int_m;
 };
@@ -187,6 +197,11 @@ public:
    * \return Pointer to the newly made Cell;
    */
   Cell* copy() const;
+
+  /**
+   * \brief Evaluate the tree rooted at this Cell
+   */
+  Cell* eval() const;
   
 private:
   double double_m;
@@ -229,6 +244,11 @@ public:
    */
   Cell* copy() const;
 
+  /**
+   * \brief Evaluate the tree rooted at this Cell
+   */
+  Cell* eval() const;
+  
   /**
    * \brief Destructor
    */
@@ -280,6 +300,11 @@ public:
    */
   Cell* copy() const;
 
+  /**
+   * \brief Evaluate the tree rooted at this Cell
+   */
+  Cell* eval() const;
+  
   /**
    * \brief Destructor
    */
