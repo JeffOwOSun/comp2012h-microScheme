@@ -110,6 +110,11 @@ public:
    * \brief Evaluate the tree rooted at this Cell
    */
   virtual Cell* eval() const = 0;
+
+  /**
+   * \brief virtual Destructor
+   */
+  virtual ~Cell();
 };
 
 // Reminder: cons.hpp expects nil to be defined somewhere (for this
@@ -238,7 +243,7 @@ public:
    */
   void print(std::ostream& os = std::cout) const;
 
-  /**
+ /**
    * \brief Make a copy of current Cell.
    * \return Pointer to the newly made Cell;
    */
@@ -309,6 +314,68 @@ public:
    * \brief Destructor
    */
   ~ConsCell();
+
+  ///////////////////////////////////Operations///////////////////////////////////
+
+  /**
+   * \brief Add the given tree to current Cell
+   */
+  virtual Cell* add(Cell* sub_tree) const;
+
+  /**
+   * \brief Subtract the given tree to current Cell
+   */
+  virtual Cell* subtract(Cell* sub_tree) const;
+
+  /**
+   * \brief Multiply the given tree to current Cell
+   */
+  virtual Cell* multiply(Cell* sub_tree) const;
+
+  /**
+   * \brief Divide the given tree to current Cell
+   */
+  virtual Cell* divide(Cell* sub_tree) const;
+
+  /**
+   * \brief Floor the given tree to current Cell
+   */
+  virtual Cell* ceiling(Cell* sub_tree) const;
+
+  /**
+   * \brief Ceiling the given tree to current Cell
+   */
+  virtual Cell* floor(Cell* sub_tree) const;
+
+  /**
+   * \brief Apply if statement to the given tree to current Cell
+   */
+  virtual Cell* if_logic(Cell* sub_tree) const;
+
+  /**
+   * \brief Quote the given tree to current Cell
+   */
+  virtual Cell* quote(Cell* sub_tree) const;
+
+  /**
+   * \brief Make a cons with the given tree to current Cell
+   */
+  virtual Cell* cons(Cell* sub_tree) const;
+
+  /**
+   * \brief Take the car of the given tree to current Cell
+   */
+  virtual Cell* car(Cell* sub_tree) const;
+
+  /**
+   * \brief Take the cdr of the given tree to current Cell
+   */
+  virtual Cell* cdr(Cell* sub_tree) const;
+
+  /**
+   * \brief Expose nullp on the given tree to current Cell
+   */
+  virtual Cell* nullp(Cell* sub_tree) const;
     
 private:
   Cell* car_m;
