@@ -19,93 +19,100 @@
 class Operation {
 public:
   /**
+   * \brief Constructor
+   * \param id The intended identifier;
+   */
+  Operation(std::string id);
+  /**
    * \brief execute this operation upon the given sub-tree
    * \param sub_tree The subtree upon which the operation should be executed
    */
-  virtual Cell* exec (const Cell* const sub_tree) const=0;
+  virtual Cell* exec (Cell* const sub_tree) const=0;
 
   /**
    * \brief Check if the given identifier matches the embeded identifier
    * \param identifier The identifier to be checked
    */
-  virtual bool is_operation (const std::string identifier) const=0;
+  bool is_operation (const std::string identifier) const;
 
   /**
    * \brief Virtual destructor
    */
   virtual ~Operation();
+private:
+  std::string identifier_m;
 };
 
 class SumOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  SumOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
-class SubractOperation: Operation {
+class SubtractOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  SubtractOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class MultiplyOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  MultiplyOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class DivideOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  DivideOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class CeilingOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  CeilingOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class FloorOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  FloorOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class IfOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  IfOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class QuoteOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  QuoteOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class ConsOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  ConsOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class CarOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  CarOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class CdrOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  CdrOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 class NullpOperation: Operation {
 public:
-  virtual Cell* exec (const Cell* const sub_tree) const;
-  virtual bol is_operation (std::string identifier) const;
+  NullpOperation();
+  virtual Cell* exec (Cell* const sub_tree) const;
 };
 
 #endif //OPERATION_HPP
