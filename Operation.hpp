@@ -11,6 +11,7 @@
 
 #include "error.hpp"
 #include "Cell.hpp"
+#include "eval.hpp"
 
 /**
  * \class Operation
@@ -26,6 +27,7 @@ public:
   /**
    * \brief execute this operation upon the given sub-tree
    * \param sub_tree The subtree upon which the operation should be executed
+   * \return Pointer to the temporary Cell that has the result. Make sure it's temporary so that deleting it won't affect the original tree.
    */
   virtual Cell* exec (Cell* const sub_tree) const=0;
 
