@@ -7,7 +7,6 @@
 #ifndef EVAL_HPP
 #define EVAL_HPP
 
-#include "OperationCollection.hpp"
 #include "Cell.hpp"
 
 using namespace std;

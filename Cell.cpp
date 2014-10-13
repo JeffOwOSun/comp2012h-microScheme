@@ -67,6 +67,28 @@ Cell* Cell::get_cdr() const
   error_handler("get_cdr unimplemented");
 }
 
+Cell* Cell::add(Cell* const c) const
+{
+  error_handler("add unimplemented");
+}
+
+Cell* Cell::subtract(Cell* const c) const
+{
+  error_handler("subtract unimplemented");
+}
+
+Cell* Cell::multiply(Cell* const c) const
+{
+  error_handler("multiply unimplemented");
+}
+
+Cell* Cell::divide_by(Cell* const c) const
+{
+  error_handler("divide_by unimplemented");
+}
+
+Cell::~Cell(){}
+
 /////////////////////////////////////IntCell//////////////////////////////////////
 
 IntCell::IntCell(const int i): int_m(i) {}
@@ -88,7 +110,7 @@ void IntCell::print(ostream& os) const
 
 Cell* IntCell::copy() const
 {
-  if (this == nil) return this;
+  if (this == nil) return nil;
   return new IntCell(int_m);
 }
 
@@ -97,6 +119,41 @@ Cell* IntCell::eval() const
   return copy();
 }
 
+Cell* IntCell::add (Cell* const c) const
+{
+  if (c->is_int()) {
+    return new IntCell(get_int() + c->get_int());
+  } else if (c->is_double()) {
+    return new DoubleCell(get_int() + c->get_double());
+  } else error_handler("add operand invalid");
+}
+Cell* IntCell::subtract (Cell* const c) const
+{
+  if (c->is_int()) {
+    return new IntCell(get_int() - c->get_int());
+  } else if (c->is_double()) {
+    return new DoubleCell(get_int() - c->get_double());
+  } else error_handler("subtract operand invalid");
+
+}
+Cell* IntCell::multiply (Cell* const c) const
+{
+  if (c->is_int()) {
+    return new IntCell(get_int() * c->get_int());
+  } else if (c->is_double()) {
+    return new DoubleCell(get_int() * c->get_double());
+  } else error_handler("multiply operand invalid");
+}
+Cell* IntCell::divide_by (Cell* const c) const
+{
+  if (c->is_int()) {
+    if (c->get_int() == 0) error_handler("divide by zero");
+    return new IntCell(get_int() / c->get_int());
+  } else if (c->is_double()) {
+    if (c->get_double() == 0) error_handler("divide by zero");
+    return new DoubleCell(get_int() / c->get_double());
+  } else error_handler("divide_by operand invalid");
+}
 ////////////////////////////////////DoubleCell////////////////////////////////////
 
 DoubleCell::DoubleCell(const double d): double_m(d) {}
@@ -118,7 +175,7 @@ void DoubleCell::print(ostream& os) const
 
 Cell* DoubleCell::copy() const
 {
-  if (this == nil) return this;
+  if (this == nil) return nil;
   return new DoubleCell(double_m);
 }
 
@@ -127,6 +184,41 @@ Cell* DoubleCell::eval() const
   return copy();
 }
 
+Cell* DoubleCell::add(Cell* const c) const
+{
+  if (c->is_int()) {
+    return new DoubleCell(get_double() + c->get_int());
+  } else if (c->is_double()) {
+    return new DoubleCell(get_double() + c->get_double());
+  } else error_handler("add operand invalid");
+}
+Cell* DoubleCell::subtract(Cell* const c) const
+{
+  if (c->is_int()) {
+    return new DoubleCell(get_double() - c->get_int());
+  } else if (c->is_double()) {
+    return new DoubleCell(get_double() - c->get_double());
+  } else error_handler("subtract operand invalid");
+
+}
+Cell* DoubleCell::multiply(Cell* const c) const
+{
+  if (c->is_int()) {
+    return new DoubleCell(get_double() * c->get_int());
+  } else if (c->is_double()) {
+    return new DoubleCell(get_double() * c->get_double());
+  } else error_handler("multiply operand invalid");
+}
+Cell* DoubleCell::divide_by(Cell* const c) const
+{
+  if (c->is_int()) {
+    if (c->get_int() == 0) error_handler("divide by zero");
+    return new DoubleCell(get_double() / c->get_int());
+  } else if (c->is_double()) {
+    if (c->get_double() == 0) error_handler("divide by zero");
+    return new DoubleCell(get_double() / c->get_double());
+  } else error_handler("divide_by operand invalid");
+}
 ///////////////////////////////////SymbolCell/////////////////////////////////////
 
 SymbolCell::SymbolCell(const char* const s)
@@ -152,7 +244,7 @@ void SymbolCell::print(ostream& os) const
 
 Cell* SymbolCell::copy() const
 {
-  if (this == nil) return this;
+  if (this == nil) return nil;
   return new SymbolCell(symbol_m);
 }
 
@@ -207,61 +299,13 @@ void ConsCell::print(ostream& os) const
 
 Cell* ConsCell::copy() const
 {
-  if (this == nil) return this;
+  if (this == nil) return nil;
   return new ConsCell(car_m->copy(), cdr_m->copy());
 }
 
 Cell* ConsCell::eval() const
 {
-  if (this == nil) {
-    error_handler("Trying to evaluate nil");
-  }
-  
-  //get car of c
-  //using eval will automatically evaluate the subtree, if car(c) is itself a conspair
-  Cell* car_value = car_m->eval();
-    
-  //if car is a symbol cell (it must, otherwise the eval() begins at wrong place)
-  if (car_value->is_symbol()){
-    //get the symbol
-    //case 1: +
-    if (car_value->get_symbol() == "+"){
-	
-      //delete car_value as it's not needed any more
-      delete car_value;
-
-    }
-    
-    //case 2: ceiling
-    else if (car_value->get_symbol() == "ceiling") {
-      //delete car_value as it's no longer needed
-      delete car_value;
-
-      
-    }
-    //case 3: if
-    else if (car_value->get_symbol() == "if") {
-      //delete car_value as it's no longer needed
-      delete car_value;
-	
-      
-    }
-    
-    else {
-      //delete car_value as it's no longer needed
-      delete car_value;
-	
-      error_handler("s-expression invalid: operator not one of +, ceiling or if");
-    }
-  } else {
-    //delete car_value as it's no longer needed
-    if(car_value!=nil) delete car_value;
-	
-    //value_car is not a symbol cell
-    error_handler("s-expression invalid: the first element of the tree/subtree is not a proper operator");
-  }
-
-  
+ 
 }
 
 ConsCell::~ConsCell()

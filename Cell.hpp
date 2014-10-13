@@ -111,10 +111,15 @@ public:
    */
   virtual Cell* eval() const = 0;
 
+  virtual Cell* add(Cell* const c) const;
+  virtual Cell* subtract(Cell* const c) const;
+  virtual Cell* multiply(Cell* const c) const;
+  virtual Cell* divide_by(Cell* const c) const;
   /**
    * \brief virtual Destructor
    */
   virtual ~Cell();
+
 };
 
 // Reminder: cons.hpp expects nil to be defined somewhere (for this
@@ -138,31 +143,39 @@ public:
    * \brief Getter function to retrieve stored integer
    * \return The integer
    */
-  int get_int() const;
+  virtual int get_int() const;
 
   /**
    * \brief judge if this Cell is an IntCell or not
    * \return True iff this Cell in an IntCell
    */
-  bool is_int() const;
+  virtual bool is_int() const;
 
   /**
    * \brief Print the subtree rooted at this cell, in s-expression notation.
    * \param os The output stream to print to.
    */
-  void print(std::ostream& os = std::cout) const;
+  virtual void print(std::ostream& os = std::cout) const;
 
   /**
    * \brief Make a copy of current Cell.
    * \return Pointer to the newly made Cell;
    */
-  Cell* copy() const;
+  virtual Cell* copy() const;
 
   /**
    * \brief Evaluate the tree rooted at this Cell
    */
-  Cell* eval() const;
-
+  virtual Cell* eval() const;
+  
+  virtual Cell* add(Cell* const c) const;
+  
+  virtual Cell* subtract(Cell* const c) const;
+  
+  virtual Cell* multiply(Cell* const c) const;
+  
+  virtual Cell* divide_by(Cell* const c) const;
+  
 private:
   int int_m;
 };
@@ -207,6 +220,14 @@ public:
    * \brief Evaluate the tree rooted at this Cell
    */
   Cell* eval() const;
+  
+  virtual Cell* add(Cell* const c) const;
+  
+  virtual Cell* subtract(Cell* const c) const;
+  
+  virtual Cell* multiply(Cell* const c) const;
+  
+  virtual Cell* divide_by(Cell* const c) const;
   
 private:
   double double_m;
@@ -314,68 +335,6 @@ public:
    * \brief Destructor
    */
   ~ConsCell();
-
-  ///////////////////////////////////Operations///////////////////////////////////
-
-  /**
-   * \brief Add the given tree to current Cell
-   */
-  virtual Cell* add(Cell* sub_tree) const;
-
-  /**
-   * \brief Subtract the given tree to current Cell
-   */
-  virtual Cell* subtract(Cell* sub_tree) const;
-
-  /**
-   * \brief Multiply the given tree to current Cell
-   */
-  virtual Cell* multiply(Cell* sub_tree) const;
-
-  /**
-   * \brief Divide the given tree to current Cell
-   */
-  virtual Cell* divide(Cell* sub_tree) const;
-
-  /**
-   * \brief Floor the given tree to current Cell
-   */
-  virtual Cell* ceiling(Cell* sub_tree) const;
-
-  /**
-   * \brief Ceiling the given tree to current Cell
-   */
-  virtual Cell* floor(Cell* sub_tree) const;
-
-  /**
-   * \brief Apply if statement to the given tree to current Cell
-   */
-  virtual Cell* if_logic(Cell* sub_tree) const;
-
-  /**
-   * \brief Quote the given tree to current Cell
-   */
-  virtual Cell* quote(Cell* sub_tree) const;
-
-  /**
-   * \brief Make a cons with the given tree to current Cell
-   */
-  virtual Cell* cons(Cell* sub_tree) const;
-
-  /**
-   * \brief Take the car of the given tree to current Cell
-   */
-  virtual Cell* car(Cell* sub_tree) const;
-
-  /**
-   * \brief Take the cdr of the given tree to current Cell
-   */
-  virtual Cell* cdr(Cell* sub_tree) const;
-
-  /**
-   * \brief Expose nullp on the given tree to current Cell
-   */
-  virtual Cell* nullp(Cell* sub_tree) const;
     
 private:
   Cell* car_m;
