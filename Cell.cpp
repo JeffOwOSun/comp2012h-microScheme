@@ -16,7 +16,7 @@
 #include "Cell.hpp"
 // Reminder: cons.hpp expects nil to be defined somewhere.  For this
 // implementation, this is the logical place to define it.
-Cell* const nil = new ConsCell(new IntCell(0));
+Cell* const nil = new IntCell(0);
 
 using namespace std;
 
@@ -310,6 +310,7 @@ Cell* ConsCell::eval() const
 
 ConsCell::~ConsCell()
 {
-  delete car_m;
-  delete cdr_m;
+if (this == nil) std::cerr<<"WTF!\n";
+  if (car_m!=nil) delete car_m;
+  if (cdr_m!=nil) delete cdr_m;
 }

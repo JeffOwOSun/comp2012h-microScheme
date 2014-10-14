@@ -294,7 +294,7 @@ public:
   /**
    * \brief Constructor
    */
-  ConsCell(Cell* const my_car, Cell* const my_cdr = nil);
+  ConsCell(Cell* const my_car, Cell* const my_cdr);
 
   /**
    * \brief Accessor (error if this is not a cons cell).

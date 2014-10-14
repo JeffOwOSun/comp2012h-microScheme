@@ -26,6 +26,8 @@ Cell* eval(Cell* const c)
   if ((*returned_car_cell).is_symbol()){
     //get the operator
     std::string operation = (*returned_car_cell).get_symbol();
+    delete returned_car_cell;
+    
     Cell* sub_tree = c->get_cdr();
     
     if (operation == "+") {
@@ -276,7 +278,7 @@ Cell* eval(Cell* const c)
       //return sub_tree's cdr directly, by making a deep copy first
       if (sub_tree==nil || !sub_tree->is_cons()) error_handler("operand for quote invalid");
       if (sub_tree->get_cdr()!=nil) error_handler("operand for quote more than one!");
-      return sub_tree->get_car()->;
+      return sub_tree->get_car()->copy();
     } else if (operation == "cons") {
       if (sub_tree == nil) error_handler("operand for cons invalid");
   
@@ -288,9 +290,9 @@ Cell* eval(Cell* const c)
   
       Cell* car_value = eval(car_tobe->get_car());
       Cell* cdr_value = eval(cdr_tobe->get_car());
+
       Cell* return_cell = new ConsCell(car_value, cdr_value);
-      if(car_value!=nil) delete car_value;
-      if(cdr_value!=nil) delete cdr_value;
+            
       return return_cell;
     } else if (operation == "car") {
       if (sub_tree == nil) error_handler("zero operand for car");
@@ -339,7 +341,6 @@ Cell* eval(Cell* const c)
       }
     } else {    
       //If this line is executed, it means that no matching operation found
-      if (returned_car_cell!=nil) delete returned_car_cell;
       error_handler("Invalid s-expression: unexpected operator \""+operation+"\"");
     }
   } else {
