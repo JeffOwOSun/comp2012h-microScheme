@@ -114,11 +114,6 @@ Cell* IntCell::copy() const
   return new IntCell(int_m);
 }
 
-Cell* IntCell::eval() const
-{
-  return copy();
-}
-
 Cell* IntCell::add (Cell* const c) const
 {
   if (c->is_int()) {
@@ -177,11 +172,6 @@ Cell* DoubleCell::copy() const
 {
   if (this == nil) return nil;
   return new DoubleCell(double_m);
-}
-
-Cell* DoubleCell::eval() const
-{
-  return copy();
 }
 
 Cell* DoubleCell::add(Cell* const c) const
@@ -248,11 +238,6 @@ Cell* SymbolCell::copy() const
   return new SymbolCell(symbol_m);
 }
 
-Cell* SymbolCell::eval() const
-{
-  return copy();
-}
-
 SymbolCell::~SymbolCell()
 {
   delete[] symbol_m;
@@ -303,14 +288,8 @@ Cell* ConsCell::copy() const
   return new ConsCell(car_m->copy(), cdr_m->copy());
 }
 
-Cell* ConsCell::eval() const
-{
- 
-}
-
 ConsCell::~ConsCell()
 {
-if (this == nil) std::cerr<<"WTF!\n";
   if (car_m!=nil) delete car_m;
   if (cdr_m!=nil) delete cdr_m;
 }

@@ -42,25 +42,25 @@ class Cell {
 public:
   /**
    * \brief Check if this is an int cell.
-   * \return True iff this is an int cell.
+   * \return True iff this is an int cell. Default return false in ABC.
    */
   virtual bool is_int() const;
 
   /**
    * \brief Check if this is a double cell.
-   * \return True iff this is a double cell.
+   * \return True iff this is a double cell. Default return false in ABC.
    */
   virtual bool is_double() const;
 
   /**
    * \brief Check if this is a symbol cell.
-   * \return True iff this is a symbol cell.
+   * \return True iff this is a symbol cell. Default return false in ABC.
    */
   virtual bool is_symbol() const;
 
   /**
    * \brief Check if this is a cons cell.
-   * \return True iff this is a cons cell.
+   * \return True iff this is a cons cell. Default return false in ABC.
    */
   virtual bool is_cons() const;
 
@@ -95,25 +95,43 @@ public:
   virtual Cell* get_cdr() const;
 
   /**
-   * \brief Print the subtree rooted at this cell, in s-expression notation.
+   * \brief Print the subtree rooted at this cell, in s-expression notation. Pure virtual function.
    * \param os The output stream to print to.
    */
   virtual void print(std::ostream& os = std::cout) const = 0;
 
   /**
-   * \brief Make a copy of current Cell.
+   * \brief Make a copy of current Cell. Pure virtual in ABC.
    * \return Pointer to the newly made Cell;
    */
   virtual Cell* copy() const = 0;
 
   /**
-   * \brief Evaluate the tree rooted at this Cell
+   * \brief Add operation. Throw an "unimplemented" error in ABC
+   * \param c Cell pointer to the second operand
+   * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* eval() const = 0;
-
   virtual Cell* add(Cell* const c) const;
+
+  /**
+   * \brief Subtract operation. Throw an "unimplemented" error in ABC
+   * \param c Cell pointer to the second operand
+   * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* subtract(Cell* const c) const;
+
+  /**
+   * \brief Multiply operation. Throw an "unimplemented" error in ABC
+   * \param c Cell pointer to the second operand
+   * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* multiply(Cell* const c) const;
+
+  /**
+   * \brief Divide_by operation. Throw an "unimplemented" error in ABC
+   * \param c Cell pointer to the second operand
+   * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* divide_by(Cell* const c) const;
   /**
    * \brief virtual Destructor
@@ -147,7 +165,7 @@ public:
 
   /**
    * \brief judge if this Cell is an IntCell or not
-   * \return True iff this Cell in an IntCell
+   * \return True.
    */
   virtual bool is_int() const;
 
@@ -164,16 +182,31 @@ public:
   virtual Cell* copy() const;
 
   /**
-   * \brief Evaluate the tree rooted at this Cell
+   * \brief Add operation. 
+   * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
+   * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* eval() const;
-  
   virtual Cell* add(Cell* const c) const;
-  
+
+  /**
+   * \brief Subtract operation.
+   * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
+   * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* subtract(Cell* const c) const;
-  
+
+  /**
+   * \brief Multiply operation.
+   * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
+   * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* multiply(Cell* const c) const;
-  
+
+  /**
+   * \brief Divide_by operation.
+   * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
+   * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* divide_by(Cell* const c) const;
   
 private:
@@ -200,7 +233,7 @@ public:
 
   /**
    * \brief judge if this Cell is an DoubleCell or not
-   * \return True iff this Cell in an DoubleCell
+   * \return True.
    */
   bool is_double() const;
 
@@ -217,18 +250,33 @@ public:
   Cell* copy() const;
 
   /**
-   * \brief Evaluate the tree rooted at this Cell
+   * \brief Add operation. 
+   * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
+   * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  Cell* eval() const;
-  
   virtual Cell* add(Cell* const c) const;
-  
+
+  /**
+   * \brief Subtract operation.
+   * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
+   * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* subtract(Cell* const c) const;
-  
+
+  /**
+   * \brief Multiply operation.
+   * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
+   * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* multiply(Cell* const c) const;
-  
+
+  /**
+   * \brief Divide_by operation.
+   * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
+   * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
+   */
   virtual Cell* divide_by(Cell* const c) const;
-  
+
 private:
   double double_m;
 };
@@ -254,7 +302,7 @@ public:
 
   /**
    * \brief judge if this Cell is an SymbolCell or not
-   * \return True iff this Cell is an SymbolCell
+   * \return True.
    */
   bool is_symbol() const;
 
@@ -270,11 +318,6 @@ public:
    */
   Cell* copy() const;
 
-  /**
-   * \brief Evaluate the tree rooted at this Cell
-   */
-  Cell* eval() const;
-  
   /**
    * \brief Destructor
    */
@@ -310,7 +353,7 @@ public:
  
   /**
    * \brief judge if this Cell is an ConsCell or not
-   * \return True iff this Cell is an ConsCell
+   * \return True.
    */
   bool is_cons() const;
 
@@ -321,18 +364,13 @@ public:
   void print(std::ostream& os = std::cout) const;
 
   /**
-   * \brief Make a copy of current Cell.
+   * \brief Recursively make a copy of current Cell and its subtrees.
    * \return Pointer to the newly made Cell;
    */
   Cell* copy() const;
 
   /**
-   * \brief Evaluate the tree rooted at this Cell
-   */
-  Cell* eval() const;
-  
-  /**
-   * \brief Destructor
+   * \brief Destructor. Recursively delete the whole tree rooted at this ConsCell. Use with caution.
    */
   ~ConsCell();
     
