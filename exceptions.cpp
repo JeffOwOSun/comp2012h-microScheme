@@ -8,7 +8,7 @@ using namespace std;
 
 DivideByZeroError::DivideByZeroError(string msg): runtime_error(msg){}
 
-OperandInvalidError::OperandInvalidError(string msg): runtime_error(msg){}
+OperandInvalidError::OperandInvalidError(string operation): runtime_error(operation + " operand invalid"){}
 
 OperandNumberMismatchError::OperandNumberMismatchError(string operation, int n): runtime_error(operation + " must have "+n+" operand(s)"){}
 

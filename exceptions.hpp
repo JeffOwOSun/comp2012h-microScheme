@@ -30,9 +30,9 @@ class OperandInvalidError : public runtime_error
 public:
   /**
    * \brief Constructor
-   * \param msg The message that's going to be supplied to runtime_error constructor. Default is "operand invalid"
+   * \param operation The name for the operation that is supplied with mismatched number of operands
    */
-  OperandInvalidError(string msg = "operand invalid");
+  OperandInvalidError(string operation);
 };
 
 /**
