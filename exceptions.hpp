@@ -2,6 +2,8 @@
  * \file exceptions.hpp
  * \brief Custom exception classes
  */
+#ifndef EXCEPTIONS_HPP
+#define EXCEPTIONS_HPP
 
 #include<stdexcept>
 #include<string>
@@ -17,7 +19,7 @@ public:
    * \brief Constructor
    * \param msg The message thst's going to be supplied to runtime_error constructor. Default is "divide by zero"
    */
-  DivideByZeroError(std::string msg = "divide by zero");
+  DivideByZeroError(string msg = "divide by zero");
 };
 
 /**
@@ -30,7 +32,7 @@ public:
    * \brief Constructor
    * \param msg The message that's going to be supplied to runtime_error constructor. Default is "operand invalid"
    */
-  OperandInvalidError(std::string msg = "operand invalid");
+  OperandInvalidError(string msg = "operand invalid");
 };
 
 /**
@@ -41,9 +43,27 @@ class OperandNumberMismatchError : public runtime_error
 public:
   /**
    * \brief Constructor
+   * \param operation The name for the operation that is supplied with mismatched number of operands
    * \param n Number of expected operand number
    */
-  OperandNumberMismatchError(int n);
+  OperandNumberMismatchError(string operation, int n);
+  
+  /**
+   * \brief Constructor
+   * \param operation The name for the operation that is supplied with mismatched number of operands
+   * \param n Number of expected operand number
+   * \param m Number of expected operand number. OR relationship with n
+   */
+  OperandNumberMismatchError(string operation, int n, int m);
+
+  /**
+   * \brief Constructor
+   * \param operation The name for the operation that is supplied with mismatched number of operands
+   * \param n Number of expected operand number
+   * \param m Number of expected operand number. OR relationship with n
+   * \param k Number of expected operand number. OR relationship with m
+   */
+  OperandNumberMismatchError(string operation, int n, int m, int k);
 };
 
 /**
@@ -56,5 +76,7 @@ public:
    * \brief Constructor
    * \param method_name The method name that is considered unimplemented
    */
-  UnimplementedError(std::string method_name);
+  UnimplementedError(string method_name);
 };
+
+#endif // EXCEPTIONS_HPP
