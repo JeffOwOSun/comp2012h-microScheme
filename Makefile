@@ -14,15 +14,18 @@ main: $(OBJS)
 
 main.o: Cell.hpp cons.hpp parse.hpp eval.hpp main.cpp
 	g++ -c -g main.cpp
-	
+
 parse.o: Cell.hpp cons.hpp parse.hpp parse.cpp
 	g++ -c -g parse.cpp
 
 eval.o: Cell.hpp cons.hpp eval.hpp eval.cpp
 	g++ -c -g eval.cpp
 
-Cell.o: Cell.hpp Cell.cpp
+Cell.o: exceptions.hpp Cell.hpp Cell.cpp
 	g++ -c -g Cell.cpp
+
+exceptions.o: exceptions.hpp exceptions.cpp
+	g++ -c -g exceptions.cpp
 
 doc:
 	doxygen doxygen.config
