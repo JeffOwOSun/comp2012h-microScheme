@@ -42,7 +42,7 @@ bool Cell::is_cons() const
   return false;
 }
 
-int Cell::get_int() const
+int Cell::get_int() const 
 {
   error_handler("get_int unimplemented");
 }

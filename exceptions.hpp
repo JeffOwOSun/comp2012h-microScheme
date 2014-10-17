@@ -33,3 +33,12 @@ class OperandNumberMismatchError : public runtime_error
 public:
   OperandNumberMismatchError(int n);
 };
+
+/**
+ * \class UnimplementedError
+ */
+class UnimplementedError : public runtime_error
+{
+public:
+  UnimplementedError(std::string method_name);
+};

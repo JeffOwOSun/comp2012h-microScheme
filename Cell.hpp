@@ -6,7 +6,7 @@
  * \author jeffsun@jowos.moe
  * \author LA1
  *
- * \date **Fill in the date**
+ * \date 2014.10.14
  *
  * Instructor: <a href="http://www.cs.ust.hk/~dekai/">Dekai Wu</a>
  * Due: 2014.10.24 at 23:00 by CASS
@@ -30,9 +30,7 @@
 #include <sstream>
 #include <string>
 #include <stack>
-
-//my own error handler :-)
-#include "error.hpp"
+#include "exceptions.hpp"
 
 /**
  * \class Cell
@@ -68,7 +66,7 @@ public:
    * \brief Accessor (error if this is not an int cell).
    * \return The value in this int cell.
    */
-  virtual int get_int() const;
+  virtual int get_int() const throw(UnimplementedError);
 
   /**
    * \brief Accessor (error if this is not a double cell).
