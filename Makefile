@@ -7,7 +7,7 @@ CFLAGS   = -DOP_ASSIGN
 #	g++ -c $(CFLAGS) $<
 	g++ -c $(CFLAGS) -fno-elide-constructors $<
 
-OBJS = main.o parse.o eval.o Cell.o
+OBJS = main.o parse.o eval.o Cell.o exceptions.o
 
 main: $(OBJS)
 	g++ -g $(CFLAGS) -o $@ $(OBJS) -lm
