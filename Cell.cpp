@@ -44,47 +44,47 @@ bool Cell::is_cons() const
 
 int Cell::get_int() const 
 {
-  error_handler("get_int unimplemented");
+  throw UnimplementedError("get_int");
 }
 
 double Cell::get_double() const
 {
-  error_handler("get_double unimplemented");
+  throw UnimplementedError("get_double");
 }
 
 string Cell::get_symbol() const
 {
-  error_handler("get_symbol unimplemented");
+  throw UnimplementedError("get_symbol");
 }
 
 Cell* Cell::get_car() const
 {
-  error_handler("get_car unimplemented");
+  throw UnimplementedError("get_car");
 }
 
 Cell* Cell::get_cdr() const
 {
-  error_handler("get_cdr unimplemented");
+  throw UnimplementedError("get_cdr");
 }
 
 Cell* Cell::add(Cell* const c) const
 {
-  error_handler("add unimplemented");
+  throw UnimplementedError("add");
 }
 
 Cell* Cell::subtract(Cell* const c) const
 {
-  error_handler("subtract unimplemented");
+  throw UnimplementedError("subtract");
 }
 
 Cell* Cell::multiply(Cell* const c) const
 {
-  error_handler("multiply unimplemented");
+  throw UnimplementedError("multiply");
 }
 
 Cell* Cell::divide_by(Cell* const c) const
 {
-  error_handler("divide_by unimplemented");
+  throw UnimplementedError("divide_by");
 }
 
 Cell::~Cell(){}
@@ -120,7 +120,7 @@ Cell* IntCell::add (Cell* const c) const
     return new IntCell(get_int() + c->get_int());
   } else if (c->is_double()) {
     return new DoubleCell(get_int() + c->get_double());
-  } else error_handler("add operand invalid");
+  } else throw OperandInvalidError("add");
 }
 Cell* IntCell::subtract (Cell* const c) const
 {
@@ -128,7 +128,7 @@ Cell* IntCell::subtract (Cell* const c) const
     return new IntCell(get_int() - c->get_int());
   } else if (c->is_double()) {
     return new DoubleCell(get_int() - c->get_double());
-  } else error_handler("subtract operand invalid");
+  } else throw OperandInvalidError("subtract");
 
 }
 Cell* IntCell::multiply (Cell* const c) const
@@ -137,17 +137,17 @@ Cell* IntCell::multiply (Cell* const c) const
     return new IntCell(get_int() * c->get_int());
   } else if (c->is_double()) {
     return new DoubleCell(get_int() * c->get_double());
-  } else error_handler("multiply operand invalid");
+  } else throw OperandInvalidError("multiply");
 }
 Cell* IntCell::divide_by (Cell* const c) const
 {
   if (c->is_int()) {
-    if (c->get_int() == 0) error_handler("divide by zero");
+    if (c->get_int() == 0) throw DivideByZeroError();
     return new IntCell(get_int() / c->get_int());
   } else if (c->is_double()) {
-    if (c->get_double() == 0) error_handler("divide by zero");
+    if (c->get_double() == 0) throw DivideByZeroError();
     return new DoubleCell(get_int() / c->get_double());
-  } else error_handler("divide_by operand invalid");
+  } else throw OperandInvalidError("divide_by");
 }
 ////////////////////////////////////DoubleCell////////////////////////////////////
 
@@ -180,7 +180,7 @@ Cell* DoubleCell::add(Cell* const c) const
     return new DoubleCell(get_double() + c->get_int());
   } else if (c->is_double()) {
     return new DoubleCell(get_double() + c->get_double());
-  } else error_handler("add operand invalid");
+  } else throw OperandInvalidError("add");
 }
 Cell* DoubleCell::subtract(Cell* const c) const
 {
@@ -188,7 +188,7 @@ Cell* DoubleCell::subtract(Cell* const c) const
     return new DoubleCell(get_double() - c->get_int());
   } else if (c->is_double()) {
     return new DoubleCell(get_double() - c->get_double());
-  } else error_handler("subtract operand invalid");
+  } else throw OperandInvalidError("subtract");
 
 }
 Cell* DoubleCell::multiply(Cell* const c) const
@@ -197,17 +197,17 @@ Cell* DoubleCell::multiply(Cell* const c) const
     return new DoubleCell(get_double() * c->get_int());
   } else if (c->is_double()) {
     return new DoubleCell(get_double() * c->get_double());
-  } else error_handler("multiply operand invalid");
+  } else throw OperandInvalidError("multiply");
 }
 Cell* DoubleCell::divide_by(Cell* const c) const
 {
   if (c->is_int()) {
-    if (c->get_int() == 0) error_handler("divide by zero");
+    if (c->get_int() == 0) throw DivideByZeroError();
     return new DoubleCell(get_double() / c->get_int());
   } else if (c->is_double()) {
-    if (c->get_double() == 0) error_handler("divide by zero");
+    if (c->get_double() == 0) throw DivideByZeroError();
     return new DoubleCell(get_double() / c->get_double());
-  } else error_handler("divide_by operand invalid");
+  } else throw OperandInvalidError("divide_by");
 }
 ///////////////////////////////////SymbolCell/////////////////////////////////////
 

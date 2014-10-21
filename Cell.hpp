@@ -72,25 +72,25 @@ public:
    * \brief Accessor (error if this is not a double cell).
    * \return The value in this double cell.
    */
-  virtual double get_double() const;
+  virtual double get_double() const throw(UnimplementedError);
 
   /**
    * \brief Accessor (error if this is not a symbol cell).
    * \return The symbol name in this symbol cell.
    */
-  virtual std::string get_symbol() const;
+  virtual std::string get_symbol() const throw(UnimplementedError);
 
   /**
    * \brief Accessor (error if this is not a cons cell).
    * \return First child cell.
    */
-  virtual Cell* get_car() const;
+  virtual Cell* get_car() const throw(UnimplementedError);
 
   /**
    * \brief Accessor (error if this is not a cons cell).
    * \return Rest child cell.
    */
-  virtual Cell* get_cdr() const;
+  virtual Cell* get_cdr() const throw(UnimplementedError);
 
   /**
    * \brief Print the subtree rooted at this cell, in s-expression notation. Pure virtual function.
@@ -109,28 +109,28 @@ public:
    * \param c Cell pointer to the second operand
    * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* add(Cell* const c) const;
+  virtual Cell* add(Cell* const c) const throw(UnimplementedError, OperandInvalidError);
 
   /**
    * \brief Subtract operation. Throw an "unimplemented" error in ABC
    * \param c Cell pointer to the second operand
    * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* subtract(Cell* const c) const;
+  virtual Cell* subtract(Cell* const c) const throw(UnimplementedError, OperandInvalidError);
 
   /**
    * \brief Multiply operation. Throw an "unimplemented" error in ABC
    * \param c Cell pointer to the second operand
    * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* multiply(Cell* const c) const;
+  virtual Cell* multiply(Cell* const c) const throw(UnimplementedError, OperandInvalidError);
 
   /**
    * \brief Divide_by operation. Throw an "unimplemented" error in ABC
    * \param c Cell pointer to the second operand
    * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* divide_by(Cell* const c) const;
+  virtual Cell* divide_by(Cell* const c) const throw(UnimplementedError, OperandInvalidError, DivideByZeroError);
   /**
    * \brief virtual Destructor
    */
@@ -159,7 +159,7 @@ public:
    * \brief Getter function to retrieve stored integer
    * \return The integer
    */
-  virtual int get_int() const;
+  virtual int get_int() const throw();
 
   /**
    * \brief judge if this Cell is an IntCell or not
@@ -184,28 +184,28 @@ public:
    * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* add(Cell* const c) const;
+  virtual Cell* add(Cell* const c) const throw (OperandInvalidError);
 
   /**
    * \brief Subtract operation.
    * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* subtract(Cell* const c) const;
+  virtual Cell* subtract(Cell* const c) const throw (OperandInvalidError);
 
   /**
    * \brief Multiply operation.
    * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* multiply(Cell* const c) const;
+  virtual Cell* multiply(Cell* const c) const throw (OperandInvalidError);
 
   /**
    * \brief Divide_by operation.
    * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* divide_by(Cell* const c) const;
+  virtual Cell* divide_by(Cell* const c) const throw (DivideByZeroError, OperandInvalidError);
   
 private:
   int int_m;
@@ -227,7 +227,7 @@ public:
    * \brief Getter function to retrieve stored integer
    * \return The integer
    */
-  double get_double() const;
+  double get_double() const throw();
 
   /**
    * \brief judge if this Cell is an DoubleCell or not
@@ -252,28 +252,28 @@ public:
    * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* add(Cell* const c) const;
+  virtual Cell* add(Cell* const c) const throw (OperandInvalidError);
 
   /**
    * \brief Subtract operation.
    * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* subtract(Cell* const c) const;
+  virtual Cell* subtract(Cell* const c) const throw (OperandInvalidError);
 
   /**
    * \brief Multiply operation.
    * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* multiply(Cell* const c) const;
+  virtual Cell* multiply(Cell* const c) const throw (OperandInvalidError);
 
   /**
    * \brief Divide_by operation.
    * \param c Cell pointer to the second operand. Must be an IntCell or DoubleCell.
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
-  virtual Cell* divide_by(Cell* const c) const;
+  virtual Cell* divide_by(Cell* const c) const throw (OperandInvalidError, DivideByZeroError);
 
 private:
   double double_m;
@@ -296,7 +296,7 @@ public:
    * \brief Getter function to retrieve stored symbol
    * \return The string
    */
-  std::string get_symbol() const;
+  std::string get_symbol() const throw ();
 
   /**
    * \brief judge if this Cell is an SymbolCell or not
@@ -341,13 +341,13 @@ public:
    * \brief Accessor (error if this is not a cons cell).
    * \return First child cell.
    */
-  Cell* get_car() const;
+  Cell* get_car() const throw ();
 
   /**
    * \brief Accessor (error if this is not a cons cell).
    * \return Rest child cell.
    */
-  Cell* get_cdr() const;
+  Cell* get_cdr() const throw ();
  
   /**
    * \brief judge if this Cell is an ConsCell or not

@@ -16,14 +16,14 @@
 Cell* eval(Cell* const c)
 {
   if (c == nil) {
-    error_handler("root of tree is nil");
+    throw runtime_error("root of tree is nil");
   }
 
   if (c->is_int() || c->is_double() || c->is_symbol()) return c->copy();
   
   //retrieve the evaluated result of car
   Cell* returned_car_cell = eval(c->get_car());
-  if (returned_car_cell == nil) error_handler("invalid s-expression: root of tree is nil");
+  if (returned_car_cell == nil) throw runtime_error("invalid s-expression: root of tree is nil");
   
   if ((*returned_car_cell).is_symbol()){
     //get the operator
@@ -43,17 +43,17 @@ Cell* eval(Cell* const c)
 
 	//current_cell is not nil, and it should be a conspair
 	if (!current_cell->is_cons()) {
-	  error_handler("cdr must be nil or conspair");
+	  throw runtime_error("cdr must be nil or conspair");
 	}
 
 	//pointer to the cell that contains the value to be added
 	//here eval could be used against a conspair or a int/double cell
 	Cell* value_cell = eval(current_cell->get_car());
 
-	if (value_cell==nil)error_handler("add on nil");
+	if (value_cell==nil)throw runtime_error("add on nil");
 	if (value_cell->is_cons() || value_cell->is_symbol()){
 	  delete value_cell;
-	  error_handler("add operand invalid");
+	  throw runtime_error("add operand invalid");
 	}
     
 	Cell* result = sum->add(value_cell);
@@ -70,7 +70,7 @@ Cell* eval(Cell* const c)
     } else if (operation == "-") {
 
       //error if no operand is supplied
-      if (sub_tree == nil) error_handler("subtract on zero operand!");
+      if (sub_tree == nil) throw runtime_error("subtract on zero operand!");
   
       //Cell pointer to the current working cell
       Cell* current_cell = sub_tree;
@@ -79,7 +79,7 @@ Cell* eval(Cell* const c)
     
       //if subtract only has one operand
       if (sub_tree->get_cdr() == nil) {
-	if (!current_cell->is_cons()) error_handler("s-expression invalid: cdr must be nil or cons!");
+	if (!current_cell->is_cons()) throw runtime_error("s-expression invalid: cdr must be nil or cons!");
     
 	Cell* value_cell = eval(current_cell->get_car());
 
@@ -91,25 +91,25 @@ Cell* eval(Cell* const c)
 	  } else {
 	    //directly delete, for value_cell is ensured to be non nil
 	    delete value_cell;
-	    error_handler("subtract operand invalid!");
+	    throw runtime_error("subtract operand invalid!");
 	  }
 	} else {
-	  error_handler("subtract on nil cell");
+	  throw runtime_error("subtract on nil cell");
 	}
       } else {   
 	// subtract with two operands or more
     
 	minuend_cell = eval(current_cell->get_car());
-	if (minuend_cell==nil) error_handler("subtract on nil cell");
+	if (minuend_cell==nil) throw runtime_error("subtract on nil cell");
 	current_cell = current_cell->get_cdr();
 
 	while (current_cell != nil) {
 	  Cell* value_cell = eval(current_cell->get_car());
       
-	  if (value_cell==nil) error_handler("subtract on nil");
+	  if (value_cell==nil) throw runtime_error("subtract on nil");
 	  if (value_cell->is_cons() || value_cell->is_symbol()){
 	    delete value_cell;
-	    error_handler("subtract operand invalid");
+	    throw runtime_error("subtract operand invalid");
 	  }
       
 	  Cell* result_cell = minuend_cell->subtract(value_cell);
@@ -133,17 +133,17 @@ Cell* eval(Cell* const c)
 
 	//current_cell is not nil, and it should be a conspair
 	if (!current_cell->is_cons()) {
-	  error_handler("cdr must be nil or conspair");
+	  throw runtime_error("cdr must be nil or conspair");
 	}
 
 	//pointer to the cell that contains the value to be added
 	//here eval could be used against a conspair or a int/double cell
 	Cell* value_cell = eval(current_cell->get_car());
 
-	if (value_cell==nil) error_handler("multiply on nil");
+	if (value_cell==nil) throw runtime_error("multiply on nil");
 	if (value_cell->is_cons() || value_cell->is_symbol()){
 	  delete value_cell;
-	  error_handler("multiply operand invalid");
+	  throw runtime_error("multiply operand invalid");
 	}
           
 	Cell* result = product->multiply(value_cell);
@@ -159,7 +159,7 @@ Cell* eval(Cell* const c)
 //////////////////////////////////// / ///////////////////////////////////////////
     } else if (operation == "/") {
       //error if no operand is supplied
-      if (sub_tree == nil) error_handler("division on zero operand!");
+      if (sub_tree == nil) throw runtime_error("division on zero operand!");
   
       //Cell pointer to the current working cell
       Cell* current_cell = sub_tree;
@@ -168,7 +168,7 @@ Cell* eval(Cell* const c)
     
       //if subtract only has one operand
       if (sub_tree->get_cdr() == nil) {
-	if (!current_cell->is_cons()) error_handler("s-expression invalid: cdr must be nil or cons!");
+	if (!current_cell->is_cons()) throw runtime_error("s-expression invalid: cdr must be nil or cons!");
     
 	Cell* value_cell = eval(current_cell->get_car());
 
@@ -180,25 +180,25 @@ Cell* eval(Cell* const c)
 	  } else {
 	    //directly delete, for value_cell is ensured to be non nil
 	    delete value_cell;
-	    error_handler("subtract operand invalid!");
+	    throw runtime_error("subtract operand invalid!");
 	  }
 	} else {
-	  error_handler("subtract on nil cell");
+	  throw runtime_error("subtract on nil cell");
 	}
       } else {   
 	// subtract with two operands or more
     
 	dividend_cell = eval(current_cell->get_car());
-	if (dividend_cell==nil) error_handler("subtract on nil cell");
+	if (dividend_cell==nil) throw runtime_error("subtract on nil cell");
 	current_cell = current_cell->get_cdr();
 
 	while (current_cell != nil) {
 	  Cell* value_cell = eval(current_cell->get_car());
       
-	  if (value_cell==nil) error_handler("subtract on nil");
+	  if (value_cell==nil) throw runtime_error("subtract on nil");
 	  if (value_cell->is_cons() || value_cell->is_symbol()){
 	    delete value_cell;
-	    error_handler("subtract operand invalid");
+	    throw runtime_error("subtract operand invalid");
 	  }
       
 	  Cell* result_cell = dividend_cell->divide_by(value_cell);
@@ -216,9 +216,9 @@ Cell* eval(Cell* const c)
       //current working cell
       Cell* current_cell = sub_tree;
 
-      if (current_cell == nil || !current_cell -> is_cons()) error_handler("s-expression invalid: invalid ceiling operand!");
+      if (current_cell == nil || !current_cell -> is_cons()) throw runtime_error("s-expression invalid: invalid ceiling operand!");
 
-      if (current_cell->get_cdr()!=nil) error_handler("s-expression invalid: ceiling on more than one operands");
+      if (current_cell->get_cdr()!=nil) throw runtime_error("s-expression invalid: ceiling on more than one operands");
 	
       //take the ceiling and return
       Cell* returned_value = eval(current_cell->get_car());
@@ -229,16 +229,16 @@ Cell* eval(Cell* const c)
 	return new IntCell(ceilinged_value);
       } else {
 	if(returned_value!=nil) delete returned_value;
-	error_handler("s-expression invalid: ceiling operand invalid!");
+	throw runtime_error("s-expression invalid: ceiling operand invalid!");
       }
 /////////////////////////////////////floor///////////////////////////////////////////      
     } else if (operation == "floor") {
       //current working cell
       Cell* current_cell = sub_tree;
 
-      if (current_cell == nil || !current_cell -> is_cons()) error_handler("s-expression invalid: invalid ceiling operand!");
+      if (current_cell == nil || !current_cell -> is_cons()) throw runtime_error("s-expression invalid: invalid ceiling operand!");
 
-      if (current_cell->get_cdr()!=nil) error_handler("s-expression invalid: ceiling on more than one operands");
+      if (current_cell->get_cdr()!=nil) throw runtime_error("s-expression invalid: ceiling on more than one operands");
 	
       //take the floor and return
       Cell* returned_value = eval(current_cell->get_car());
@@ -248,22 +248,22 @@ Cell* eval(Cell* const c)
 	return new IntCell(ceilinged_value);
       } else {
 	if(returned_value!=nil) delete returned_value;
-	error_handler("s-expression invalid: floor operand invalid");
+	throw runtime_error("s-expression invalid: floor operand invalid");
       }
 ///////////////////////////////////////if/////////////////////////////////////////      
     } else if (operation == "if") {
       //temporary Cell pointers;
       Cell* condition = sub_tree;
-      if (condition==nil || !condition->is_cons()) error_handler("s-expression invalid: if condition is not a conspair");
+      if (condition==nil || !condition->is_cons()) throw runtime_error("s-expression invalid: if condition is not a conspair");
       Cell* if_true = condition->get_cdr();
-      if (if_true==nil || !if_true->is_cons()) error_handler("s-expression invalid: the true return value is not a cospair");
+      if (if_true==nil || !if_true->is_cons()) throw runtime_error("s-expression invalid: the true return value is not a cospair");
       Cell* if_false = if_true->get_cdr(); 
 
       //directly return the second parameter if the third doesn't exist
       if (if_false==nil) {
 	return eval(if_true->get_car());
       } else {
-	if (if_false->get_cdr()!=nil) error_handler("s-expression invalid: if operator on more than three operands");
+	if (if_false->get_cdr()!=nil) throw runtime_error("s-expression invalid: if operator on more than three operands");
 	  
 	Cell* condition_cell = eval(condition->get_car());
 	bool flag = false;
@@ -277,7 +277,7 @@ Cell* eval(Cell* const c)
 	  flag = condition_cell->get_symbol()!="" ? true : false;
 	} else {
 	  if(condition_cell!=nil) delete condition_cell;
-	  error_handler("s-expression invalid: condition operand invalid to if");
+	  throw runtime_error("s-expression invalid: condition operand invalid to if");
 	}
 
 	if(condition_cell!=nil) delete condition_cell;
@@ -287,18 +287,18 @@ Cell* eval(Cell* const c)
 //////////////////////////////////////quote//////////////////////////////////////////      
     } else if (operation == "quote") {
       //return sub_tree's cdr directly, by making a deep copy first
-      if (sub_tree==nil || !sub_tree->is_cons()) error_handler("operand for quote invalid");
-      if (sub_tree->get_cdr()!=nil) error_handler("operand for quote more than one!");
+      if (sub_tree==nil || !sub_tree->is_cons()) throw runtime_error("operand for quote invalid");
+      if (sub_tree->get_cdr()!=nil) throw runtime_error("operand for quote more than one!");
       return sub_tree->get_car()->copy();
 ///////////////////////////////////////cons/////////////////////////////////////////
     } else if (operation == "cons") {
-      if (sub_tree == nil) error_handler("operand for cons invalid");
+      if (sub_tree == nil) throw runtime_error("operand for cons invalid");
       //ConsCell pointers. 
       Cell* car_tobe = sub_tree;
       Cell* cdr_tobe = sub_tree->get_cdr();
 
-      if (cdr_tobe == nil) error_handler("operand for cons invalid");
-      if (cdr_tobe->get_cdr() != nil) error_handler("operand for cons more than two!");
+      if (cdr_tobe == nil) throw runtime_error("operand for cons invalid");
+      if (cdr_tobe->get_cdr() != nil) throw runtime_error("operand for cons more than two!");
   
       Cell* car_value = eval(car_tobe->get_car());
       Cell* cdr_value = eval(cdr_tobe->get_car());
@@ -308,8 +308,8 @@ Cell* eval(Cell* const c)
       return return_cell;
 //////////////////////////////////////car//////////////////////////////////////////      
     } else if (operation == "car") {
-      if (sub_tree == nil) error_handler("zero operand for car");
-      if (sub_tree->get_cdr() != nil) error_handler("more than one operands for car");
+      if (sub_tree == nil) throw runtime_error("zero operand for car");
+      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for car");
       //retrieve the cell upon which car should be taken
       Cell* value_cell = eval(sub_tree->get_car());
       if (value_cell != nil) {
@@ -319,15 +319,15 @@ Cell* eval(Cell* const c)
 	  return value_car;
 	} else {
 	  delete value_cell; 
-	  error_handler("car on non-cons cell");
+	  throw runtime_error("car on non-cons cell");
 	}
       } else {
-	error_handler ("car on nil");
+	throw runtime_error ("car on nil");
       }
 ///////////////////////////////////////cdr/////////////////////////////////////////      
     } else if (operation == "cdr") {
-      if (sub_tree == nil) error_handler("zero operand for cdr");
-      if (sub_tree->get_cdr() != nil) error_handler("more than one operands for cdr");
+      if (sub_tree == nil) throw runtime_error("zero operand for cdr");
+      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for cdr");
       //retrieve the cell upon which cdr should be taken
       Cell* value_cell = eval(sub_tree->get_car());
       if (value_cell != nil) {
@@ -337,15 +337,15 @@ Cell* eval(Cell* const c)
 	  return value_cdr;
 	} else {
 	  delete value_cell; 
-	  error_handler("cdr on non-cons cell");
+	  throw runtime_error("cdr on non-cons cell");
 	}
       } else {
-	error_handler ("cdr on nil");
+	throw runtime_error ("cdr on nil");
       }
 ////////////////////////////////////////nullp////////////////////////////////////////      
     } else if (operation == "nullp") {
-      if (sub_tree == nil) error_handler("zero operand for nullp");
-      if (sub_tree->get_cdr() != nil) error_handler("more than one operands for nullp");
+      if (sub_tree == nil) throw runtime_error("zero operand for nullp");
+      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for nullp");
 
       Cell* value_cell = eval(sub_tree->get_car());
       if (value_cell != nil) {
@@ -357,11 +357,11 @@ Cell* eval(Cell* const c)
 /////////////////////////////////////invalid operation///////////////////////////////////////////      
     } else {    
       //If this line is executed, it means that no matching operation found
-      error_handler("Invalid s-expression: unexpected operator \""+operation+"\"");
+      throw runtime_error("Invalid s-expression: unexpected operator \""+operation+"\"");
     }
   } else {
     if (returned_car_cell!=nil) delete returned_car_cell;
-    error_handler ("Invalid s-expression: root of subtree is not evaluated to be a symbol cell");
+    throw runtime_error("Invalid s-expression: root of subtree is not evaluated to be a symbol cell");
   }  
 }
 
