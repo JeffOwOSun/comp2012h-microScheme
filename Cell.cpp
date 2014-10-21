@@ -42,47 +42,47 @@ bool Cell::is_cons() const
   return false;
 }
 
-int Cell::get_int() const 
+int Cell::get_int() const throw(UnimplementedError)
 {
   throw UnimplementedError("get_int");
 }
 
-double Cell::get_double() const
+double Cell::get_double() const throw(UnimplementedError)
 {
   throw UnimplementedError("get_double");
 }
 
-string Cell::get_symbol() const
+string Cell::get_symbol() const throw(UnimplementedError)
 {
   throw UnimplementedError("get_symbol");
 }
 
-Cell* Cell::get_car() const
+Cell* Cell::get_car() const throw(UnimplementedError)
 {
   throw UnimplementedError("get_car");
 }
 
-Cell* Cell::get_cdr() const
+Cell* Cell::get_cdr() const throw(UnimplementedError)
 {
   throw UnimplementedError("get_cdr");
 }
 
-Cell* Cell::add(Cell* const c) const
+Cell* Cell::add(Cell* const c) const throw(UnimplementedError, OperandInvalidError)
 {
-  throw UnimplementedError("add");
+  throw UnimplementedError("add"); 
 }
 
-Cell* Cell::subtract(Cell* const c) const
+Cell* Cell::subtract(Cell* const c) const throw(UnimplementedError, OperandInvalidError)
 {
   throw UnimplementedError("subtract");
 }
 
-Cell* Cell::multiply(Cell* const c) const
+Cell* Cell::multiply(Cell* const c) const throw(UnimplementedError, OperandInvalidError)
 {
   throw UnimplementedError("multiply");
 }
 
-Cell* Cell::divide_by(Cell* const c) const
+Cell* Cell::divide_by(Cell* const c) const throw(UnimplementedError, OperandInvalidError, DivideByZeroError)
 {
   throw UnimplementedError("divide_by");
 }
@@ -93,7 +93,7 @@ Cell::~Cell(){}
 
 IntCell::IntCell(const int i): int_m(i) {}
 
-int IntCell::get_int() const
+int IntCell::get_int() const throw ()
 {
   return int_m;
 }
@@ -114,7 +114,7 @@ Cell* IntCell::copy() const
   return new IntCell(int_m);
 }
 
-Cell* IntCell::add (Cell* const c) const
+Cell* IntCell::add (Cell* const c) const throw (OperandInvalidError)
 {
   if (c->is_int()) {
     return new IntCell(get_int() + c->get_int());
@@ -122,7 +122,7 @@ Cell* IntCell::add (Cell* const c) const
     return new DoubleCell(get_int() + c->get_double());
   } else throw OperandInvalidError("add");
 }
-Cell* IntCell::subtract (Cell* const c) const
+Cell* IntCell::subtract (Cell* const c) const throw (OperandInvalidError)
 {
   if (c->is_int()) {
     return new IntCell(get_int() - c->get_int());
@@ -131,7 +131,7 @@ Cell* IntCell::subtract (Cell* const c) const
   } else throw OperandInvalidError("subtract");
 
 }
-Cell* IntCell::multiply (Cell* const c) const
+Cell* IntCell::multiply (Cell* const c) const throw (OperandInvalidError)
 {
   if (c->is_int()) {
     return new IntCell(get_int() * c->get_int());
@@ -139,7 +139,7 @@ Cell* IntCell::multiply (Cell* const c) const
     return new DoubleCell(get_int() * c->get_double());
   } else throw OperandInvalidError("multiply");
 }
-Cell* IntCell::divide_by (Cell* const c) const
+Cell* IntCell::divide_by (Cell* const c) const throw (DivideByZeroError, OperandInvalidError)
 {
   if (c->is_int()) {
     if (c->get_int() == 0) throw DivideByZeroError();
@@ -153,7 +153,7 @@ Cell* IntCell::divide_by (Cell* const c) const
 
 DoubleCell::DoubleCell(const double d): double_m(d) {}
 
-double DoubleCell::get_double() const
+double DoubleCell::get_double() const throw ()
 {
   return double_m;
 }
@@ -174,7 +174,7 @@ Cell* DoubleCell::copy() const
   return new DoubleCell(double_m);
 }
 
-Cell* DoubleCell::add(Cell* const c) const
+Cell* DoubleCell::add(Cell* const c) const throw (OperandInvalidError)
 {
   if (c->is_int()) {
     return new DoubleCell(get_double() + c->get_int());
@@ -182,7 +182,7 @@ Cell* DoubleCell::add(Cell* const c) const
     return new DoubleCell(get_double() + c->get_double());
   } else throw OperandInvalidError("add");
 }
-Cell* DoubleCell::subtract(Cell* const c) const
+Cell* DoubleCell::subtract(Cell* const c) const throw (OperandInvalidError)
 {
   if (c->is_int()) {
     return new DoubleCell(get_double() - c->get_int());
@@ -191,7 +191,7 @@ Cell* DoubleCell::subtract(Cell* const c) const
   } else throw OperandInvalidError("subtract");
 
 }
-Cell* DoubleCell::multiply(Cell* const c) const
+Cell* DoubleCell::multiply(Cell* const c) const throw (OperandInvalidError)
 {
   if (c->is_int()) {
     return new DoubleCell(get_double() * c->get_int());
@@ -199,7 +199,7 @@ Cell* DoubleCell::multiply(Cell* const c) const
     return new DoubleCell(get_double() * c->get_double());
   } else throw OperandInvalidError("multiply");
 }
-Cell* DoubleCell::divide_by(Cell* const c) const
+Cell* DoubleCell::divide_by(Cell* const c) const throw (DivideByZeroError, OperandInvalidError)
 {
   if (c->is_int()) {
     if (c->get_int() == 0) throw DivideByZeroError();
@@ -217,7 +217,7 @@ SymbolCell::SymbolCell(const char* const s)
   strcpy(symbol_m, s);
 }
 
-string SymbolCell::get_symbol() const
+string SymbolCell::get_symbol() const throw()
 {
   return string(symbol_m);
 }
@@ -247,12 +247,12 @@ SymbolCell::~SymbolCell()
 
 ConsCell::ConsCell(Cell* const my_car, Cell* const my_cdr): car_m(my_car), cdr_m(my_cdr){}
 
-Cell* ConsCell::get_car() const
+Cell* ConsCell::get_car() const throw()
 {
   return car_m;
 }
 
-Cell* ConsCell::get_cdr() const
+Cell* ConsCell::get_cdr() const throw()
 {
   return cdr_m;
 }

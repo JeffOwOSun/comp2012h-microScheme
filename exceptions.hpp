@@ -7,6 +7,8 @@
 
 #include<stdexcept>
 #include<string>
+#include<stdio.h>
+#include<stdlib.h>
 using namespace std;
 
 /**
@@ -46,24 +48,7 @@ public:
    * \param operation The name for the operation that is supplied with mismatched number of operands
    * \param n Number of expected operand number
    */
-  OperandNumberMismatchError(string operation, int n);
-  
-  /**
-   * \brief Constructor
-   * \param operation The name for the operation that is supplied with mismatched number of operands
-   * \param n Number of expected operand number
-   * \param m Number of expected operand number. OR relationship with n
-   */
-  OperandNumberMismatchError(string operation, int n, int m);
-
-  /**
-   * \brief Constructor
-   * \param operation The name for the operation that is supplied with mismatched number of operands
-   * \param n Number of expected operand number
-   * \param m Number of expected operand number. OR relationship with n
-   * \param k Number of expected operand number. OR relationship with m
-   */
-  OperandNumberMismatchError(string operation, int n, int m, int k);
+  OperandNumberMismatchError(string operation, string n);
 };
 
 /**
