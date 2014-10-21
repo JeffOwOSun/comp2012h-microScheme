@@ -366,15 +366,23 @@ Cell* eval(Cell* const c)
 
       //retrieve the key
       Cell* key_cell = eval(sub_tree->get_car());
-      if (key_cell == nil || !key_cell->is_symbol()) throw OperandInvalidError("define");
-      //look up the map if the key prexists
-      if (definition_map.count(key_cell->get_symbol())!=0) throw runtime_error(key_cell->get_symbol()+" already exists!");
+      try {
+        if (key_cell == nil || !key_cell->is_symbol()) throw OperandInvalidError("define");
+        //look up the map if the key prexists
+        if (definition_map.count(key_cell->get_symbol())!=0) throw runtime_error(key_cell->get_symbol()+" already exists!");
+      } catch (...) {
+        delete key_cell;
+        throw;
+      }
       //retrieve the defintion
       Cell* definition_cell = eval(sub_tree->get_cdr()->get_car());
       //if (definition_cell == nil) throw OperandInvalidError("define");     
       //store the key and the evaluated cell to the map
       definition_map[key_cell->get_symbol()] = definition_cell;
       return nil;
+////////////////////////////////////////lookup dictionary////////////////////////////////////////       
+    } else if (definition_map.count(operation)!=0) {
+      return definition_map.at(operation)->copy();
 /////////////////////////////////////invalid operation///////////////////////////////////////////      
     } else {    
       //If this line is executed, it means that no matching operation found
