@@ -362,7 +362,7 @@ Cell* eval(Cell* const c)
       }
 ////////////////////////////////////////define////////////////////////////////////////      
     } else if (operation == "define") {
-      if (sub_tree == nil || sub_tree->get_cdr() == nil || sub_tree->get_cdr()->get_cdr()!=nil) throw OperandNumberMismatchError("define",2);
+      if (sub_tree == nil || sub_tree->get_cdr() == nil || sub_tree->get_cdr()->get_cdr()!=nil) throw OperandNumberMismatchError("define","2");
 
       //retrieve the key
       Cell* key_cell = eval(sub_tree->get_car());
