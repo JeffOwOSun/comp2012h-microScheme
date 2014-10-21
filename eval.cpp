@@ -382,6 +382,7 @@ Cell* eval(Cell* const c)
       return nil;
 ////////////////////////////////////////lookup dictionary////////////////////////////////////////       
     } else if (definition_map.count(operation)!=0) {
+      //retrieve and make a copy of the definition
       return definition_map.at(operation)->copy();
 /////////////////////////////////////invalid operation///////////////////////////////////////////      
     } else {    
