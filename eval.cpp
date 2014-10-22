@@ -15,6 +15,17 @@
 map <string, Cell*> definition_map;
 
 /**
+ * \brief A helper function for safely delete
+ * \param c Reference to the pointer to be deleted. T should be a pointer type
+ */
+template<typename T>
+void safe_delete(T& c)
+{
+  if (c != nil) delete c;
+  c = NULL;
+}
+
+/**
  * \brief The evaluation function that calculates the parsed s-expression tree
  * \param c A constant pointer to a Cell instance, which is the root of the tree to be computed. Root of tree must not be nil, or error occurs.
  * \return A pointer to the Cell containing the final answer. This Cell is always a temporary Cell that should be disposed of whenever it's no longer needed.
@@ -46,7 +57,7 @@ Cell* eval(Cell* const c)
   if ((*returned_car_cell).is_symbol()){
     //get the operator
     std::string operation = (*returned_car_cell).get_symbol();
-    delete returned_car_cell;
+    safe_delete(returned_car_cell);
     
     Cell* sub_tree = c->get_cdr();
     
@@ -70,13 +81,13 @@ Cell* eval(Cell* const c)
 
 	if (value_cell==nil)throw runtime_error("add on nil");
 	if (value_cell->is_cons() || value_cell->is_symbol()){
-	  delete value_cell;
+	  safe_delete(value_cell);
 	  throw runtime_error("add operand invalid");
 	}
     
 	Cell* result = sum->add(value_cell);
-	delete sum;
-	delete value_cell;
+	safe_delete(sum);
+	safe_delete(value_cell);
 	sum = result;
     
 	//move current_cell forward;
@@ -108,7 +119,7 @@ Cell* eval(Cell* const c)
 	    return new DoubleCell(-value_cell->get_double());
 	  } else {
 	    //directly delete, for value_cell is ensured to be non nil
-	    delete value_cell;
+	    safe_delete(value_cell);
 	    throw runtime_error("subtract operand invalid!");
 	  }
 	} else {
@@ -126,13 +137,13 @@ Cell* eval(Cell* const c)
       
 	  if (value_cell==nil) throw runtime_error("subtract on nil");
 	  if (value_cell->is_cons() || value_cell->is_symbol()){
-	    delete value_cell;
+	    safe_delete(value_cell);
 	    throw runtime_error("subtract operand invalid");
 	  }
       
 	  Cell* result_cell = minuend_cell->subtract(value_cell);
-	  delete minuend_cell;
-	  delete value_cell;
+	  safe_delete(minuend_cell);
+	  safe_delete(value_cell);
 	  minuend_cell = result_cell;
 
 	  current_cell = current_cell->get_cdr();
@@ -160,13 +171,13 @@ Cell* eval(Cell* const c)
 
 	if (value_cell==nil) throw runtime_error("multiply on nil");
 	if (value_cell->is_cons() || value_cell->is_symbol()){
-	  delete value_cell;
+	  safe_delete(value_cell);
 	  throw runtime_error("multiply operand invalid");
 	}
           
 	Cell* result = product->multiply(value_cell);
-	delete product;
-	delete value_cell;
+	safe_delete(product);
+	safe_delete(value_cell);
 	product = result;
    
 	//move current_cell forward;
@@ -197,7 +208,7 @@ Cell* eval(Cell* const c)
 	    return new DoubleCell(1/value_cell->get_double());
 	  } else {
 	    //directly delete, for value_cell is ensured to be non nil
-	    delete value_cell;
+	    safe_delete(value_cell);
 	    throw runtime_error("subtract operand invalid!");
 	  }
 	} else {
@@ -215,13 +226,13 @@ Cell* eval(Cell* const c)
       
 	  if (value_cell==nil) throw runtime_error("subtract on nil");
 	  if (value_cell->is_cons() || value_cell->is_symbol()){
-	    delete value_cell;
+	    safe_delete(value_cell);
 	    throw runtime_error("subtract operand invalid");
 	  }
       
 	  Cell* result_cell = dividend_cell->divide_by(value_cell);
-	  delete dividend_cell;
-	  delete value_cell;
+	  safe_delete(dividend_cell);
+	  safe_delete(value_cell);
 	  dividend_cell = result_cell;
 
 	  current_cell = current_cell->get_cdr();
@@ -243,10 +254,10 @@ Cell* eval(Cell* const c)
       if (returned_value->is_double()){
 	int ceilinged_value = int(returned_value->get_double());
 	if (ceilinged_value < returned_value->get_double()) ++ceilinged_value;
-	delete returned_value;
+	safe_delete(returned_value);
 	return new IntCell(ceilinged_value);
       } else {
-	if(returned_value!=nil) delete returned_value;
+	safe_delete(returned_value);
 	throw runtime_error("s-expression invalid: ceiling operand invalid!");
       }
 /////////////////////////////////////floor///////////////////////////////////////////      
@@ -262,10 +273,10 @@ Cell* eval(Cell* const c)
       Cell* returned_value = eval(current_cell->get_car());
       if (returned_value->is_double()){
 	int ceilinged_value = int(returned_value->get_double());
-	delete returned_value;
+	safe_delete(returned_value);
 	return new IntCell(ceilinged_value);
       } else {
-	if(returned_value!=nil) delete returned_value;
+	safe_delete(returned_value);
 	throw runtime_error("s-expression invalid: floor operand invalid");
       }
 ///////////////////////////////////////if/////////////////////////////////////////      
@@ -294,11 +305,11 @@ Cell* eval(Cell* const c)
 	} else if (condition_cell->is_symbol()) {
 	  flag = condition_cell->get_symbol()!="" ? true : false;
 	} else {
-	  if(condition_cell!=nil) delete condition_cell;
+	  safe_delete(condition_cell);
 	  throw runtime_error("s-expression invalid: condition operand invalid to if");
 	}
 
-	if(condition_cell!=nil) delete condition_cell;
+	safe_delete(condition_cell);
       
 	return flag ? eval(if_true->get_car()) : eval(if_false->get_car());
       }
@@ -333,10 +344,10 @@ Cell* eval(Cell* const c)
       if (value_cell != nil) {
 	if (value_cell->is_cons()) {
 	  Cell* value_car = value_cell->get_car()->copy();
-	  delete value_cell;
+	  safe_delete(value_cell);
 	  return value_car;
 	} else {
-	  delete value_cell; 
+	  safe_delete(value_cell); 
 	  throw runtime_error("car on non-cons cell");
 	}
       } else {
@@ -351,10 +362,10 @@ Cell* eval(Cell* const c)
       if (value_cell != nil) {
 	if (value_cell->is_cons()) {
 	  Cell* value_cdr = value_cell->get_cdr()->copy();
-	  delete value_cell;
+	  safe_delete(value_cell);
 	  return value_cdr;
 	} else {
-	  delete value_cell; 
+	  safe_delete(value_cell); 
 	  throw runtime_error("cdr on non-cons cell");
 	}
       } else {
@@ -367,7 +378,7 @@ Cell* eval(Cell* const c)
 
       Cell* value_cell = eval(sub_tree->get_car());
       if (value_cell != nil) {
-        delete value_cell;
+        safe_delete(value_cell);
         return new IntCell(0);
       } else {
         return new IntCell(1);
@@ -383,7 +394,7 @@ Cell* eval(Cell* const c)
         //look up the map if the key prexists
         if (definition_map.count(key_cell->get_symbol())!=0) throw runtime_error(key_cell->get_symbol()+" already exists!");
       } catch (...) {
-        delete key_cell;
+        safe_delete(key_cell);
         throw;
       }
       //retrieve the defintion
@@ -402,10 +413,10 @@ Cell* eval(Cell* const c)
       Cell* result_cell;
       while (current_cell->get_cdr()!=nil) {
 	if (!(result_cell = eval(current_cell->get_car())) -> smaller_than(eval(current_cell -> get_cdr() -> get_car()))) {
-	  if (result_cell != nil) delete result_cell;
+	  safe_delete(result_cell);
 	  return new IntCell(0); 
 	}
-	if (result_cell != nil) delete result_cell;
+	safe_delete(result_cell);
 	current_cell = current_cell->get_cdr();
       }
       //directly return 1, including the case where only one operand is supplied
@@ -417,8 +428,27 @@ Cell* eval(Cell* const c)
 
       Cell* result_cell = eval(sub_tree->get_car());
       Cell* not_cell = result_cell->get_not();
-      if (result_cell!=nil) delete result_cell;
+      safe_delete(result_cell);
       return not_cell;
+////////////////////////////////////////print////////////////////////////////////////      
+    } else if (operation == "print") {
+      //limit to one operand
+      if (sub_tree == nil || sub_tree->get_cdr() != nil) throw OperandNumberMismatchError("print","exactly 1");
+
+      Cell* result_cell = eval(sub_tree->get_car());
+      result_cell->print(cout);
+      cout<<endl;
+      safe_delete(result_cell);
+      return nil;
+////////////////////////////////////////eval////////////////////////////////////////      
+    } else if (operation == "eval") {
+      //limit to one operand
+      if (sub_tree == nil || sub_tree -> get_cdr() != nil) throw OperandNumberMismatchError("eval","exactly 1");
+
+      Cell* car_result = eval(sub_tree->get_car());
+      Cell* eval_result = eval(car_result);
+      safe_delete(car_result);
+      return eval_result;
 ////////////////////////////////////////lookup dictionary////////////////////////////////////////       
     } else if (definition_map.count(operation)!=0) {
       //retrieve and make a copy of the definition
@@ -429,7 +459,7 @@ Cell* eval(Cell* const c)
       throw runtime_error("Invalid s-expression: unexpected operator \""+operation+"\"");
     }
   } else {
-    if (returned_car_cell!=nil) delete returned_car_cell;
+    safe_delete(returned_car_cell);
     throw runtime_error("Invalid s-expression: root of subtree is not evaluated to be a symbol cell");
   }  
 }
