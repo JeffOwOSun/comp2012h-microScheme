@@ -16,7 +16,7 @@
 #include "Cell.hpp"
 // Reminder: cons.hpp expects nil to be defined somewhere.  For this
 // implementation, this is the logical place to define it.
-Cell* const nil = new IntCell(0);
+Cell* const nil = new ConsCell(nil, nil);
 
 using namespace std;
 
