@@ -131,6 +131,22 @@ public:
    * \return Cell pointer to the result Cell. This Cell should be made using new. User should take care of proper deletion after using the returned Cell
    */
   virtual Cell* divide_by(Cell* const c) const throw(UnimplementedError, OperandInvalidError, DivideByZeroError);
+
+  /**
+   * \brief < operation. Throw an "unimplemented" error here in ABC
+   * \param c Cell pointer to the second operand
+   * \return A bool value indicating the result.
+   */
+  virtual bool smaller_than(Cell* const c) const throw(UnimplementedError, OperandInvalidError);
+
+  
+  /**
+   * \brief > operation. Throw an "unimplemented" error here in ABC
+   * \param c Cell pointer to the second operand
+   * \return A bool value indicating the result.
+   */
+  virtual bool larger_than(Cell* const c) const throw(UnimplementedError, OperandInvalidError);
+
   /**
    * \brief virtual Destructor
    */
@@ -206,6 +222,23 @@ public:
    * \return Cell pointer to the result Cell. This Cell is made using new. User should take care of proper deletion after using the returned Cell
    */
   virtual Cell* divide_by(Cell* const c) const throw (DivideByZeroError, OperandInvalidError);
+
+  
+  /**
+   * \brief < operation.
+   * \param c Cell pointer to the second operand
+   * \return A bool value indicating the result.
+   */
+  virtual bool smaller_than(Cell* const c) const throw(OperandInvalidError);
+
+  
+  /**
+   * \brief > operation.
+   * \param c Cell pointer to the second operand
+   * \return A bool value indicating the result.
+   */
+  virtual bool larger_than(Cell* const c) const throw(OperandInvalidError);
+
   
 private:
   int int_m;
@@ -275,6 +308,21 @@ public:
    */
   virtual Cell* divide_by(Cell* const c) const throw (OperandInvalidError, DivideByZeroError);
 
+  
+  /**
+   * \brief < operation.
+   * \param c Cell pointer to the second operand
+   * \return A bool value indicating the result.
+   */
+  virtual bool smaller_than(Cell* const c) const throw(OperandInvalidError);
+
+  
+  /**
+   * \brief > operation.
+   * \param c Cell pointer to the second operand
+   * \return A bool value indicating the result.
+   */
+  virtual bool larger_than(Cell* const c) const throw(OperandInvalidError);
 private:
   double double_m;
 };

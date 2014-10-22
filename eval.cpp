@@ -392,6 +392,22 @@ Cell* eval(Cell* const c)
       //store the key and the evaluated cell to the map
       definition_map[key_cell->get_symbol()] = definition_cell;
       return nil;
+////////////////////////////////////////<////////////////////////////////////////      
+    } else if (operation == "<") {
+      //for zero operand
+      if (sub_tree == nil) return new IntCell(1);
+
+      Cell* current_cell = sub_tree;
+      //while there's more than one operand left
+      while (current_cell->get_cdr()!=nil) {
+	if (!eval(current_cell->get_car()) -> smaller_than(eval(current_cell -> get_cdr() -> get_car()))) {
+	  return new IntCell(0); 
+	}
+	current_cell = current_cell->get_cdr();
+      }
+      //directly return 1, including the case where only one operand is supplied
+      return new IntCell(1);
+
 ////////////////////////////////////////lookup dictionary////////////////////////////////////////       
     } else if (definition_map.count(operation)!=0) {
       //retrieve and make a copy of the definition

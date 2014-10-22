@@ -87,6 +87,16 @@ Cell* Cell::divide_by(Cell* const c) const throw(UnimplementedError, OperandInva
   throw UnimplementedError("divide_by");
 }
 
+bool Cell::smaller_than(Cell* const c) const throw(UnimplementedError, OperandInvalidError)
+{
+  throw UnimplementedError("smaller_than");
+}
+
+bool Cell::larger_than(Cell* const c) const throw(UnimplementedError, OperandInvalidError)
+{
+  throw UnimplementedError("larger_than");
+}
+
 Cell::~Cell(){}
 
 /////////////////////////////////////IntCell//////////////////////////////////////
@@ -149,6 +159,23 @@ Cell* IntCell::divide_by (Cell* const c) const throw (DivideByZeroError, Operand
     return new DoubleCell(get_int() / c->get_double());
   } else throw OperandInvalidError("divide_by");
 }
+bool IntCell::smaller_than(Cell* const c) const throw(OperandInvalidError)
+{
+  if (c->is_int()) {
+    return get_int() < c->get_int();
+  } else if (c->is_double()) {
+    return get_int() < c->get_double();
+  } else throw OperandInvalidError("smaller_than");
+}
+
+bool IntCell::larger_than(Cell* const c) const throw(OperandInvalidError)
+{
+  if (c->is_int()) {
+    return get_int() > c->get_int();
+  } else if (c->is_double()) {
+    return get_int() > c->get_double();
+  } else throw OperandInvalidError ("larger_than");
+}
 ////////////////////////////////////DoubleCell////////////////////////////////////
 
 DoubleCell::DoubleCell(const double d): double_m(d) {}
@@ -208,6 +235,23 @@ Cell* DoubleCell::divide_by(Cell* const c) const throw (DivideByZeroError, Opera
     if (c->get_double() == 0) throw DivideByZeroError();
     return new DoubleCell(get_double() / c->get_double());
   } else throw OperandInvalidError("divide_by");
+}
+bool DoubleCell::smaller_than(Cell* const c) const throw(OperandInvalidError)
+{
+  if (c->is_int()) {
+    return get_double() < c->get_int();
+  } else if (c->is_double()) {
+    return get_double() < c->get_double();
+  } else throw OperandInvalidError("smaller_than");
+}
+
+bool DoubleCell::larger_than(Cell* const c) const throw(OperandInvalidError)
+{
+  if (c->is_int()) {
+    return get_double() > c->get_int();
+  } else if (c->is_double()) {
+    return get_double() > c->get_double();
+  } else throw OperandInvalidError ("larger_than");
 }
 ///////////////////////////////////SymbolCell/////////////////////////////////////
 
