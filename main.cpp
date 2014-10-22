@@ -23,7 +23,7 @@ void parse_eval_print(string sexpr)
   try {
     Cell* root = parse(sexpr);
     Cell* result = eval(root);
-    if ( result == NULL ) {
+    if ( result == nil ) {
       cout << "()" << endl;
     } else {
       cout << *result << endl;
