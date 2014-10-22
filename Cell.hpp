@@ -381,7 +381,7 @@ public:
    * \return Pointer to the newly made Cell;
    */
   Cell* copy() const;
-
+  
   /**
    * \brief Destructor
    */
@@ -432,6 +432,13 @@ public:
    * \return Pointer to the newly made Cell;
    */
   Cell* copy() const;
+
+  
+  /**
+   * \brief Not operation.
+   * \return Pointer to the Cell containing the value. Delete immediately after use
+   */
+  virtual Cell* get_not() const throw();
 
   /**
    * \brief Destructor. Recursively delete the whole tree rooted at this ConsCell. Use with caution.

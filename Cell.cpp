@@ -351,6 +351,11 @@ Cell* ConsCell::copy() const
   return new ConsCell(car_m->copy(), cdr_m->copy());
 }
 
+Cell* ConsCell::get_not() const throw()
+{
+  return new IntCell(0);
+}
+
 ConsCell::~ConsCell()
 {
   if (car_m!=nil) delete car_m;
