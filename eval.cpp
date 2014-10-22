@@ -399,15 +399,26 @@ Cell* eval(Cell* const c)
 
       Cell* current_cell = sub_tree;
       //while there's more than one operand left
+      Cell* result_cell;
       while (current_cell->get_cdr()!=nil) {
-	if (!eval(current_cell->get_car()) -> smaller_than(eval(current_cell -> get_cdr() -> get_car()))) {
+	if (!(result_cell = eval(current_cell->get_car())) -> smaller_than(eval(current_cell -> get_cdr() -> get_car()))) {
+	  if (result_cell != nil) delete result_cell;
 	  return new IntCell(0); 
 	}
+	if (result_cell != nil) delete result_cell;
 	current_cell = current_cell->get_cdr();
       }
       //directly return 1, including the case where only one operand is supplied
       return new IntCell(1);
+////////////////////////////////////////not////////////////////////////////////////      
+    } else if (operation == "not") {
+      //operand number check. throw error
+      if (sub_tree == nil || sub_tree->get_cdr()!=nil) throw OperandNumberMismatchError("not","exactly 1");
 
+      Cell* result_cell = eval(sub_tree->get_car());
+      Cell* not_cell = result_cell->get_not();
+      if (result_cell!=nil) delete result_cell;
+      return not_cell;
 ////////////////////////////////////////lookup dictionary////////////////////////////////////////       
     } else if (definition_map.count(operation)!=0) {
       //retrieve and make a copy of the definition

@@ -148,6 +148,12 @@ public:
   virtual bool larger_than(Cell* const c) const throw(UnimplementedError, OperandInvalidError);
 
   /**
+   * \brief Not operation. Throw an "unimplemented" error here in ABC
+   * \return Pointer to the Cell containing the value
+   */
+  virtual Cell* get_not() const throw(UnimplementedError);
+  
+  /**
    * \brief virtual Destructor
    */
   virtual ~Cell();
@@ -239,6 +245,11 @@ public:
    */
   virtual bool larger_than(Cell* const c) const throw(OperandInvalidError);
 
+  /**
+   * \brief Not operation.
+   * \return Pointer to the Cell containing the value. Delete immediately after use
+   */
+  virtual Cell* get_not() const throw();
   
 private:
   int int_m;
@@ -323,6 +334,13 @@ public:
    * \return A bool value indicating the result.
    */
   virtual bool larger_than(Cell* const c) const throw(OperandInvalidError);
+
+  /**
+   * \brief Not operation.
+   * \return Pointer to the Cell containing the value. Delete immediately after use
+   */
+  virtual Cell* get_not() const throw();
+  
 private:
   double double_m;
 };

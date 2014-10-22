@@ -97,6 +97,11 @@ bool Cell::larger_than(Cell* const c) const throw(UnimplementedError, OperandInv
   throw UnimplementedError("larger_than");
 }
 
+Cell* Cell::get_not() const throw(UnimplementedError)
+{
+  throw UnimplementedError("get_not");
+}
+
 Cell::~Cell(){}
 
 /////////////////////////////////////IntCell//////////////////////////////////////
@@ -176,6 +181,13 @@ bool IntCell::larger_than(Cell* const c) const throw(OperandInvalidError)
     return get_int() > c->get_double();
   } else throw OperandInvalidError ("larger_than");
 }
+
+Cell* IntCell::get_not() const throw()
+{
+  if (get_int() == 0) {
+    return new IntCell(1);
+  } else return new IntCell(0);
+}
 ////////////////////////////////////DoubleCell////////////////////////////////////
 
 DoubleCell::DoubleCell(const double d): double_m(d) {}
@@ -252,6 +264,13 @@ bool DoubleCell::larger_than(Cell* const c) const throw(OperandInvalidError)
   } else if (c->is_double()) {
     return get_double() > c->get_double();
   } else throw OperandInvalidError ("larger_than");
+}
+
+Cell* DoubleCell::get_not() const throw()
+{
+  if (get_double() == 0) {
+    return new IntCell(1);
+  } else return new IntCell(0);  
 }
 ///////////////////////////////////SymbolCell/////////////////////////////////////
 
