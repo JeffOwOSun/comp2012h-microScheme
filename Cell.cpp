@@ -103,14 +103,20 @@ Cell* Cell::get_not() const throw(UnimplementedError)
 }
 
 Cell::~Cell(){}
+///////////////////////////////////SchemeCell/////////////////////////////////////////////
+template <typename T>
+SchemeCell<T>::SchemeCell (T value): value_m(value){}
+
+template <typename T>
+SchemeCell<T>::~SchemeCell (){}
 
 /////////////////////////////////////IntCell//////////////////////////////////////
 
-IntCell::IntCell(const int i): int_m(i) {}
+IntCell::IntCell(const int i): SchemeCell<int>(i) {}
 
 int IntCell::get_int() const throw ()
 {
-  return int_m;
+  return get_value();
 }
 
 bool IntCell::is_int() const
@@ -120,13 +126,13 @@ bool IntCell::is_int() const
 
 void IntCell::print(ostream& os) const
 {
-  os << int_m;
+  os << get_int();
 }
 
 Cell* IntCell::copy() const
 {
   if (this == nil) return nil;
-  return new IntCell(int_m);
+  return new IntCell(get_int());
 }
 
 Cell* IntCell::add (Cell* const c) const throw (OperandInvalidError)
@@ -190,11 +196,11 @@ Cell* IntCell::get_not() const throw()
 }
 ////////////////////////////////////DoubleCell////////////////////////////////////
 
-DoubleCell::DoubleCell(const double d): double_m(d) {}
+DoubleCell::DoubleCell(const double d): SchemeCell<double>(d) {}
 
 double DoubleCell::get_double() const throw ()
 {
-  return double_m;
+  return get_value();
 }
 
 bool DoubleCell::is_double() const
@@ -204,13 +210,13 @@ bool DoubleCell::is_double() const
 
 void DoubleCell::print(ostream& os) const
 {
-  os << fixed << setprecision(6) << double_m;
+  os << fixed << setprecision(6) << get_double();
 }
 
 Cell* DoubleCell::copy() const
 {
   if (this == nil) return nil;
-  return new DoubleCell(double_m);
+  return new DoubleCell(get_double());
 }
 
 Cell* DoubleCell::add(Cell* const c) const throw (OperandInvalidError)
@@ -274,15 +280,11 @@ Cell* DoubleCell::get_not() const throw()
 }
 ///////////////////////////////////SymbolCell/////////////////////////////////////
 
-SymbolCell::SymbolCell(const char* const s)
-{
-  symbol_m = new char[strlen(s)+1];
-  strcpy(symbol_m, s);
-}
+SymbolCell::SymbolCell(const char* const s): SchemeCell<char*>(str_copy(s)){}
 
 string SymbolCell::get_symbol() const throw()
 {
-  return string(symbol_m);
+  return string(get_value());
 }
 
 bool SymbolCell::is_symbol() const
@@ -292,32 +294,32 @@ bool SymbolCell::is_symbol() const
 
 void SymbolCell::print(ostream& os) const
 {
-  os << symbol_m;
+  os << get_value();
 }
 
 Cell* SymbolCell::copy() const
 {
   if (this == nil) return nil;
-  return new SymbolCell(symbol_m);
+  return new SymbolCell(get_value());
 }
 
 SymbolCell::~SymbolCell()
 {
-  delete[] symbol_m;
+  delete[] get_value();
 }
 
 ///////////////////////////////////ConsCell/////////////////////////////////////
 
-ConsCell::ConsCell(Cell* const my_car, Cell* const my_cdr): car_m(my_car), cdr_m(my_cdr){}
+ConsCell::ConsCell(Cell* const my_car, Cell* const my_cdr): SchemeCell<ConsPair>((ConsPair){my_car,my_cdr}){}
 
 Cell* ConsCell::get_car() const throw()
 {
-  return car_m;
+  return get_value().car_m;
 }
 
 Cell* ConsCell::get_cdr() const throw()
 {
-  return cdr_m;
+  return get_value().cdr_m;
 }
 
 bool ConsCell::is_cons() const
@@ -348,7 +350,7 @@ void ConsCell::print(ostream& os) const
 Cell* ConsCell::copy() const
 {
   if (this == nil) return nil;
-  return new ConsCell(car_m->copy(), cdr_m->copy());
+  return new ConsCell(get_car()->copy(), get_cdr()->copy());
 }
 
 Cell* ConsCell::get_not() const throw()
@@ -358,6 +360,6 @@ Cell* ConsCell::get_not() const throw()
 
 ConsCell::~ConsCell()
 {
-  if (car_m!=nil) delete car_m;
-  if (cdr_m!=nil) delete cdr_m;
+  if(get_car()!=nil) delete get_car();
+  if(get_cdr()!=nil) delete get_cdr();
 }

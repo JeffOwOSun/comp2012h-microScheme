@@ -31,6 +31,8 @@
 #include <string>
 #include <stack>
 #include "exceptions.hpp"
+#include "helper.hpp"
+
 
 /**
  * \class Cell
@@ -152,6 +154,9 @@ public:
    * \return Pointer to the Cell containing the value
    */
   virtual Cell* get_not() const throw(UnimplementedError);
+
+  template<typename T>
+  T get_value() const;
   
   /**
    * \brief virtual Destructor
@@ -165,11 +170,31 @@ public:
 // Here we promise this again, just to be safe.
 extern Cell* const nil;
 
+template <typename T>
+class SchemeCell: public Cell
+{
+public:
+  SchemeCell(T value=0);
+  T get_value() const
+  {
+    return value_m;
+  }
+  void set_value(T value)
+  {
+    value_m = value;
+  }
+  virtual ~SchemeCell();
+private:
+  T value_m;
+};
+
+
+  
 /**
  * \class IntCell
  * \brief Class IntCell, derived from Cell to hold int type
  */
-class IntCell : public Cell
+class IntCell : public SchemeCell<int>
 {
 public:
   /**
@@ -250,16 +275,13 @@ public:
    * \return Pointer to the Cell containing the value. Delete immediately after use
    */
   virtual Cell* get_not() const throw();
-  
-private:
-  int int_m;
 };
 
 /**
  * \class DoubleCell
  * \brief Class SymbolCell, derived from Cell to hold double type
  */
-class DoubleCell : public Cell
+class DoubleCell : public SchemeCell<double>
 {
 public:
   /**
@@ -340,9 +362,6 @@ public:
    * \return Pointer to the Cell containing the value. Delete immediately after use
    */
   virtual Cell* get_not() const throw();
-  
-private:
-  double double_m;
 };
 
 
@@ -350,7 +369,7 @@ private:
  * \class SymbolCell
  * \brief Class SymbolCell, derived from Cell to hold int symbol type
  */
-class SymbolCell : public Cell
+class SymbolCell : public SchemeCell<char*>
 {
 public:
   /**
@@ -391,11 +410,17 @@ private:
   char* symbol_m;
 };
 
+struct ConsPair
+{
+  Cell* car_m;
+  Cell* cdr_m;
+};
+
 /**
  * \class ConsCell
  * \brief Class ConsCell, derived from Cell to hold Conspair type
  */
-class ConsCell : public Cell
+class ConsCell : public SchemeCell<ConsPair>
 {
 public:
   /**
@@ -444,10 +469,7 @@ public:
    * \brief Destructor. Recursively delete the whole tree rooted at this ConsCell. Use with caution.
    */
   ~ConsCell();
-    
-private:
-  Cell* car_m;
-  Cell* cdr_m;
+
 };
 
 #endif // CELL_HPP
