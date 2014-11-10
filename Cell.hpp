@@ -6,7 +6,7 @@
  * \author jeffsun@jowos.moe
  * \author LA1
  *
- * \date **Fill in the date**
+ * \date 2014.11.10
  *
  * Instructor: <a href="http://www.cs.ust.hk/~dekai/">Dekai Wu</a>
  * Due: 2014.11.13 at 23:00 by CASS
