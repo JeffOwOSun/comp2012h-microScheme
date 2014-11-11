@@ -451,6 +451,19 @@ Cell* eval(Cell* const c)
       Cell* eval_result = eval(car_result);
       safe_delete(car_result);
       return eval_result;
+////////////////////////////////////////lambda////////////////////////////////////////
+    } else if (operation == "lambda") {
+      //assert two or more operands
+      if (sub_tree == nil || sub_tree->get_cdr() == nil) throw OperandNumberMismatchError("lambda","2 or more");
+
+      //check the formals are valid
+      for (Cell* i = subtree->get_car(); i != nil; i=i->get_cdr()){
+	if (!i->get_car()->is_symbol()) throw OperandInvalidError("lambda");
+      }
+
+      //car of cdr as formals
+      //cdr of cdr directly as body
+      return new ProcedureCell(subtree->get_car(), subtree->get_cdr());
 ////////////////////////////////////////lookup dictionary////////////////////////////////////////       
     } else if (definition_map.count(operation)!=0) {
       //retrieve and make a copy of the definition
