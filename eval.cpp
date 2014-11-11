@@ -463,7 +463,7 @@ Cell* eval(Cell* const c)
 
       //car of cdr as formals
       //cdr of cdr directly as body
-      return new ProcedureCell(subtree->get_car(), subtree->get_cdr());
+      return new ProcedureCell(subtree->get_car()->copy(), subtree->get_cdr()->copy());
 ////////////////////////////////////////lookup dictionary////////////////////////////////////////       
     } else if (definition_map.count(operation)!=0) {
       //retrieve and make a copy of the definition
