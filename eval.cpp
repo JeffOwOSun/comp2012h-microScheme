@@ -298,7 +298,9 @@ Cell* eval(Cell* const c)
 	bool flag = false;
       
 	//retrieve values according to their types
-	if (condition_cell->is_int()){
+	if (condition_cell==nil){
+	  flag = false;
+	} else if (condition_cell->is_int()){
 	  flag = condition_cell->get_int() ? true : false;
 	} else if (condition_cell->is_double()) {
 	  flag = condition_cell->get_double() ? true : false;
