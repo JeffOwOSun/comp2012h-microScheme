@@ -63,6 +63,12 @@ public:
   virtual bool is_cons() const;
 
   /**
+   * \brief Check if this is a procedure cell
+   * \return True iff this is a procedure cell. Default return false in ABC.
+   */
+  virtual bool is_procedure() const;
+  
+  /**
    * \brief Accessor (error if this is not an int cell).
    * \return The value in this int cell.
    */
@@ -92,6 +98,18 @@ public:
    */
   virtual Cell* get_cdr() const throw(UnimplementedError);
 
+  /**
+   * \brief Accessor to the assumed formals of a procedure cell. (error if this is not a procedure cell)
+   * \return Pointer to the root of formals tree
+   */
+  virtual Cell* get_formals() const throw(UnimplementedError);
+
+  /**
+   * \brief Accessor to the assumed body of a procedure cell. (error if this is not a procedure cell)
+   * \return Pointer to the root of body tree
+   */
+  virtual Cell* get_body() const throw(UnimplementedError);
+  
   /**
    * \brief Print the subtree rooted at this cell, in s-expression notation. Pure virtual function.
    * \param os The output stream to print to.
@@ -448,6 +466,65 @@ public:
 private:
   Cell* car_m;
   Cell* cdr_m;
+};
+
+
+/**
+ * \class ProcedureCell
+ * \brief Class ProcedureCell, derived from Cell to hold function type
+ */
+class ProcedureCell : public Cell
+{
+public:
+  /**
+   * \brief Constructor
+   */
+  ProcedureCell(Cell* const my_formals, Cell* const my_body);
+
+  /**
+   * \brief Accessor.
+   * \return Pointer to the root of formals tree..
+   */
+  virtual Cell* get_formals() const throw ();
+
+  /**
+   * \brief Accessor.
+   * \return Pointer to the root of body tree.
+   */
+  virtual Cell* get_body() const throw ();
+ 
+  /**
+   * \brief judge if this Cell is a ProcedureCell or not
+   * \return True.
+   */
+  virtual bool is_procedure() const throw();
+
+  /**
+   * \brief Print the procedure cell. Constant no matter the definition of the function.
+   * \param os The output stream to print to.
+   */
+  virtual void print(std::ostream& os = std::cout) const;
+
+  /**
+   * \brief Make a copy of this ProcedureCell
+   * \return Pointer to the newly made Cell;
+   */
+  virtual Cell* copy() const;
+
+  /**
+   * \brief NOT this cell
+   * \return Pointer to a temporary IntCell(0)
+   */
+  virtual Cell* get_not() const throw ();
+
+  /**
+   * \brief Destructor. Recursively delete the whole tree of formals and body.
+   */
+  virtual ~ProcedureCell();
+    
+private:
+  Cell* formals_m;
+  Cell* body_m;
 };
 
 #endif // CELL_HPP

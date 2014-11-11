@@ -42,6 +42,11 @@ bool Cell::is_cons() const
   return false;
 }
 
+bool Cell::is_procedure() const
+{
+  return false;
+}
+
 int Cell::get_int() const throw(UnimplementedError)
 {
   throw UnimplementedError("get_int");
@@ -65,6 +70,16 @@ Cell* Cell::get_car() const throw(UnimplementedError)
 Cell* Cell::get_cdr() const throw(UnimplementedError)
 {
   throw UnimplementedError("get_cdr");
+}
+
+Cell* Cell::get_formals() const throw(UnimplementedError)
+{
+  throw UnimplementedError("get_formals");
+}
+
+Cell* Cell::get_body() const throw(UnimplementedError)
+{
+  throw UnimplementedError("get_body");
 }
 
 Cell* Cell::add(Cell* const c) const throw(UnimplementedError, OperandInvalidError)
@@ -360,4 +375,38 @@ ConsCell::~ConsCell()
 {
   if (car_m!=nil) delete car_m;
   if (cdr_m!=nil) delete cdr_m;
+}
+
+///////////////////////////////////ProcedureCell/////////////////////////////////////
+ProcedureCell::ProcedureCell(Cell* const my_formals, Cell* const my_body): formals_m(my_formals), body_m(my_body){}
+
+Cell* ProcedureCell::get_formals() const throw()
+{
+  return formals_m;
+}
+
+Cell* ProcedureCell::get_body() const throw()
+{
+  return body_m;
+}
+
+bool ProcedureCell::is_procedure() const throw()
+{
+  return true;
+}
+
+void ProcedureCell::print(std::ostream& os = std::cout) const
+{
+  os << "#<function>";
+}
+
+Cell* ProcedureCell::copy() const
+{
+  return new ProcedureCell(formals_m->copy(), body_m->copy());
+}
+
+ProcedureCell::~ProcedureCell()
+{
+  if (formals_m != nil) delete formals_m;
+  if (body_m != nil) delete body_m;
 }
