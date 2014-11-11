@@ -170,6 +170,12 @@ public:
    * \return Pointer to the Cell containing the value
    */
   virtual Cell* get_not() const throw(UnimplementedError);
+
+  /**
+   * \brief Apply this function on the given parameters
+   * \return Pointer to the Cell containing the result of the last function body
+   */
+  virtual Cell* apply(Cell* const args) const throw(UnimplementedError);
   
   /**
    * \brief virtual Destructor
@@ -517,6 +523,12 @@ public:
    */
   virtual Cell* get_not() const throw ();
 
+  /**
+   * \brief Apply this function on the given parameters
+   * \return Pointer to the Cell containing the result of the last function body
+   */
+  virtual Cell* apply(Cell* const args) const throw ();
+  
   /**
    * \brief Destructor. Recursively delete the whole tree of formals and body.
    */

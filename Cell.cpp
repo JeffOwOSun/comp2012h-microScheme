@@ -117,6 +117,11 @@ Cell* Cell::get_not() const throw(UnimplementedError)
   throw UnimplementedError("get_not");
 }
 
+Cell* Cell::apply(Cell* const args) const throw(UnimplementedError)
+{
+  throw UnimplementedError("apply");
+}
+
 Cell::~Cell(){}
 
 /////////////////////////////////////IntCell//////////////////////////////////////
@@ -403,6 +408,18 @@ void ProcedureCell::print(std::ostream& os = std::cout) const
 Cell* ProcedureCell::copy() const
 {
   return new ProcedureCell(formals_m->copy(), body_m->copy());
+}
+
+Cell* ProcedureCell::get_not() const throw()
+{
+  return new IntCell(0);
+}
+
+Cell* ProcedureCell::apply(Cell* const args) const throw()
+{
+  //define the local map of variables
+  //push the local map into the stack
+  //start evaluating the functions
 }
 
 ProcedureCell::~ProcedureCell()
