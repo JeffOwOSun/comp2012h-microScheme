@@ -832,12 +832,14 @@ Cell* ConsCell::eval() const
       if (sub_tree == nil || sub_tree->get_cdr() == nil) throw OperandNumberMismatchError("lambda","2 or more");
 
       //check the formals are valid
-      for (Cell* i = sub_tree->get_car(); i != nil; i=i->get_cdr()){
-	if (!i->get_car()->is_symbol()) throw OperandInvalidError("lambda");
-      }
-
-      //car of cdr as formals
-      //cdr of cdr directly as body
+      if (sub_tree->get_car()->is_cons()) {
+	for (Cell* i = sub_tree->get_car(); i != nil; i=i->get_cdr()){
+	  if (!i->get_car()->is_symbol()) throw OperandInvalidError("lambda");
+	}
+      } else if (!sub_tree->get_car()->is_symbol()) throw OperandInvalidError("lambda");
+    
+      //car of subtree as formals
+      //cdr of subtree directly as body
       return new ProcedureCell(sub_tree->get_car()->copy(), sub_tree->get_cdr()->copy());
 ////////////////////////////////////////apply////////////////////////////////////////
     } else if (operation == "apply") {
@@ -939,24 +941,42 @@ Cell* ProcedureCell::apply(Cell* const args) const
   map<string,Cell*> my_map;
   try {
     //iterate each formal, define the local map
-    const Cell* my_arg = args;
-    for (const Cell* my_formal = get_formals(); my_formal!=nil; my_formal = my_formal->get_cdr()){
-      if (my_arg == nil) throw runtime_error("lambda function operand number not enough");
-      //retrieve the formal name
-      string formal_name = my_formal->get_car()->get_symbol();
-      //retrieve the definition. A copy is made to ensure uniform deletion of the map is legal
-      Cell* arg_def = my_arg->get_car()->eval();
-      try {
-	//put them into the map
-	if (my_map.count(formal_name)!=0) throw runtime_error("duplicate formal name: "+formal_name);
-	my_map[formal_name]=arg_def;
-      } catch (...) {
-	safe_delete(arg_def);
-	throw;
+    Cell* my_arg = args;
+    if (get_formals()->is_cons()) {
+      for (const Cell* my_formal = get_formals(); my_formal!=nil; my_formal = my_formal->get_cdr()){
+	if (my_arg == nil) throw runtime_error("lambda function operand number not enough");
+	//retrieve the formal name
+	string formal_name = my_formal->get_car()->get_symbol();
+	//retrieve the definition. A copy is made to ensure uniform deletion of the map is legal
+	Cell* arg_def = my_arg->get_car()->eval();
+	try {
+	  //put them into the map
+	  if (my_map.count(formal_name)!=0) throw runtime_error("duplicate formal name: "+formal_name);
+	  my_map[formal_name]=arg_def;
+	} catch (...) {
+	  safe_delete(arg_def);
+	  throw;
+	}
+	my_arg = my_arg -> get_cdr();
       }
-      my_arg = my_arg -> get_cdr();
+      if (my_arg != nil) throw runtime_error("too many lambda function operands");
+    } else if (get_formals()->is_symbol()) {
+      string formal_name = get_formals()->get_symbol();
+      Cell* arg_def = nil;
+      //use a stack to inverse order
+      std::stack<Cell*> arg_stack;
+      while (my_arg != nil) {
+	arg_stack.push(my_arg);
+	my_arg = my_arg->get_cdr();
+      }
+      //now evaluate each one and make the result a new list
+      while (arg_stack.size()>0) {
+	Cell* my_arg = arg_stack.top();
+	arg_def = new ConsCell(my_arg->get_car()->eval(), arg_def);
+	arg_stack.pop();
+      }
+      my_map[formal_name]=arg_def;
     }
-    if (my_arg != nil) throw runtime_error("too many lambda function operands");
   } catch (...) {
     //release the allocated memory spaces
     for (map<string, Cell*>::iterator my_iter = my_map.begin();my_iter != my_map.end(); ++my_iter){

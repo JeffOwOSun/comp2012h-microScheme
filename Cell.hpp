@@ -32,6 +32,7 @@
 #include <deque>
 #include "exceptions.hpp"
 #include <map>
+#include <stack>
 
 /**
  * \class Cell
