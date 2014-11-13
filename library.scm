@@ -4,3 +4,4 @@
 (define = (lambda (x y) (if (< x y) 0 (not (< y x)))))
 (define abs (lambda (x) (if (< x 0) (- 0 x) x)))
 (define factorial (lambda (x) (if (< x 2) 1 (* x (factorial (- x 1))))))
+(define for-each (lambda (my_func my_list) (my_func (car my_list)) (if (not (nullp (cdr my_list))) (for-each my_func (cdr my_list)) (quote ()))))
