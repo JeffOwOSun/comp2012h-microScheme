@@ -29,8 +29,9 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <stack>
+#include <deque>
 #include "exceptions.hpp"
+#include <map>
 
 /**
  * \class Cell
@@ -175,7 +176,13 @@ public:
    * \brief Apply this function on the given parameters
    * \return Pointer to the Cell containing the result of the last function body
    */
-  virtual Cell* apply(Cell* const args) const throw(UnimplementedError);
+  virtual Cell* apply(Cell* const args) const;
+
+  /**
+   * \brief Eval the tree rooted at this Cell
+   * \return Pointer to the Cell containing the result. Must be implemented in subclasses
+   */
+  virtual Cell* eval() const = 0;
   
   /**
    * \brief virtual Destructor
@@ -274,6 +281,12 @@ public:
    * \return Pointer to the Cell containing the value. Delete immediately after use
    */
   virtual Cell* get_not() const throw();
+
+  /**
+   * \brief Eval the tree rooted at this Cell
+   * \return Pointer to the Cell containing the result. Must be implemented in subclasses
+   */
+  virtual Cell* eval() const;
   
 private:
   int int_m;
@@ -364,6 +377,12 @@ public:
    * \return Pointer to the Cell containing the value. Delete immediately after use
    */
   virtual Cell* get_not() const throw();
+
+  /**
+   * \brief Eval the tree rooted at this Cell
+   * \return Pointer to the Cell containing the result
+   */
+  virtual Cell* eval() const;
   
 private:
   double double_m;
@@ -400,11 +419,17 @@ public:
    */
   void print(std::ostream& os = std::cout) const;
 
- /**
+  /**
    * \brief Make a copy of current Cell.
    * \return Pointer to the newly made Cell;
    */
   Cell* copy() const;
+
+  /**
+   * \brief Eval the tree rooted at this Cell
+   * \return Pointer to the Cell containing the result
+   */
+  virtual Cell* eval() const;
   
   /**
    * \brief Destructor
@@ -423,7 +448,7 @@ class ConsCell : public Cell
 {
 public:
   /**
-   * \brief Constructor
+   * \brief Constructor. ATTENTION: no internal copy of my_car and my_cdr will be made. Please explicitly make copies before the call. 
    */
   ConsCell(Cell* const my_car, Cell* const my_cdr);
 
@@ -457,6 +482,11 @@ public:
    */
   Cell* copy() const;
 
+  /**
+   * \brief Eval the tree rooted at this Cell
+   * \return Pointer to the Cell containing the result
+   */
+  virtual Cell* eval() const;
   
   /**
    * \brief Not operation.
@@ -483,7 +513,7 @@ class ProcedureCell : public Cell
 {
 public:
   /**
-   * \brief Constructor
+   * \brief Constructor. ATTENTION: no internal copy of my_formals and my_body will be made. Please explicitly make copies before the call. 
    */
   ProcedureCell(Cell* const my_formals, Cell* const my_body);
 
@@ -513,7 +543,7 @@ public:
 
   /**
    * \brief Make a copy of this ProcedureCell
-   * \return Pointer to the newly made Cell;
+   * \return Pointer to the newly made Cell
    */
   virtual Cell* copy() const;
 
@@ -525,10 +555,17 @@ public:
 
   /**
    * \brief Apply this function on the given parameters
+   * \param args The Pointer to the root of the args tree. An internal copy will be made.
    * \return Pointer to the Cell containing the result of the last function body
    */
-  virtual Cell* apply(Cell* const args) const throw ();
-  
+  virtual Cell* apply(Cell* const args) const;
+
+  /**
+   * \brief Eval the tree rooted at this Cell
+   * \return Pointer to the Cell containing the result
+   */
+  virtual Cell* eval() const;
+
   /**
    * \brief Destructor. Recursively delete the whole tree of formals and body.
    */
@@ -539,4 +576,26 @@ private:
   Cell* body_m;
 };
 
+/**
+ * \brief The deque of definition maps. Front is global, back is local/current.
+ */
+extern std::deque<std::map<std::string, Cell*> > definition_stack;
+
+
+/**
+ * \brief Initializer for definition stack
+ * \return a deque<map<string,Cell*>> type object that contains one global map
+ */
+std::deque<std::map<std::string, Cell*> > stack_initialize();
+
+/**
+ * \brief A helper function for safely delete
+ * \param c Reference to the pointer to be deleted. T should be a pointer type
+ */
+template<typename T>
+void safe_delete(T& c)
+{
+  if (c != nil) delete c;
+  c = nil;
+}
 #endif // CELL_HPP
