@@ -178,6 +178,8 @@ void readconsole()
  */
 int main(int argc, char* argv[])
 {
+  ifstream fin("library.scm");
+  readfile(fin);
   switch(argc) {
   case 1:
     // read from the standard input
