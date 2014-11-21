@@ -49,4 +49,21 @@ public:
   size_type count(const Key& x) const {}
   T& operator[](const Key& k) {}
 
+private:
+  size_type _hash(const Key& my_key) const{
+    //cast my_key to an array of chars
+    char* char_arr = new char[sizeof(my_key)];
+    memcpy(char_arr, &my_key, sizeof(my_key));
+    //calculate the hash
+    int result = 0;
+    const int my_prime = 2209;
+    for (int i=0; i < sizeof(my_key); ++i) {
+      int partial_result = char_arr[i];
+      for (int j=0; j < i; ++j) {
+	partial_result = (partial_result << 8) % my_prime;
+      }
+      result = (result + partial_result) % my_prime;
+    }
+  }
+
 };
