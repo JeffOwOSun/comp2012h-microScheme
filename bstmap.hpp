@@ -19,20 +19,19 @@ public:
   typedef int                difference_type;
 
 private:
-  template <class value_T, class map_T>
+  template <class value_type,
+	    class difference_type,
+	    class pointer,
+	    class reference>
   class _base_iterator {
   public:
     typedef std::input_iterator_tag iterator_category;
-    typedef value_T value_type;
-    typedef difference_type difference_type;
-    typedef value_type* pointer;
-    typedef value_type& reference;
 
     //the ambient class should always be a friend
-    friend class map_T;
+    friend class bstmap;
 
     // your iterator definition goes here
-    _base_iterator(map_T* map, Node* node = NULL) : map_m(map), node_m(node) {}
+    _base_iterator(bstmap* map, Node* node = NULL) : map_m(map), node_m(node) {}
     _base_iterator(const iterator& x) : map_m(x.map_m), node_m(x.node_m) {}
     iterator& operator=(const iterator& x) {
       map_m = x.map_m;
@@ -68,14 +67,14 @@ private:
     }
     
   private:
-    map_T* map_m;
+    bstmap* map_m;
     Node* node_m;
     
   };
 
 public:
-  typedef _base_iterator<value_type, Self> iterator;
-  typedef _base_iterator<const value_type, const Self> const_iterator;
+  typedef _base_iterator<value_type, difference_type, value_type*, value_type&> iterator;
+  typedef _base_iterator<const value_type, difference_type, value_type*, value_type&> const_iterator;
 
 public:
   // default constructor to create an empty map
