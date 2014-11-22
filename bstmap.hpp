@@ -18,21 +18,22 @@ public:
   typedef unsigned int       size_type;
   typedef int                difference_type;
 
-public:
-  class iterator {
+private:
+  template <class value_T, class map_T>
+  class _base_iterator {
   public:
     typedef std::input_iterator_tag iterator_category;
-    typedef value_type value_type;
+    typedef value_T value_type;
     typedef difference_type difference_type;
     typedef value_type* pointer;
     typedef value_type& reference;
 
     //the ambient class should always be a friend
-    friend class bstmap;
+    friend class map_T;
 
     // your iterator definition goes here
-    iterator(bstmap* map, Node* node = NULL) : map_m(map), node_m(node) {}
-    iterator(const iterator& x) : map_m(x.map_m), node_m(x.node_m) {}
+    _base_iterator(map_T* map, Node* node = NULL) : map_m(map), node_m(node) {}
+    _base_iterator(const iterator& x) : map_m(x.map_m), node_m(x.node_m) {}
     iterator& operator=(const iterator& x) {
       map_m = x.map_m;
       node_m = x.node_m;
@@ -67,45 +68,127 @@ public:
     }
     
   private:
-    bstmap* map_m;
+    map_T* map_m;
     Node* node_m;
     
   };
-  class const_iterator {
-    // like iterator, but points to a const
-  };
+
+public:
+  typedef _base_iterator<value_type, Self> iterator;
+  typedef _base_iterator<const value_type, const Self> const_iterator;
 
 public:
   // default constructor to create an empty map
   bstmap():size_m(0),root_m(NULL) {}
 
   // overload copy constructor to do a deep copy
-  bstmap(const Self& x) {}
+  bstmap(const Self& x) {
+    size_m = x.size_m;
+    root_m = _recursive_copy(x.root_m);
+  }
 
   // overload assignment to do a deep copy
-  Self& operator=(const Self& x) {}
+  Self& operator=(const Self& x) {
+  }
 
   // accessors:
-  iterator begin() {}
-  const_iterator begin() const {}
-  iterator end() {}
-  const_iterator end() const {}
-  bool empty() const {}
-  size_type size() const {}
+  iterator begin() {
+    //get the min of the tree, wrap it into an iterator
+    return iterator(this, _min(root_m));
+  }
+  const_iterator begin() const {
+    return const_iterator(this, _min(root_m));
+  }
+  //called when this is non const
+  iterator end() {
+    return iterator(this, NULL);
+  }
+  //called when this is const
+  const_iterator end() const {
+    return const_iterator(this, NULL);
+  }
+  bool empty() const {
+    return size_m > 0;
+  }
+  size_type size() const {
+    return size_m;
+  }
  
   // insert/erase
-  pair<iterator,bool> insert(const value_type& x) {}
-  void erase(iterator pos) {}
-  size_type erase(const Key& x) {}
-  void clear() {}
+  pair<iterator,bool> insert(const value_type& x) {
+    pair<Node*, bool> inserted = _insert(x);
+    return pair<iterator, bool>(iterator(this, inserted.first), inserted.second);
+  }
+  void erase(iterator pos) {
+    _erase(pos.node_m);
+  }
+  size_type erase(const Key& x) {
+    //first find it
+    pair<Node*, bool> found = _find(x);
+    //then erase
+    if (found.second) {
+      if (_erase(found.first)) {
+	return 1;
+      } 
+      else {
+	return 0;
+      }
+    }
+    else {
+      return 0;
+    }
+  }
+  
+  void clear() {
+    _clear(root_m);
+  }
 
   // map operations:
-  iterator find(const Key& x) {}
-  const_iterator find(const Key& x) const {}
-  size_type count(const Key& x) const {}
-  T& operator[](const Key& k) {}
+  iterator find(const Key& x) {
+    //call the private _find function
+    pair<Node*, bool> found = _find(x);
+    //judging from the return value, return the corresponding iterator
+    if (found.second) {
+      return iterator(this, found.first);
+    } else {
+      return end();
+    }
+  }
+  const_iterator find(const Key& x) const {
+    //call the private _find function
+    pair<Node*, bool> found = _find(x);
+    //judging from the return value, return the corresponding iterator
+    if (found.second) {
+      return const_iterator(this, found.first);
+    } else {
+      return end();
+    }
+  }
+  size_type count(const Key& x) const {
+    //call _find once
+    pair<Node*, bool> found = _find(x);
+    //none found, return zero; found, return one
+    return found.second ? 1 : 0;
+  }
+  T& operator[](const Key& k) {
+    //first find the key
+    pair<Node*, bool> find_ret = _find(k);
+    //if found, retrieve the value and return
+    if (find_ret.second) {
+      return find_ret.first -> value_m.second;
+    } 
+    //if not found, create the node with the default parameters
+    else {
+      T tmp_val;
+      value_type my_value(k, tmp_val); //supposedly the second field of the pair contains a default value
+      pair<Node*, bool> insert_ret = _insert(my_value);
+      //return the second field of the newly created pair
+      return insert_ret.first -> value_m.second;
+    }
+  }
 
-private:
+  //private:
+public: //debug only
   /**
    * \brief Algorithmic function, find the designated node based on the key supplied.
    * \param x Reference to the key to be found.
@@ -155,13 +238,66 @@ private:
       } else {
 	found.first -> left_m = my_node;
       }
+      ++size_m;
       return pair<Node*, bool>(my_node, true);
     }
   }
 
-  //deletion
-  bool _delete(Node* const my_node) {
-    
+  //erase the given node while preserving the tree structure
+  bool _erase(Node* const my_node) {
+    //case 1, my_node is a leaf node
+    if (my_node->left_m == NULL && my_node->right_m == NULL) {
+      //if my_node here is the root
+      if (my_node == root_m) {
+	root_m = NULL;
+	delete my_node;
+	size_m = 0;
+      } else {
+	//my_node has a parent, clear itself from its parent
+	if (my_node -> parent_m -> left_m == my_node) {
+	  my_node -> parent_m -> left_m = NULL;
+	} else {
+	  my_node -> parent_m -> right_m = NULL;
+	}
+	delete my_node;
+	--size_m;
+      }
+      return true;
+    } 
+    //case 2, my_node has one child
+    else if (my_node -> left_m == NULL || my_node -> right_m == NULL) {
+      if (my_node == root_m) {
+	//if my_node here is the root
+	root_m = (my_node -> left_m != NULL) ? (my_node -> left_m) : (my_node -> right_m);
+      } else {
+	// my_node has a parent
+	if (my_node -> parent_m -> left_m == my_node) {
+	  my_node -> parent_m -> left_m = (my_node -> left_m != NULL) ? (my_node -> left_m) : (my_node -> right_m);
+	} else {
+	  my_node -> parent_m -> right_m = (my_node -> left_m != NULL) ? (my_node -> left_m) : (my_node -> right_m);
+	}
+      }
+      delete my_node;
+      --size_m;
+      return true;
+    }
+    //case 3, my_node has two children
+    else {
+      //fint its successor, swap the values, and delete the successor
+      Node* my_successor = _successor(my_node);
+      _swap_val(my_node, my_successor);
+      return _erase(my_successor);
+    }
+  }
+
+  //empty the tree rooted at given node
+  void _clear(Node* const my_node) {
+    if (my_node == NULL) return;
+    //recursively _clear subtrees, in postorder traversal sequence
+    _clear(my_node -> left_m);
+    _clear(my_node -> right_m);
+    if (root_m == my_node) root_m = NULL;
+    delete my_node;
   }
 
   //find the min of the subtree rooted at my_node
@@ -213,6 +349,29 @@ private:
       return NULL;
     }
   }
+
+  //swap the values of the given two nodes
+  void _swap_val(Node* my_first, Node* my_second) {
+    value_type tmp_val(my_first -> value_m);
+    my_first -> value_m = my_second -> value_m;
+    my_second -> value_m = tmp_val;
+  }
+
+  Node* _recursive_copy(Node* my_root) {
+    if (my_root == NULL) return NULL;
+    //first copy the root node
+    Node* ret = new Node(my_root);
+    //then recursively copy the children and substitute root's children
+    ret->left_m = _recursive_copy(ret->left_m);
+    ret->right_m = _recursive_copy(ret->right_m);
+
+    //set parent for children
+    ret->left_m->parent_m = ret;
+    ret->right_m->parent_m = ret;
+    ret->parent_m = NULL;
+
+    return ret;
+  }
   
   struct Node {
     Node* parent_m;
@@ -227,7 +386,7 @@ private:
 			  parent_m(NULL) {}
 
     //copy constructor
-    Node(Node& source) : data_m(source.value_m),
+    Node(Node& source) : value_m(source.value_m),
 			 left_m(source.left_m),
 			 right_m(source.right_m),
 			 parent_m(source.parent_m) {}
@@ -235,9 +394,6 @@ private:
   
   Node* root_m;
   int size_m;
-
-  //atomic operations
-  
 };
 
 #endif //BSTMAP_HPP
