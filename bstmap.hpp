@@ -1,6 +1,7 @@
 #ifndef BSTMAP_HPP
 #define BSTMAP_HPP
 
+#include<iostream>
 #include<utility>
 #include<iterator>
 using namespace std;
@@ -19,6 +20,26 @@ public:
   typedef int                difference_type;
 
 private:
+  struct Node {
+    Node* parent_m;
+    Node* left_m;
+    Node* right_m;
+    value_type value_m;
+
+    //type conversion constructor from a value_type
+    Node(value_type& x) : value_m(x),
+			  left_m(NULL),
+			  right_m(NULL),
+			  parent_m(NULL) {}
+
+    //copy constructor
+    Node(Node& source) : value_m(source.value_m),
+			 left_m(source.left_m),
+			 right_m(source.right_m),
+			 parent_m(source.parent_m) {}
+  };
+
+  
   template <class value_type,
 	    class difference_type,
 	    class pointer,
@@ -32,18 +53,19 @@ private:
 
     // your iterator definition goes here
     _base_iterator(bstmap* map, Node* node = NULL) : map_m(map), node_m(node) {}
-    _base_iterator(const iterator& x) : map_m(x.map_m), node_m(x.node_m) {}
-    iterator& operator=(const iterator& x) {
+    _base_iterator(const _base_iterator& x) : map_m(x.map_m), node_m(x.node_m) {}
+
+    _base_iterator& operator=(const _base_iterator& x) {
       map_m = x.map_m;
       node_m = x.node_m;
       return *this;
     }
 
-    bool operator==(const iterator& x) const {
+    bool operator==(const _base_iterator& x) const {
       return node_m == x.node_m;
     }
 
-    bool operator!=(const iterator& x) const {
+    bool operator!=(const _base_iterator& x) const {
       return !(*this == x);
     }
     
@@ -55,12 +77,12 @@ private:
       return &(node_m->value_m);
     }
 
-    iterator& operator++() {
+    _base_iterator& operator++() {
       node_m = map_m -> _successor(node_m);
       return node_m;
     }
 
-    iterator& operator++(int) {
+    _base_iterator& operator++(int) {
       iterator ret(*this);
       node_m = map_m -> _successor(node_m);
       return ret;
@@ -180,8 +202,10 @@ public:
     else {
       T tmp_val;
       value_type my_value(k, tmp_val); //supposedly the second field of the pair contains a default value
+      
       pair<Node*, bool> insert_ret = _insert(my_value);
       //return the second field of the newly created pair
+      
       return insert_ret.first -> value_m.second;
     }
   }
@@ -218,6 +242,21 @@ public: //debug only
   //return <Node*, bool> if second is false that means the thing is already there
   //here our bool simply is a sort of status code, indicating success or failure of the operation
   pair<Node*, bool> _insert(const value_type& x) {
+    //if root_m is empty, just insert there
+    if (root_m == NULL) {
+      //create a new node with the given value
+      value_type val(x); //to avoid conversion from const value_type to value_type
+      Node* fresh_node = new Node(val);
+      //set its parent to be NULL
+      fresh_node -> parent_m = NULL;
+      //insert it under root_m
+      root_m = fresh_node;
+      //set size to be 1
+      size_m = 1;
+      //return the new node pointer and a true
+      return pair<Node*, bool>(fresh_node, true);
+    }
+
     //try to find the key
     pair<Node*, bool> found = _find(x.first);
     //if it's there
@@ -229,13 +268,17 @@ public: //debug only
     //if it's not there
     else {
       //make a new node
-      Node* my_node = new Node(x);
+      value_type val(x);
+      Node* my_node = new Node(val);
       //set its parent to be the found node
-      my_node.parent_m = found.first;
-      if (found.first -> value_m.first < x.first) {
-	found.first -> right_m = my_node;
-      } else {
-	found.first -> left_m = my_node;
+      my_node->parent_m = found.first;
+      //prevent seg fault if found.first is NULL
+      if (found.first) {
+	if (found.first -> value_m.first < x.first) {
+	  found.first -> right_m = my_node;
+	} else {
+	  found.first -> left_m = my_node;
+	}
       }
       ++size_m;
       return pair<Node*, bool>(my_node, true);
@@ -321,7 +364,7 @@ public: //debug only
     return curr_node;
   }
 
-  Node* _successor(Node* my_node) const {
+  Node* _successor(Node* my_node) {
     if (my_node == NULL) return NULL;
     //case 1, if my_node has a right child, find the min of right subtree
     if (my_node -> right_m != NULL) {
@@ -349,11 +392,15 @@ public: //debug only
     }
   }
 
+
+
   //swap the values of the given two nodes
   void _swap_val(Node* my_first, Node* my_second) {
     value_type tmp_val(my_first -> value_m);
-    my_first -> value_m = my_second -> value_m;
-    my_second -> value_m = tmp_val;
+    my_first -> value_m.first = my_second -> value_m.first;
+    my_first -> value_m.second = my_second -> value_m.second;
+    my_second -> value_m.first = tmp_val.first;
+    my_second -> value_m.second = tmp_val.second;
   }
 
   Node* _recursive_copy(Node* my_root) {
@@ -372,24 +419,6 @@ public: //debug only
     return ret;
   }
   
-  struct Node {
-    Node* parent_m;
-    Node* left_m;
-    Node* right_m;
-    value_type value_m;
-
-    //type conversion constructor from a value_type
-    Node(value_type& x) : value_m(x),
-			  left_m(NULL),
-			  right_m(NULL),
-			  parent_m(NULL) {}
-
-    //copy constructor
-    Node(Node& source) : value_m(source.value_m),
-			 left_m(source.left_m),
-			 right_m(source.right_m),
-			 parent_m(source.parent_m) {}
-  };
   
   Node* root_m;
   int size_m;
