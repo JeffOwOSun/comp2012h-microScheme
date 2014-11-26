@@ -64,9 +64,10 @@ private:
 
     friend class hashtablemap;
 
-    _base_iterator(Node* node = NULL) : node_m(node) {}
-    _base_iterator(const _base_iterator& x) : node_m(x.node_m){}
+    _base_iterator(hashtablemap* map = NULL, Node* node = NULL) : map_m(map), node_m(node) {}
+    _base_iterator(const _base_iterator& x) : map_m(x.map_m), node_m(x.node_m){}
     _base_iterator& operator=(const _base_iterator& x) {
+      map_m = x.map_m;
       node_m = x.node_m;
       return *this;
     }
@@ -84,15 +85,16 @@ private:
       return &(node_m->value_m);
     }
     _base_iterator& operator++() {
-      node_m = _next(node_m);
+      node_m = map_m->_next(node_m);
       return *this;
     }
     _base_iterator& operator++(int) {
       _base_iterator ret(*this);
-      node_m = _next(node_m);
+      node_m = map_m->_next(node_m);
       return ret;
     }
   private:
+    hashtablemap* map_m;
     Node* node_m;
   };
 
@@ -112,12 +114,11 @@ private:
   
 public:
   // default constructor to create an empty map
-  hashtablemap() : size_m(0), data_m(Node*[prime_m+1]) {
-    _initialize_data();
-  }
+  hashtablemap() : size_m(0), data_m(_initialize_data()) {}
   
   // overload copy constructor to do a deep copy
-  hashtablemap(const Self& x) : size_m(x.size_m), data_m(Node*[prime_m+1]) {
+  hashtablemap(const Self& x) : size_m(x.size_m) {
+    data_m = new Node*[prime_m+1];
     //copy the entire sequence of linked lists
     data_m[0] = x.data_m[0] -> copy();
     //start from the second element, record each sentinel pointer
@@ -135,6 +136,7 @@ public:
   ~hashtablemap() {
     //release the linked list
     _release(data_m[0]);
+    delete[] data_m;
   }
 
   //overload assignment to do a deep copy
@@ -152,16 +154,16 @@ public:
 
   // accessors:
   iterator begin() {
-    return iterator(_next(data_m[0]));
+    return iterator(this,_next(data_m[0]));
   }
   const_iterator begin() const {
-    return const_iterator(_next(data_m[0]));
+    return const_iterator(this,_next(data_m[0]));
   }
   iterator end() {
-    return iterator(NULL);
+    return iterator(this,NULL);
   }
   const_iterator end() const {
-    return const_iterator(NULL);
+    return const_iterator(this,NULL);
   }
   bool empty() const {
     return size_m == 0;
@@ -177,38 +179,52 @@ public:
     pair<Node*, bool> found = _find(x.first);
     //if it's there, just return the wrapped iterator
     if (found.second) {
-      return pair<iterator, bool>(iterator(found.first), false);
+      return pair<iterator, bool>(iterator(this,found.first), false);
     }
     //if it's not there, insert a new node at the position
     else {
       Node* ret = _insert(found.first, new Node(x));
       ++size_m;
-      return pair<iterator, bool>(iterator(ret), true);
+      return pair<iterator, bool>(iterator(this,ret), true);
     }
   }
   void erase(iterator pos) {
-    
+    //first find the key
+    Key x = pos -> first;
+    //then start from the root of respective bucket to find its parent
+    _erase_child(_find_parent(x));
+    //_erase_child
     --size_m;
   }
   size_type erase(const Key& x) {
-
-    --size_m;
+    //first _find
+    pair<Node*, bool> found = _find(x);
+    //if not found, return zero
+    if (!found.second) {
+      return 0;
+    } else {
+      //found
+      _erase_child(_find_parent(x));
+      --size_m;
+      return 1;
+    }
   }
   void clear() {
     //basically restore it to the original state
     _release(data_m[0]);
-    _initialize_data();
+    delete[] data_m;
+    data_m = _initialize_data();
     size_m = 0;
   }
 
   // map operations:
   iterator find(const Key& x) {
     pair<Node*, bool> found = _find(x);
-    return iterator(found.first);
+    return iterator(this,found.first);
   }
   const_iterator find(const Key& x) const {
     pair<Node*, bool> found = _find(x);
-    return const_iterator(found.first);
+    return const_iterator(this,found.first);
   }
   size_type count(const Key& x) const {
     return (_find(x).second) ? 1 : 0;
@@ -237,18 +253,22 @@ private:
   //Current implementation utilizes a fixed length array
   //an array of lists
   //RULE: lists here have keys in increasing order
-  Node* data_m[prime_m+1];
+  Node** data_m;
 
-  void _initialize_data() {
-    cerr<<"_initialize_data!\n";
-
+  Node** _initialize_data() {
+    
+    Node** my_data = new Node*[prime_m+1];
+    
     //prime_m-th line with a bottom sentinel node
     //this extra line guards the code
-    data_m[prime_m] = new Node();
+    my_data[prime_m] = new Node();
+    
     //from prime_m-1 th line down to line 0, each is a sentinel that points directly to the next element
-    for (size_type i = prime_m-1; i >= 0; --i) {
-      data_m[i] = new Node(data_m[i+1]);
+    for (int i = 1; i <= prime_m; ++i) {
+    
+      my_data[prime_m-i] = new Node(my_data[prime_m-i+1]);
     }
+    return my_data;
   }
 
   //literally remove everything recursively
@@ -304,7 +324,52 @@ private:
     //directly return the NULL
     return pair<const Node*, bool>(last_iter, false);
   }
+  //only needed to be called when key is already there
+  const Node* _find_parent(const Key& k) const {
+    //first find itself
+    pair<const Node*, bool> found = _find(k);
+    //if not found, just return the found value cuz it contains the parent
+    if (!found.second) {
+      return found.first;
+    } else {
+      //found
+      //calculate the hash
+      size_type my_hash = _hash(k);
+      //iterate the bucket
+      const Node* last_iter = data_m[my_hash];
+      for (const Node* my_iter = data_m[my_hash] -> next_m;
+	   !my_iter -> sentinel_p;
+	   my_iter = my_iter -> next_m) {
+	if (my_iter -> value_m.first) return last_iter;
+	last_iter = my_iter;
+      }
+      return last_iter;
+    }
+  }
+  //non const find parent
+  Node* _find_parent(const Key& k){
+    //first find itself
+    pair<Node*, bool> found = _find(k);
+    //if not found, just return the found value cuz it contains the parent
+    if (!found.second) {
+      return found.first;
+    } else {
+      //found
+      //calculate the hash
+      size_type my_hash = _hash(k);
+      //iterate the bucket
+      Node* last_iter = data_m[my_hash];
+      for (Node* my_iter = data_m[my_hash] -> next_m;
+	   !my_iter -> sentinel_p;
+	   my_iter = my_iter -> next_m) {
+	if (my_iter -> value_m.first) return last_iter;
+	last_iter = my_iter;
+      }
+      return last_iter;
+    }
+  }
 
+  
   //get the next element of pos. special care for end elements of lists
   //_next will never stop on sentinel nodes
   //the returned pointer value either points to a valide value node or NULL indicating the end
@@ -327,16 +392,19 @@ private:
     return fresh_node;
   }
 
-  void _erase(Node* const pos)
+  void _erase_child(Node* const parent_pos)
   {
+    Node* const pos = parent_pos -> next_m;
     if (pos == NULL) throw runtime_error("erasing NULL");
     if (pos -> sentinel_p) throw runtime_error("trying to erase a sentinel");
+    parent_pos -> next_m = pos -> next_m;
+    delete pos;
   }
    
   //private hash function
   //take an object to hash
   //returns the corresponding hash
-  size_type _hash(const Key& my_key) const{
+  size_type _hash(const int my_key) const{
     //cast my_key to an array of chars
     char* char_arr = new char[sizeof(my_key)];
     memcpy(char_arr, &my_key, sizeof(my_key));

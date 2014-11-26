@@ -52,7 +52,7 @@ int main() {
   for(int i = 0; i < 10; ++i) {
     cout << my_map[i] << ((i == 9) ? "\n" : " ");
   }
-  /*
+
   cout << "deleting key 4 ...\n";
   my_map.erase(4);
   cout << "size after deletion: " << my_map.size() <<"\n";
@@ -61,8 +61,16 @@ int main() {
   for(int i = 0; i < 10; ++i) {
     cout << my_map.count(i) << ((i == 9) ? "\n" : " ");
   }
-  */
+  
+  cout << "values of keys 0..9 : ";
+  for(int i = 0; i < 10; ++i) {
+    cout << my_map[i] << ((i == 9) ? "\n" : " ");
+  }
 
+  cout << "traversal using iterator \n";
+  for (hashtablemap<int,int>::iterator my_iter = my_map.begin(); my_iter != my_map.end(); ++my_iter) {
+    cout << "key: " << my_iter -> first << " value: "<< my_iter -> second << "\n" ;
+  }
   
   return 0;
 }
