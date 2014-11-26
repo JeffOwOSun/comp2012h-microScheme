@@ -2,7 +2,7 @@
 #define HASHTABLEMAP_HPP
 
 #include <iostream>
-#include <list>
+#include <iterator>
 #include <utility>
 #include <stdexcept>
 
@@ -21,10 +21,41 @@ public:
   typedef unsigned int       size_type;
   typedef int                difference_type;
 
-public:
-  class iterator {
-    typedef value_type value_type;
-    typedef difference_type difference_type;
+private:
+  struct Node {
+    Node* next_m;
+    value_type value_m;
+    bool sentinel_p;
+
+    //default constructor and sentinel constructor
+    Node(Node* next = NULL) : next_m(next),
+			      sentinel_p(true) {}
+
+    //type conversion constructor from a value_type
+    Node(value_type& x) : value_m(x),
+			  next_m(NULL),
+			  sentinel_p(false) {}
+
+    //copy constructor
+    Node(Node& source) : value_m(source.value_m),
+			 next_m(source.next_m),
+			 sentinel_p(source.sentinel_p) {}
+
+    Node* copy() {
+      if (next_m == NULL) {
+        return new Node(*this);
+      } else {
+	//recursively copy the subsequence
+	Node* ret = new Node(*this);
+	ret -> next_m = next_m -> copy();
+      }
+    }
+  }
+  
+private:
+  template <class value_type,
+	    class different_type>
+  class _base_iterator {
     typedef value_type& reference;
     typedef value_type* pointer;
     
@@ -33,143 +64,99 @@ public:
 
     friend class hashtablemap;
 
-    iterator() : list_iter_m(data_m[0].begin()) {}
-    iterator(typename list<value_type>::iterator my_iter) : list_iter_m(my_iter) {}
-    iterator(const iterator& x) : list_iter_m(x.list_iter_m) {}
-    iterator& operator=(const iterator& x) {
-      list_iter_m = x.list_iter_m;
+    _base_iterator(Node* node = NULL) : node_m(node) {}
+    _base_iterator(const _base_iterator& x) : map_m(x.map_m), node_m(x.node_m){}
+    _base_iterator& operator=(const _base_iterator& x) {
+      map_m = x.map_m;
+      node_m = x.node_m;
       return *this;
     }
 
-    bool operator==(const iterator& x) const {
-      return list_iter_m == x.list_iter_m;
+    bool operator==(const _base_iterator& x) const {
+      return node_m == x.node_m;
     }
-    bool operator!=(const iterator& x) const {
-      return list_iter_m != x.list_iter_m;
+    bool operator!=(const _base_iterator& x) const {
+      return !(node_m == x.node_m);
     }
     reference operator*() {
-      return *list_iter_m;
+      return node_m->value_m;
     }
     pointer operator->() {
-      return &(*list_iter_m);
+      return &(node_m->value_m);
     }
-    iterator& operator++() {
-      list_iter_m = _next(list_iter_m);
+    _base_iterator& operator++() {
+      node_m = _next(node_m);
       return *this;
     }
-    iterator& operator++(int) {
-      iterator& ret(*this);
-      list_iter_m = _next(list_iter_m);
+    _base_iterator& operator++(int) {
+      _base_iterator ret(*this);
+      node_m = _next(node_m);
       return ret;
     }
   private:
-    typename list<hashtablemap::value_type>::iterator list_iter_m;
+    Node* node_m;
   };
+
+public:
+  typedef _base_iterator<value_type, difference_type> iterator;
+  typedef _base_iterator<const value_type, difference_type> const_iterator;
+
+private:
+  //constant integer indicating the length of the hashtable
+  //also used in _hash function
+  //default value is 47^2
+  enum {prime_m = 47*47};
 
   
-  class const_iterator {
-    typedef const value_type value_type;
-    typedef difference_type difference_type;
-    typedef value_type& reference;
-    typedef value_type* pointer;
-    
-    // your const_iterator definition goes here
-  public:
-
-    friend class hashtablemap;
-
-    const_iterator() : list_iter_m(data_m[0].begin()) {}
-    const_iterator(typename list<value_type>::const_iterator my_iter) : list_iter_m(my_iter) {}
-    const_iterator(const const_iterator& x) : list_iter_m(x.list_iter_m) {}
-    const_iterator& operator=(const const_iterator& x) {
-      list_iter_m = x.list_iter_m;
-      return *this;
-    }
-
-    bool operator==(const const_iterator& x) const {
-      return list_iter_m == x.list_iter_m;
-    }
-    bool operator!=(const const_iterator& x) const {
-      return list_iter_m != x.list_iter_m;
-    }
-    reference operator*() {
-      return *list_iter_m;
-    }
-    pointer operator->() {
-      return &(*list_iter_m);
-    }
-    const_iterator& operator++() {
-      list_iter_m = _next(list_iter_m);
-      return *this;
-    }
-    const_iterator& operator++(int) {
-      const_iterator& ret(*this);
-      list_iter_m = _next(list_iter_m);
-      return ret;
-    }
-  private:
-    typename list<hashtablemap::value_type>::iterator list_iter_m;
-  };
- 
 public:
   // default constructor to create an empty map
-  hashtablemap() {}
+  hashtablemap() : size_m(0), data_m(_initialize_data()) {}
 
   // overload copy constructor to do a deep copy
   hashtablemap(const Self& x) {
-    for (size_type i = 0; i < prime_m; ++i) {
-      list<value_type> tmp_list = x.data_m[i];
-      swap(data_m[i], tmp_list);      
+    //copy the entire sequence of linked lists
+    data_m[0] = x.data_m[0] -> copy();
+    //start from the second element, record each sentinel pointer
+    size_type i = 1;
+    Node* my_iter = data_m[0] -> next_m;
+    while (my_iter != NULL) {
+      if (my_iter -> sentinel_p) {
+	data_m[i] = my_iter;
+	++i;
+      }
+      my_iter = my_iter -> next_m;
     }
   }
 
-  // overload assignment to do a deep copy
+  ~hashtablemap() {
+    //release the linked list
+    _release(data_m[0]);
+    delete[] data_m;
+  }
+
+  //overload assignment to do a deep copy
   Self& operator=(const Self& x) {
-    for (size_type i = 0; i < prime_m; ++i) {
-      list<value_type> tmp_list = x.data_m[i];
-      swap(data_m[i], tmp_list);
-    }
+    //use copy constructor once;
+    Self tmp_table(x);
+    //swap data_m's
+    Node** tmp_data = data_m;
+    data_m = tmp_table.data_m;
+    tmp_table.data_m = tmp_data;
+    //supposedly tmp_table will carry the old data and get destructed when out of scope
   }
 
   // accessors:
   iterator begin() {
-    //search the hash table until the list is not empty
-    for (size_type i=0; i < prime_m; ++i) {
-      if (data_m[i].size() > 0) {
-	//return the iterator pointing to the first list item
-	return iterator(data_m[i].begin());
-      }
-    }
-    //here, we just return the 0 position, constructed by the default constructor of iterator
-    return iterator();
+    return iterator(_next(data_m[0]));
   }
   const_iterator begin() const {
-    for (size_type i=0; i < prime_m; ++i) {
-      if (data_m[i].size() > 0) {
-	//return the iterator pointing to the first list item
-	return const_iterator(data_m[i].begin());
-      }
-    }
-    //here, we just return the 0 position, constructed by the default constructor of iterator
-    return const_iterator();
+    return const_iterator(_next(data_m[0]));
   }
   iterator end() {
-    //return the iterator that wraps in itself the end() of the last non zero list
-    for (size_type i = prime_m - 1; i >= 0; --i) {
-      if (data_m[i].size() > 0) {
-	return iterator(data_m[i].end());
-      }
-    }
-    return iterator();
+    return iterator(NULL);
   }
   const_iterator end() const {
-  //return the iterator that wraps in itself the end() of the last non zero list
-    for (size_type i = prime_m - 1; i >= 0; --i) {
-      if (data_m[i].size() > 0) {
-	return const_iterator(data_m[i].end());
-      }
-    }
-    return const_iterator();
+    return const_iterator(NULL);
   }
   bool empty() const {
     return size_m == 0;
@@ -181,93 +168,91 @@ public:
   // insert/erase
   //the returned iterator is supposed to point either to the newly inserted pair or the pair with equivalent key
   pair<iterator,bool> insert(const value_type& x) {
-    //first search for the key
-    pair<iterator, bool> found = find(x.first);
-    //if it's already there, return the found iterator and a false
+    //first find the key
+    pair<Node*, bool> found = _find(x.first);
+    //if it's there, just return the wrapped iterator
     if (found.second) {
-      return pair<iterator, bool>(found.first, false);
-    } else {
-      //found.first is the place to insert
-      data_m[_hash(x.first)].insert(found.first, x);
-      ++size_m;
-      return pair<iterator, bool>(find(x.first), true);
+      return pair<iterator, bool>(iterator(found.first), false);
     }
-    
+    //if it's not there, insert a new node at the position
+    else {
+      Node* ret = _insert(found.first, new Node(x));
+      return pair<iterator, bool>(iterator(ret), true);
+    }
   }
   void erase(iterator pos) {
-    //first find the pos
-    //erase it
-    data_m[_hash(pos->first)].erase(pos.list_iter_m);
+    
     --size_m;
   }
   size_type erase(const Key& x) {
-    iterator my_iter = find(x);
-    if (my_iter == end()) {
-      return 0;
-    } else {
-      erase(my_iter);
-      return 1;
-    }
+
+    --size_m;
   }
   void clear() {
-    for (size_type i = 0; i < prime_m; ++i) {
-      data_m[i].clear();
-    }
+    //basically restore it to the original state
+    _release(data_m[0]);
+    delete[] data_m;
+    data_m = _initialize_data();
     size_m = 0;
   }
 
   // map operations:
   iterator find(const Key& x) {
-    pair<list<value_type>::iterator, bool> found = _find(x);
-    if (found.second) {
-      //wrap the list iterator into the custom iterator and return
-      return iterator(found.first);
-    } else {
-      return end();
-    }
+    pair<Node*, bool> found = _find(x);
+    return iterator(found.first);
   }
   const_iterator find(const Key& x) const {
-    pair<list<value_type>::iterator, bool> found = _find(x);
-    if (found.second) {
-      //wrap the list iterator into the custom iterator and return
-      return const_iterator(found.first);
-    } else {
-      return end();
-    }
+    pair<Node*, bool> found = _find(x);
+    return const_iterator(found.first);
   }
   size_type count(const Key& x) const {
     return (_find(x).second) ? 1 : 0;
   }
   T& operator[](const Key& k) {
     //_find for the key
-    pair<list<value_type>::iterator, bool> found = _find(k);
+    pair<Node*, bool> found = _find(k);
     //if found
     if (found.second) {
-      return found.first -> second;
+      return found.first -> value_m.second;
     }
     //if not found
     else {
       //insert the key, and initialize the value with default constructor
       value_type fresh_pair(k,T());
-      data_m[_hash(k)].insert(found.first, fresh_pair);
+      Node* ret = _insert(found.first, new Node(fresh_pair));
       ++size_m;
       //call this function once again
-      return operator[](k);
+      return ret -> value_m.second;
     }
   }
 
 private:
-  //constant integer indicating the length of the hashtable
-  //also used in _hash function
-  //default value is 47^2
-  enum {prime_m = 47*47};
 
   //the array that stores the hash table
   //Current implementation utilizes a fixed length array
   //an array of lists
   //RULE: lists here have keys in increasing order
-  list<value_type> data_m[prime_m];
+  Node* data_m[prime_m+1];
 
+  Node** _initialize_data() {
+    //prime_m-th line with a bottom sentinel node
+    //this extra line guards the code
+    Node** my_data = new Node*[prime_m+1];
+    my_data[prime_m] = new Node();
+    //from prime_m-1 th line down to line 0, each is a sentinel that points directly to the next element
+    for (size_type i = prime_m-1; i >= 0; --i) {
+      data_m[i] = new Node(data_m[i+1]);
+    }
+  }
+
+  //literally remove everything recursively
+  //even the invisible sentinels
+  void _release(Node* my_node) {
+    if (my_node == NULL) return;
+    _release(my_node -> next_m);
+    delete my_node;
+  }
+  
   //variable containing the number of elements in the hash table
   //using C++11 way of inline initializer
   size_type size_m = 0;
@@ -280,45 +265,51 @@ private:
   //for the boolean, it's true if found, false if not
   //when found, iterator is at the found element
   //when not found, iterator is on the position that should be supplied to the insert function and keeps the incrementing property
-  pair<list<value_type>::iterator, bool> _find(const Key& k) {
+  pair<Node*, bool> _find(const Key& k) {
     //get the hash
     size_type my_hash = _hash(k);
     //check on that list
-    for (list<value_type>::iterator my_iter = data_m[my_hash].begin(); my_iter != data_m[my_hash].end(); ++my_iter) {
-      if (my_iter -> first == k) return pair<list<value_type>::iterator, bool>(my_iter, true);
+    Node* my_iter = data_m[my_hash]->next_m;
+    Node* last_iter = data_m[my_hash];
+    
+    while(!(my_iter -> sentinel_p)) {      
+      if (my_iter -> value_m.first == k) return pair<Node*, bool>(my_iter, true);
       //because keys are in increasing order, so if we have already come to a larger key, break and return
-      if (my_iter -> first > k) return pair<list<value_type>::iterator, bool>(my_iter, false);
+      if (my_iter -> value_m.first > k) return pair<Node*, bool>(last_iter, false);
+      last_iter = my_iter;
+      my_iter = my_iter -> next_m;
     }
     //if come to this place, then the list either empty or all values are smaller than key.
-    //directly return the end.
-    return pair<list<value_type>::iterator, bool>(data_m[my_hash].end(), false);
+    //directly return the NULL
+    return pair<Node*, bool>(last_iter, false);
   }
 
   //get the next element of pos. special care for end elements of lists
-  list<value_type>::iterator _next(const list<value_type>::iterator& pos) {
-    //assuming pos is dereferenceable
-    //it actually must be, otherwise we cannot know where is the iterator
-    
-    //calculate the hash
-    try {
-      size_type my_hash = _hash(pos->first);
-    } catch (...) {
-      throw runtime_error("iterator pos undereferenceable!");
-    }			
-    //take ++ of the iterator
-    list<value_type>::iterator my_iter = pos;
-    ++my_iter;
-    //if the iterator is not end of list, just return it
-    if (my_iter != data_m[my_hash].end()) {
-      return my_iter;
-    }
-    //if it's the end of list, take the begin of the next available. if none, just return end
-    else {
-      for (size_type i = my_hash + 1; i < prime_m; ++i) {
-	if (data_m[i].size() > 0) return data_m[i].begin();
-      }
-      return data_m[my_hash].end();
-    }
+  //_next will never stop on sentinel nodes
+  //the returned pointer value either points to a valide value node or NULL indicating the end
+  Node* _next(Node* const pos) {
+    if (pos == NULL) return NULL;
+    //advance the pointer, so that it points to the next valid value node
+    Node* my_pointer = pos;
+    do {
+      my_pointer = my_pointer -> next_m;
+    } while (my_pointer != NULL && my_pointer -> sentinel_p);
+    return my_pointer;
+  }
+
+  //insertion after the node pos
+  //_insert won't mess with size_m
+  //it's only supposed to know about the node structure
+  Node* _insert(Node* const pos, Node* const fresh_node) {
+    fresh_node -> next_m = pos -> next_m;
+    pos -> next_m = fresh_node;
+    return fresh_node;
+  }
+
+  void _erase(Node* const pos);
+  {
+    if (pos == NULL) throw runtime_error("erasing NULL");
+    if (pos -> sentinel_p) throw runtime_error("trying to erase a sentinel");
   }
    
   //private hash function
