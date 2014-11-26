@@ -48,6 +48,7 @@ private:
 	//recursively copy the subsequence
 	Node* ret = new Node(*this);
 	ret -> next_m = next_m -> copy();
+	return ret;
       }
     }
   };
@@ -149,6 +150,8 @@ public:
     tmp_table.data_m = tmp_data;
 
     size_m = x.size_m;
+
+    return *this;
     //supposedly tmp_table will carry the old data and get destructed when out of scope
   }
 
