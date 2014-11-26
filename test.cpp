@@ -61,14 +61,23 @@ int main() {
   for(int i = 0; i < 10; ++i) {
     cout << my_map.count(i) << ((i == 9) ? "\n" : " ");
   }
-  
+  /*
   cout << "values of keys 0..9 : ";
   for(int i = 0; i < 10; ++i) {
     cout << my_map[i] << ((i == 9) ? "\n" : " ");
   }
+  */
 
+  cout << endl;
   cout << "traversal using iterator \n";
   for (hashtablemap<int,int>::iterator my_iter = my_map.begin(); my_iter != my_map.end(); ++my_iter) {
+    cout << "key: " << my_iter -> first << " value: "<< my_iter -> second << "\n" ;
+  }
+
+  cout << endl;
+  cout << "traversal using const_iterator \n";
+  const hashtablemap<int,int> my_const_map = my_map;
+  for (hashtablemap<int,int>::const_iterator my_iter = my_const_map.begin(); my_iter != my_const_map.end(); ++my_iter) {
     cout << "key: " << my_iter -> first << " value: "<< my_iter -> second << "\n" ;
   }
   

@@ -55,7 +55,9 @@ private:
   
 private:
   template <class value_type,
-	    class different_type>
+	    class different_type,
+	    class map_type,
+	    class node_type>
   class _base_iterator {
     typedef value_type& reference;
     typedef value_type* pointer;
@@ -65,7 +67,7 @@ private:
 
     friend class hashtablemap;
 
-    _base_iterator(hashtablemap* map = NULL, Node* node = NULL) : map_m(map), node_m(node) {}
+    _base_iterator(map_type* map = NULL, node_type* node = NULL) : map_m(map), node_m(node) {}
     _base_iterator(const _base_iterator& x) : map_m(x.map_m), node_m(x.node_m){}
     _base_iterator& operator=(const _base_iterator& x) {
       map_m = x.map_m;
@@ -95,13 +97,13 @@ private:
       return ret;
     }
   private:
-    hashtablemap* map_m;
-    Node* node_m;
+    map_type* map_m;
+    node_type* node_m;
   };
 
 public:
-  typedef _base_iterator<value_type, difference_type> iterator;
-  typedef _base_iterator<const value_type, difference_type> const_iterator;
+  typedef _base_iterator<value_type, difference_type, Self, Node> iterator;
+  typedef _base_iterator<const value_type, difference_type, const Self, const Node> const_iterator;
 
 private:
   //constant integer indicating the length of the hashtable
@@ -380,6 +382,17 @@ private:
     if (pos == NULL) return NULL;
     //advance the pointer, so that it points to the next valid value node
     Node* my_pointer = pos;
+    do {
+      my_pointer = my_pointer -> next_m;
+    } while (my_pointer != NULL && my_pointer -> sentinel_p);
+    return my_pointer;
+  }
+
+  //const version
+  const Node* _next(const Node* const pos) const {
+    if (pos == NULL) return NULL;
+    //advance the pointer, so that it points to the next valid value node
+    const Node* my_pointer = pos;
     do {
       my_pointer = my_pointer -> next_m;
     } while (my_pointer != NULL && my_pointer -> sentinel_p);
