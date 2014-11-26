@@ -32,7 +32,7 @@ private:
 			      sentinel_p(true) {}
 
     //type conversion constructor from a value_type
-    Node(value_type& x) : value_m(x),
+    Node(const value_type& x) : value_m(x),
 			  next_m(NULL),
 			  sentinel_p(false) {}
 
@@ -194,12 +194,7 @@ public:
     }
   }
   void erase(iterator pos) {
-    //first find the key
-    Key x = pos -> first;
-    //then start from the root of respective bucket to find its parent
-    _erase_child(_find_parent(x));
-    //_erase_child
-    --size_m;
+    erase(pos -> first);
   }
   size_type erase(const Key& x) {
     //first _find
@@ -367,7 +362,7 @@ private:
       for (Node* my_iter = data_m[my_hash] -> next_m;
 	   !my_iter -> sentinel_p;
 	   my_iter = my_iter -> next_m) {
-	if (my_iter -> value_m.first) return last_iter;
+	if (my_iter -> value_m.first == k) return last_iter;
 	last_iter = my_iter;
       }
       return last_iter;
