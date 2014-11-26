@@ -50,7 +50,7 @@ private:
 	ret -> next_m = next_m -> copy();
       }
     }
-  }
+  };
   
 private:
   template <class value_type,
@@ -65,9 +65,8 @@ private:
     friend class hashtablemap;
 
     _base_iterator(Node* node = NULL) : node_m(node) {}
-    _base_iterator(const _base_iterator& x) : map_m(x.map_m), node_m(x.node_m){}
+    _base_iterator(const _base_iterator& x) : node_m(x.node_m){}
     _base_iterator& operator=(const _base_iterator& x) {
-      map_m = x.map_m;
       node_m = x.node_m;
       return *this;
     }
@@ -113,7 +112,7 @@ public:
   hashtablemap() : size_m(0), data_m(_initialize_data()) {}
 
   // overload copy constructor to do a deep copy
-  hashtablemap(const Self& x) {
+  hashtablemap(const Self& x) : size_m(x.size_m) {
     //copy the entire sequence of linked lists
     data_m[0] = x.data_m[0] -> copy();
     //start from the second element, record each sentinel pointer
@@ -142,6 +141,8 @@ public:
     Node** tmp_data = data_m;
     data_m = tmp_table.data_m;
     tmp_table.data_m = tmp_data;
+
+    size_m = x.size_m;
     //supposedly tmp_table will carry the old data and get destructed when out of scope
   }
 
@@ -177,6 +178,7 @@ public:
     //if it's not there, insert a new node at the position
     else {
       Node* ret = _insert(found.first, new Node(x));
+      ++size_m;
       return pair<iterator, bool>(iterator(ret), true);
     }
   }
@@ -254,8 +256,8 @@ private:
   }
   
   //variable containing the number of elements in the hash table
-  //using C++11 way of inline initializer
-  size_type size_m = 0;
+  //CANNOT using C++11 way of inline initializer
+  size_type size_m;
 
   //private find function
   //return value is a pair
@@ -306,7 +308,7 @@ private:
     return fresh_node;
   }
 
-  void _erase(Node* const pos);
+  void _erase(Node* const pos)
   {
     if (pos == NULL) throw runtime_error("erasing NULL");
     if (pos -> sentinel_p) throw runtime_error("trying to erase a sentinel");
@@ -325,9 +327,9 @@ private:
     for (int i=0; i < sizeof(my_key); ++i) {
       size_type partial_result = char_arr[i];
       for (int j=0; j < i; ++j) {
-	partial_result = (partial_result << 8) % my_prime;
+	partial_result = (partial_result << 8) % prime_m;
       }
-      result = (result + partial_result) % my_prime;
+      result = (result + partial_result) % prime_m;
     }
     return result;
   }
@@ -340,9 +342,9 @@ private:
     for (int i=0; i < my_key.length(); ++i) {
       size_type partial_result = char_arr[i];
       for (int j=0; j < i; ++j) {
-	partial_result = (partial_result << 8) % my_prime;
+	partial_result = (partial_result << 8) % prime_m;
       }
-      result = (result + partial_result) % my_prime;
+      result = (result + partial_result) % prime_m;
     }
 
     return result;
