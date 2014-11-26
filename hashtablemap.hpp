@@ -106,13 +106,18 @@ private:
   //default value is 47^2
   enum {prime_m = 47*47};
 
+  //variable containing the number of elements in the hash table
+  //CANNOT using C++11 way of inline initializer
+  size_type size_m;
   
 public:
   // default constructor to create an empty map
-  hashtablemap() : size_m(0), data_m(_initialize_data()) {}
-
+  hashtablemap() : size_m(0), data_m(Node*[prime_m+1]) {
+    _initialize_data();
+  }
+  
   // overload copy constructor to do a deep copy
-  hashtablemap(const Self& x) : size_m(x.size_m) {
+  hashtablemap(const Self& x) : size_m(x.size_m), data_m(Node*[prime_m+1]) {
     //copy the entire sequence of linked lists
     data_m[0] = x.data_m[0] -> copy();
     //start from the second element, record each sentinel pointer
@@ -130,7 +135,6 @@ public:
   ~hashtablemap() {
     //release the linked list
     _release(data_m[0]);
-    delete[] data_m;
   }
 
   //overload assignment to do a deep copy
@@ -193,8 +197,7 @@ public:
   void clear() {
     //basically restore it to the original state
     _release(data_m[0]);
-    delete[] data_m;
-    data_m = _initialize_data();
+    _initialize_data();
     size_m = 0;
   }
 
@@ -236,11 +239,12 @@ private:
   //RULE: lists here have keys in increasing order
   Node* data_m[prime_m+1];
 
-  Node** _initialize_data() {
+  void _initialize_data() {
+    cerr<<"_initialize_data!\n";
+
     //prime_m-th line with a bottom sentinel node
     //this extra line guards the code
-    Node** my_data = new Node*[prime_m+1];
-    my_data[prime_m] = new Node();
+    data_m[prime_m] = new Node();
     //from prime_m-1 th line down to line 0, each is a sentinel that points directly to the next element
     for (size_type i = prime_m-1; i >= 0; --i) {
       data_m[i] = new Node(data_m[i+1]);
@@ -255,10 +259,6 @@ private:
     delete my_node;
   }
   
-  //variable containing the number of elements in the hash table
-  //CANNOT using C++11 way of inline initializer
-  size_type size_m;
-
   //private find function
   //return value is a pair
   //first field is the iterator to the list
@@ -284,6 +284,25 @@ private:
     //if come to this place, then the list either empty or all values are smaller than key.
     //directly return the NULL
     return pair<Node*, bool>(last_iter, false);
+  }
+  //const version
+  pair<const Node*, bool> _find(const Key& k) const {
+    //get the hash
+    size_type my_hash = _hash(k);
+    //check on that list
+    Node* my_iter = data_m[my_hash]->next_m;
+    Node* last_iter = data_m[my_hash];
+    
+    while(!(my_iter -> sentinel_p)) {      
+      if (my_iter -> value_m.first == k) return pair<const Node*, bool>(my_iter, true);
+      //because keys are in increasing order, so if we have already come to a larger key, break and return
+      if (my_iter -> value_m.first > k) return pair<const Node*, bool>(last_iter, false);
+      last_iter = my_iter;
+      my_iter = my_iter -> next_m;
+    }
+    //if come to this place, then the list either empty or all values are smaller than key.
+    //directly return the NULL
+    return pair<const Node*, bool>(last_iter, false);
   }
 
   //get the next element of pos. special care for end elements of lists

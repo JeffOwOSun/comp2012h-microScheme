@@ -1,8 +1,4 @@
-/**
- * \file test.cpp
- * \brief Test the hashtablemap
- */
-#include "hashtablemap.hpp"
+#include "bstmap.hpp"
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -10,15 +6,7 @@
 using namespace std;
 
 int main() {
-  hashtablemap<int, int> my_map;
-  //test []
-  //test insert
-  //test find
-  //test delete
-
-  //test iterator
-  //test ++
-  //test * and ->
+  bstmap<int, int> my_map;
 
   vector<int> my_vector;
   for(int i = 0; i < 10; ++i) my_vector.push_back(i);
@@ -52,7 +40,7 @@ int main() {
   for(int i = 0; i < 10; ++i) {
     cout << my_map[i] << ((i == 9) ? "\n" : " ");
   }
-  /*
+
   cout << "deleting key 4 ...\n";
   my_map.erase(4);
   cout << "size after deletion: " << my_map.size() <<"\n";
@@ -61,9 +49,6 @@ int main() {
   for(int i = 0; i < 10; ++i) {
     cout << my_map.count(i) << ((i == 9) ? "\n" : " ");
   }
-  */
-
   
   return 0;
 }
-  
