@@ -330,6 +330,12 @@ void SymbolCell::print(ostream& os) const
   os << symbol_m;
 }
 
+bool SymbolCell::smaller_than(Cell* const c) const throw(OperandInvalidError)
+{
+  if (c->is_symbol()) {
+    return get_symbol() < c->get_symbol();
+  } else throw OperandInvalidError("smaller_than");
+}
 
 Cell* SymbolCell::copy() const
 {
@@ -345,6 +351,8 @@ SymbolCell::~SymbolCell()
 Cell* SymbolCell::eval() const
 {
   std::string expr = get_symbol();
+  
+  /*
   //first lookup local
   if (definition_stack.back().count(expr)!=0) {
     return definition_stack.back()[expr]->copy();
@@ -352,6 +360,14 @@ Cell* SymbolCell::eval() const
   } else if (definition_stack.size()>1 && definition_stack.front().count(expr)!=0) {
     return definition_stack.front()[expr]->copy();
   } else throw runtime_error("attempt to reference an undefined symbol \""+expr+"\"");
+  */
+  //look it up layer by layer
+  for (int i = definition_stack.size() - 1; i>=0; --i) {
+    if (definition_stack[i].count(expr) != 0) {
+      return definition_stack[i][expr] -> copy();
+    }
+  }
+  throw runtime_error("attempt to reference an undefined symbol \""+expr+"\"");
 }
 
 ///////////////////////////////////ConsCell/////////////////////////////////////
@@ -760,6 +776,58 @@ Cell* ConsCell::eval() const
       } else {
         return new IntCell(1);
       }
+////////////////////////////////////////intp////////////////////////////////////////      
+    } else if (operation == "intp") {
+      if (sub_tree == nil) throw runtime_error("zero operand for intp");
+      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for intp");
+
+      Cell* value_cell = sub_tree->get_car()->eval();
+      if (value_cell != nil && value_cell -> is_int()) {
+        safe_delete(value_cell);
+        return new IntCell(1);
+      } else {
+	safe_delete(value_cell);
+        return new IntCell(0);
+      }
+////////////////////////////////////////doublep////////////////////////////////////////      
+    } else if (operation == "doublep") {
+      if (sub_tree == nil) throw runtime_error("zero operand for doublep");
+      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for doublep");
+
+      Cell* value_cell = sub_tree->get_car()->eval();
+      if (value_cell != nil && value_cell -> is_double()) {
+        safe_delete(value_cell);
+        return new IntCell(1);
+      } else {
+	safe_delete(value_cell);
+        return new IntCell(0);
+      }
+////////////////////////////////////////symbolp////////////////////////////////////////      
+    } else if (operation == "symbolp") {
+      if (sub_tree == nil) throw runtime_error("zero operand for symbolp");
+      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for symbolp");
+
+      Cell* value_cell = sub_tree->get_car()->eval();
+      if (value_cell != nil && value_cell -> is_symbol()) {
+        safe_delete(value_cell);
+        return new IntCell(1);
+      } else {
+	safe_delete(value_cell);
+        return new IntCell(0);
+      }
+////////////////////////////////////////listp////////////////////////////////////////      
+    } else if (operation == "listp") {
+      if (sub_tree == nil) throw runtime_error("zero operand for nullp");
+      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for nullp");
+
+      Cell* value_cell = sub_tree->get_car()->eval();
+      if (value_cell != nil && value_cell -> is_cons()) {
+        safe_delete(value_cell);
+        return new IntCell(1);
+      } else {
+	safe_delete(value_cell);
+        return new IntCell(0);
+      }
 ////////////////////////////////////////define////////////////////////////////////////      
     } else if (operation == "define") {
       if (sub_tree == nil || sub_tree->get_cdr() == nil || sub_tree->get_cdr()->get_cdr()!=nil) throw OperandNumberMismatchError("define","2");
@@ -778,6 +846,7 @@ Cell* ConsCell::eval() const
       Cell* definition_cell = sub_tree->get_cdr()->get_car()->eval();
       //if (definition_cell == nil) throw OperandInvalidError("define");     
       //store the key and the evaluated cell to the map
+
       definition_stack.back()[key_cell->get_symbol()] = definition_cell;
       return nil;
 ////////////////////////////////////////<////////////////////////////////////////      
@@ -828,6 +897,7 @@ Cell* ConsCell::eval() const
       return eval_result;
 ////////////////////////////////////////lambda////////////////////////////////////////
     } else if (operation == "lambda") {
+
       //assert two or more operands
       if (sub_tree == nil || sub_tree->get_cdr() == nil) throw OperandNumberMismatchError("lambda","2 or more");
 

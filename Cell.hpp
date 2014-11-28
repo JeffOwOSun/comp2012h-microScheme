@@ -432,7 +432,8 @@ public:
    * \return Pointer to the Cell containing the result
    */
   virtual Cell* eval() const;
-  
+
+  virtual bool smaller_than(Cell* const c) const throw(OperandInvalidError);
   /**
    * \brief Destructor
    */
@@ -489,7 +490,7 @@ public:
    * \return Pointer to the Cell containing the result
    */
   virtual Cell* eval() const;
-  
+
   /**
    * \brief Not operation.
    * \return Pointer to the Cell containing the value. Delete immediately after use
