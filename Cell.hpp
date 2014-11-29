@@ -518,7 +518,7 @@ public:
   /**
    * \brief Constructor. ATTENTION: no internal copy of my_formals and my_body will be made. Please explicitly make copies before the call. 
    */
-  ProcedureCell(Cell* const my_formals, Cell* const my_body);
+  ProcedureCell(Cell* const my_formals = nil, Cell* const my_body = nil);
 
   /**
    * \brief Accessor.
@@ -577,6 +577,16 @@ public:
 private:
   Cell* formals_m;
   Cell* body_m;
+};
+
+class BuiltinProcedureCell: public ProcedureCell
+{
+public:
+  BuiltinProcedureCell(Cell* (*my_func) (Cell* const));
+  virtual Cell* apply(Cell* const args) const;
+  virtual Cell* copy() const;
+private:
+  Cell* (*func_m) (Cell*);
 };
 
 /**
