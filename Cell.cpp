@@ -347,10 +347,10 @@ Cell* SymbolCell::eval() const
   std::string expr = get_symbol();
   //first lookup local
   if (definition_stack.back().count(expr)!=0) {
-    return definition_stack.back().at(expr)->copy();
+    return definition_stack.back()[expr]->copy();
   //then lookup global
   } else if (definition_stack.size()>1 && definition_stack.front().count(expr)!=0) {
-    return definition_stack.front().at(expr)->copy();
+    return definition_stack.front()[expr]->copy();
   } else throw runtime_error("attempt to reference an undefined symbol \""+expr+"\"");
 }
 
@@ -938,7 +938,7 @@ Cell* ProcedureCell::get_not() const throw()
 Cell* ProcedureCell::apply(Cell* const args) const
 {
   //define the local map of variables
-  map<string,Cell*> my_map;
+  hashtablemap<string,Cell*> my_map;
   try {
     //iterate each formal, define the local map
     Cell* my_arg = args;
@@ -979,7 +979,7 @@ Cell* ProcedureCell::apply(Cell* const args) const
     }
   } catch (...) {
     //release the allocated memory spaces
-    for (map<string, Cell*>::iterator my_iter = my_map.begin();my_iter != my_map.end(); ++my_iter){
+    for (hashtablemap<string, Cell*>::iterator my_iter = my_map.begin();my_iter != my_map.end(); ++my_iter){
       safe_delete(my_iter -> second);
     }
     throw;
@@ -1005,7 +1005,7 @@ Cell* ProcedureCell::apply(Cell* const args) const
   } catch (...) {
     //pop the stack and clean up
     my_map = definition_stack.back();
-    for (map<string, Cell*>::iterator my_iter = my_map.begin();my_iter != my_map.end(); ++my_iter){
+    for (hashtablemap<string, Cell*>::iterator my_iter = my_map.begin();my_iter != my_map.end(); ++my_iter){
       safe_delete(my_iter -> second);
     }
     definition_stack.pop_back();
@@ -1015,7 +1015,7 @@ Cell* ProcedureCell::apply(Cell* const args) const
   //normal exit
   //pop the stack and clean up
   my_map = definition_stack.back();
-  for (map<string, Cell*>::iterator my_iter = my_map.begin();my_iter != my_map.end(); ++my_iter){
+  for (hashtablemap<string, Cell*>::iterator my_iter = my_map.begin();my_iter != my_map.end(); ++my_iter){
     safe_delete(my_iter -> second);
   }
   definition_stack.pop_back();
@@ -1035,13 +1035,13 @@ ProcedureCell::~ProcedureCell()
   safe_delete(body_m);
 }
 
-deque<map<string,Cell*> > stack_initialize()
+deque<hashtablemap<string,Cell*> > stack_initialize()
 {
-  deque<map<string,Cell*> > my_dq;
-  map<string,Cell*> my_map;
+  deque<hashtablemap<string,Cell*> > my_dq;
+  hashtablemap<string,Cell*> my_map;
   //do something with my_map if necessary
   my_dq.push_back(my_map);
   return my_dq;
 }
 
-std::deque<std::map<std::string, Cell*> > definition_stack = stack_initialize();
+std::deque<hashtablemap<std::string, Cell*> > definition_stack = stack_initialize();

@@ -31,7 +31,8 @@
 #include <string>
 #include <deque>
 #include "exceptions.hpp"
-#include <map>
+//#include <map>
+#include "hashtablemap.hpp"
 #include <stack>
 
 /**
@@ -580,14 +581,14 @@ private:
 /**
  * \brief The deque of definition maps. Front is global, back is local/current.
  */
-extern std::deque<std::map<std::string, Cell*> > definition_stack;
+extern std::deque<hashtablemap<std::string, Cell*> > definition_stack;
 
 
 /**
  * \brief Initializer for definition stack
  * \return a deque<map<string,Cell*>> type object that contains one global map
  */
-std::deque<std::map<std::string, Cell*> > stack_initialize();
+std::deque<hashtablemap<std::string, Cell*> > stack_initialize();
 
 /**
  * \brief A helper function for safely delete
