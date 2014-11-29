@@ -3,14 +3,30 @@
     (if (nullp args)
 	(quote ())
 	(cons (car args)
-	      (apply list (cdr args))))))	      
+	      (apply list (cdr args))))))
+(define for-each
+  (lambda args
+    (print (quote yo))
+    (if (nullp args)
+	(print (quote error_for_each_no_function))
+	(if (nullp (cdr args))
+	    (print (quote error_for_each_no_args))
+	    (if (nullp (cdr (cdr args)))
+		(apply (car args)
+		       (car (cdr args)))
+		((lambda ()
+		   (apply (car args)
+			  (car (cdr args)))
+		   (apply for-each
+			  (cons (car args)
+				(cdr (cdr args)))))))))))
+	
 (define > (lambda (x y) (< y x)))
 (define >= (lambda (x y) (not (< x y))))
 (define <= (lambda (x y) (not (< y x))))
 (define = (lambda (x y) (if (< x y) 0 (not (< y x)))))
 (define abs (lambda (x) (if (< x 0) (- 0 x) x)))
 (define factorial (lambda (x) (if (< x 2) 1 (* x (factorial (- x 1))))))
-(define for-each (lambda (my_func my_list) (apply my_func (car my_list)) (if (not (nullp (cdr my_list))) (for-each my_func (cdr my_list)) (quote ()))))
 (define list-tail
   (lambda (list k)
     (if k
@@ -76,18 +92,18 @@
 	 proc my-list))))
 (define list-sort
   (lambda (binary-proc my-list)
-    (if (OR (nullp my-list)
-	    (nullp (cdr my-list)))
+     (if (nullp my-list) 
 	my-list
 	((lambda ()
+	   (define pivot
+	     (car my-list))
 	   (define partitioned-list
-	     (list-partition (lambda (y)
-			       (binary-proc (car my-list) y))
+	     (list-partition (lambda (x)
+			       (binary-proc x pivot))
 			     (cdr my-list)))
-	   (print (quote defined_the_partitioned_list))
-	   (append (append (list-sort binary-proc (car partitioned-list))
-			   (list (car my-list)))
-		   (list-sort binary-proc (car (cdr partitioned-list)))))))))	
-		  
-	    
-		  
+	   (define sorted-left
+	     (list-sort binary-proc (car partitioned-list)))
+	   (define sorted-right
+	     (list-sort binary-proc (car (cdr partitioned-list))))
+	   (append (append sorted-left (list pivot))
+		   sorted-right))))))
