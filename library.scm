@@ -1,3 +1,9 @@
+(define list
+  (lambda args
+    (if (nullp args)
+	(quote ())
+	(cons (car args)
+	      (apply list (cdr args))))))	      
 (define > (lambda (x y) (< y x)))
 (define >= (lambda (x y) (not (< x y))))
 (define <= (lambda (x y) (not (< y x))))
@@ -43,9 +49,6 @@
 			(AND (symbolp obj1) (symbolp obj2))))
 		(not (OR (< obj1 obj2) (> obj1 obj2)))
 		0)))))
-(define list
-  (lambda (a)
-    (cons a (quote ()))))
 (define assoc
   (lambda (key my_list)
     (if (equal? (car (car my_list)) key)
@@ -72,19 +75,19 @@
 				(car (cdr sub-ret)))))))
 	 proc my-list))))
 (define list-sort
-  (lambda (proc my-list)
+  (lambda (binary-proc my-list)
     (if (OR (nullp my-list)
 	    (nullp (cdr my-list)))
 	my-list
-	((lambda (proc my-list)
+	((lambda ()
 	   (define partitioned-list
 	     (list-partition (lambda (y)
-			       (proc (car my-list) y))
+			       (binary-proc (car my-list) y))
 			     (cdr my-list)))
-	   (append (append (list-sort proc (car partitioned-list))
+	   (print (quote defined_the_partitioned_list))
+	   (append (append (list-sort binary-proc (car partitioned-list))
 			   (list (car my-list)))
-		   (list-sort proc (car (cdr partitioned-list)))))
-	 proc my-list))))	
+		   (list-sort binary-proc (car (cdr partitioned-list)))))))))	
 		  
 	    
 		  

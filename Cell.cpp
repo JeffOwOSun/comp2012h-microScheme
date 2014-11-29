@@ -362,7 +362,7 @@ Cell* SymbolCell::eval() const
   } else throw runtime_error("attempt to reference an undefined symbol \""+expr+"\"");
   */
   //look it up layer by layer
-  for (int i = definition_stack.size() - 1; i>=0; --i) {
+  for (int i = definition_stack.size() - 1; i >= 0; --i) {
     if (definition_stack[i].count(expr) != 0) {
       return definition_stack[i][expr] -> copy();
     }
