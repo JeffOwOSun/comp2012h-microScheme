@@ -330,6 +330,12 @@ void SymbolCell::print(ostream& os) const
   os << symbol_m;
 }
 
+bool SymbolCell::smaller_than(Cell* const c) const throw(OperandInvalidError)
+{
+  if (c->is_symbol()) {
+    return get_symbol() < c->get_symbol();
+  } else throw OperandInvalidError("smaller_than");
+}
 
 Cell* SymbolCell::copy() const
 {
@@ -345,6 +351,8 @@ SymbolCell::~SymbolCell()
 Cell* SymbolCell::eval() const
 {
   std::string expr = get_symbol();
+  
+  /*
   //first lookup local
   if (definition_stack.back().count(expr)!=0) {
     return definition_stack.back()[expr]->copy();
@@ -352,6 +360,14 @@ Cell* SymbolCell::eval() const
   } else if (definition_stack.size()>1 && definition_stack.front().count(expr)!=0) {
     return definition_stack.front()[expr]->copy();
   } else throw runtime_error("attempt to reference an undefined symbol \""+expr+"\"");
+  */
+  //look it up layer by layer
+  for (int i = definition_stack.size() - 1; i >= 0; --i) {
+    if (definition_stack[i].count(expr) != 0) {
+      return definition_stack[i][expr] -> copy();
+    }
+  }
+  throw runtime_error("attempt to reference an undefined symbol \""+expr+"\"");
 }
 
 ///////////////////////////////////ConsCell/////////////////////////////////////
@@ -431,466 +447,28 @@ Cell* ConsCell::eval() const
     return value_to_return;
   } else if (get_car()->is_symbol()){
     //case 1
-    //get the operator
-    std::string operation = get_car()->get_symbol();
-    
+    //get the operator   
     Cell* sub_tree = c->get_cdr();
-    
-//////////////////////////////////////+//////////////////////////////////////////    
-    if (operation == "+") {
-      //Cell pointer to the current working cell
-      Cell* current_cell = sub_tree;
-      Cell* sum= new IntCell(0);
-  
-      //iterate every cons pair until meet a nil cdr
-      while (current_cell != nil) {
-
-	//current_cell is not nil, and it should be a conspair
-	if (!current_cell->is_cons()) {
-	  throw runtime_error("cdr must be nil or conspair");
-	}
-
-	//pointer to the cell that contains the value to be added
-	//here eval could be used against a conspair or a int/double cell
-	Cell* value_cell = current_cell->get_car()->eval();
-
-	if (value_cell==nil)throw runtime_error("add on nil");
-	if (value_cell->is_cons() || value_cell->is_symbol()){
-	  safe_delete(value_cell);
-	  throw runtime_error("add operand invalid");
-	}
-    
-	Cell* result = sum->add(value_cell);
-	safe_delete(sum);
-	safe_delete(value_cell);
-	sum = result;
-    
-	//move current_cell forward;
-	current_cell = current_cell->get_cdr();
-      }
-    
-      return sum;
-////////////////////////////////////-////////////////////////////////////////////      
-    } else if (operation == "-") {
-
-      //error if no operand is supplied
-      if (sub_tree == nil) throw runtime_error("subtract on zero operand!");
-  
-      //Cell pointer to the current working cell
-      Cell* current_cell = sub_tree;
-      //Value Cell that stores minuend
-      Cell* minuend_cell;
-    
-      //if subtract only has one operand
-      if (sub_tree->get_cdr() == nil) {
-	if (!current_cell->is_cons()) throw runtime_error("s-expression invalid: cdr must be nil or cons!");
-    
-	Cell* value_cell = current_cell->get_car()->eval();
-
-	if (value_cell!=nil) {
-	  if (value_cell->is_int()) {
-	    return new IntCell(-value_cell->get_int());
-	  } else if (value_cell->is_double()) {
-	    return new DoubleCell(-value_cell->get_double());
-	  } else {
-	    //directly delete, for value_cell is ensured to be non nil
-	    safe_delete(value_cell);
-	    throw runtime_error("subtract operand invalid!");
-	  }
-	} else {
-	  throw runtime_error("subtract on nil cell");
-	}
-      } else {   
-	// subtract with two operands or more
-    
-	minuend_cell = current_cell->get_car()->eval();
-	if (minuend_cell==nil) throw runtime_error("subtract on nil cell");
-	current_cell = current_cell->get_cdr();
-
-	while (current_cell != nil) {
-	  Cell* value_cell = current_cell->get_car()->eval();
-      
-	  if (value_cell==nil) throw runtime_error("subtract on nil");
-	  if (value_cell->is_cons() || value_cell->is_symbol()){
-	    safe_delete(value_cell);
-	    throw runtime_error("subtract operand invalid");
-	  }
-      
-	  Cell* result_cell = minuend_cell->subtract(value_cell);
-	  safe_delete(minuend_cell);
-	  safe_delete(value_cell);
-	  minuend_cell = result_cell;
-
-	  current_cell = current_cell->get_cdr();
-	}
-
-	return minuend_cell;
-      }
-//////////////////////////////////////*//////////////////////////////////////////
-    } else if (operation == "*") {
-      //Cell pointer to the current working cell
-      Cell* current_cell = sub_tree;
-      Cell* product = new IntCell(1);
-
-      //iterate every cons pair until meet a nil cdr
-      while (current_cell != nil) {
-
-	//current_cell is not nil, and it should be a conspair
-	if (!current_cell->is_cons()) {
-	  throw runtime_error("cdr must be nil or conspair");
-	}
-
-	//pointer to the cell that contains the value to be added
-	//here eval could be used against a conspair or a int/double cell
-	Cell* value_cell = current_cell->get_car()->eval();
-
-	if (value_cell==nil) throw runtime_error("multiply on nil");
-	if (value_cell->is_cons() || value_cell->is_symbol()){
-	  safe_delete(value_cell);
-	  throw runtime_error("multiply operand invalid");
-	}
-          
-	Cell* result = product->multiply(value_cell);
-	safe_delete(product);
-	safe_delete(value_cell);
-	product = result;
-   
-	//move current_cell forward;
-	current_cell = current_cell->get_cdr();
-      }
-    
-      return product;
-//////////////////////////////////// / ///////////////////////////////////////////
-    } else if (operation == "/") {
-      //error if no operand is supplied
-      if (sub_tree == nil) throw runtime_error("division on zero operand!");
-      
-      //Cell pointer to the current working cell
-      Cell* current_cell = sub_tree;
-      //Value Cell that stores minuend
-      Cell* dividend_cell;
-    
-      //if subtract only has one operand
-      if (sub_tree->get_cdr() == nil) {
-	if (!current_cell->is_cons()) throw runtime_error("s-expression invalid: cdr must be nil or cons!");
-    
-	Cell* value_cell = current_cell->get_car()->eval();
-
-	if (value_cell!=nil) {
-	  if (value_cell->is_int()) {
-	    return new IntCell(1/value_cell->get_int());
-	  } else if (value_cell->is_double()) {
-	    return new DoubleCell(1/value_cell->get_double());
-	  } else {
-	    //directly delete, for value_cell is ensured to be non nil
-	    safe_delete(value_cell);
-	    throw runtime_error("subtract operand invalid!");
-	  }
-	} else {
-	  throw runtime_error("subtract on nil cell");
-	}
-      } else {   
-	// subtract with two operands or more
-    
-	dividend_cell = current_cell->get_car()->eval();
-	if (dividend_cell==nil) throw runtime_error("subtract on nil cell");
-	current_cell = current_cell->get_cdr();
-
-	while (current_cell != nil) {
-	  Cell* value_cell = current_cell->get_car()->eval();
-      
-	  if (value_cell==nil) throw runtime_error("subtract on nil");
-	  if (value_cell->is_cons() || value_cell->is_symbol()){
-	    safe_delete(value_cell);
-	    throw runtime_error("subtract operand invalid");
-	  }
-      
-	  Cell* result_cell = dividend_cell->divide_by(value_cell);
-	  safe_delete(dividend_cell);
-	  safe_delete(value_cell);
-	  dividend_cell = result_cell;
-
-	  current_cell = current_cell->get_cdr();
-	}
-	
-	return dividend_cell;
-      }
-//////////////////////////////////////ceiling//////////////////////////////////////////      
-    } else if (operation == "ceiling") {
-      //current working cell
-      Cell* current_cell = sub_tree;
-
-      if (current_cell == nil || !current_cell -> is_cons()) throw runtime_error("s-expression invalid: invalid ceiling operand!");
-
-      if (current_cell->get_cdr()!=nil) throw runtime_error("s-expression invalid: ceiling on more than one operands");
-    
-      //take the ceiling and return
-      Cell* returned_value = current_cell->get_car()->eval();
-      if (returned_value->is_double()){
-	int ceilinged_value = int(returned_value->get_double());
-	if (ceilinged_value < returned_value->get_double()) ++ceilinged_value;
-	safe_delete(returned_value);
-	return new IntCell(ceilinged_value);
-      } else {
-	safe_delete(returned_value);
-	throw runtime_error("s-expression invalid: ceiling operand invalid!");
-      }
-/////////////////////////////////////floor///////////////////////////////////////////      
-    } else if (operation == "floor") {
-      //current working cell
-      Cell* current_cell = sub_tree;
-
-      if (current_cell == nil || !current_cell -> is_cons()) throw runtime_error("s-expression invalid: invalid ceiling operand!");
-
-      if (current_cell->get_cdr()!=nil) throw runtime_error("s-expression invalid: ceiling on more than one operands");
-    
-      //take the floor and return
-      Cell* returned_value = current_cell->get_car()->eval();
-      if (returned_value->is_double()){
-	int ceilinged_value = int(returned_value->get_double());
-	safe_delete(returned_value);
-	return new IntCell(ceilinged_value);
-      } else {
-	safe_delete(returned_value);
-	throw runtime_error("s-expression invalid: floor operand invalid");
-      }
-///////////////////////////////////////if/////////////////////////////////////////      
-    } else if (operation == "if") {
-      //temporary Cell pointers;
-      Cell* condition = sub_tree;
-      if (condition==nil || !condition->is_cons()) throw runtime_error("s-expression invalid: if condition is not a conspair");
-      Cell* if_true = condition->get_cdr();
-      if (if_true==nil || !if_true->is_cons()) throw runtime_error("s-expression invalid: the true return value is not a cospair");
-      Cell* if_false = if_true->get_cdr(); 
-
-      //directly return the second parameter if the third doesn't exist
-      if (if_false==nil) {
-	return if_true->get_car()->eval();
-      } else {
-	if (if_false->get_cdr()!=nil) throw runtime_error("s-expression invalid: if operator on more than three operands");
-      
-	Cell* condition_cell = condition->get_car()->eval();
-	bool flag = false;
-      
-	//retrieve values according to their types
-	if (condition_cell==nil){
-	  flag = false;
-	} else if (condition_cell->is_int()){
-	  flag = condition_cell->get_int() ? true : false;
-	} else if (condition_cell->is_double()) {
-	  flag = condition_cell->get_double() ? true : false;
-	} else if (condition_cell->is_symbol()) {
-	  flag = condition_cell->get_symbol()!="" ? true : false;
-	} else {
-	  safe_delete(condition_cell);
-	  throw runtime_error("s-expression invalid: condition operand invalid to if");
-	}
-
-	safe_delete(condition_cell);
-      
-	return flag ? if_true->get_car()->eval() : if_false->get_car()->eval();
-      }
-//////////////////////////////////////quote//////////////////////////////////////////      
-    } else if (operation == "quote") {
-      //return sub_tree's cdr directly, by making a deep copy first
-      if (sub_tree==nil || !sub_tree->is_cons()) throw runtime_error("operand for quote invalid");
-      if (sub_tree->get_cdr()!=nil) throw runtime_error("operand for quote more than one!");
-      return sub_tree->get_car()->copy();
-///////////////////////////////////////cons/////////////////////////////////////////
-    } else if (operation == "cons") {
-      if (sub_tree == nil) throw runtime_error("operand for cons invalid");
-      //ConsCell pointers. 
-      Cell* car_tobe = sub_tree;
-      Cell* cdr_tobe = sub_tree->get_cdr();
-
-      if (cdr_tobe == nil) throw runtime_error("operand for cons invalid");
-      if (cdr_tobe->get_cdr() != nil) throw runtime_error("operand for cons more than two!");
-  
-      Cell* car_value = car_tobe->get_car()->eval();
-      Cell* cdr_value = cdr_tobe->get_car()->eval();
-
-      Cell* return_cell = new ConsCell(car_value, cdr_value);
-            
-      return return_cell;
-//////////////////////////////////////car//////////////////////////////////////////      
-    } else if (operation == "car") {
-      if (sub_tree == nil) throw runtime_error("zero operand for car");
-      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for car");
-      //retrieve the cell upon which car should be taken
-      Cell* value_cell = sub_tree->get_car()->eval();
-      if (value_cell != nil) {
-	if (value_cell->is_cons()) {
-	  Cell* value_car = value_cell->get_car()->copy();
-	  safe_delete(value_cell);
-	  return value_car;
-	} else {
-	  safe_delete(value_cell); 
-	  throw runtime_error("car on non-cons cell");
-	}
-      } else {
-	throw runtime_error ("car on nil");
-      }
-///////////////////////////////////////cdr/////////////////////////////////////////      
-    } else if (operation == "cdr") {
-      if (sub_tree == nil) throw runtime_error("zero operand for cdr");
-      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for cdr");
-      //retrieve the cell upon which cdr should be taken
-      Cell* value_cell = sub_tree->get_car()->eval();
-      if (value_cell != nil) {
-	if (value_cell->is_cons()) {
-	  Cell* value_cdr = value_cell->get_cdr()->copy();
-	  safe_delete(value_cell);
-	  return value_cdr;
-	} else {
-	  safe_delete(value_cell); 
-	  throw runtime_error("cdr on non-cons cell");
-	}
-      } else {
-	throw runtime_error ("cdr on nil");
-      }
-////////////////////////////////////////nullp////////////////////////////////////////      
-    } else if (operation == "nullp") {
-      if (sub_tree == nil) throw runtime_error("zero operand for nullp");
-      if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for nullp");
-
-      Cell* value_cell = sub_tree->get_car()->eval();
-      if (value_cell != nil) {
-        safe_delete(value_cell);
-        return new IntCell(0);
-      } else {
-        return new IntCell(1);
-      }
-////////////////////////////////////////define////////////////////////////////////////      
-    } else if (operation == "define") {
-      if (sub_tree == nil || sub_tree->get_cdr() == nil || sub_tree->get_cdr()->get_cdr()!=nil) throw OperandNumberMismatchError("define","2");
-
-      //retrieve the key
-      Cell* key_cell = sub_tree->get_car()->copy();
+    //lookup dictionary
+    Cell* func = nil;
+    Cell* apply_result = nil;
+    try {
+      //eval will help look up the dictionary, as defined in SymbolCell::eval()
+      //It will throw an error if the required expression is nowhere to look up
+      func = get_car()->eval();
       try {
-        if (key_cell == nil || !key_cell->is_symbol()) throw OperandInvalidError("define");
-        //look up the map if the key prexists
-        if (definition_stack.back().count(key_cell->get_symbol())!=0) throw runtime_error(key_cell->get_symbol()+" already exists in this scope!");
-      } catch (...) {
-        safe_delete(key_cell);
-        throw;
-      }
-      //retrieve the defintion
-      Cell* definition_cell = sub_tree->get_cdr()->get_car()->eval();
-      //if (definition_cell == nil) throw OperandInvalidError("define");     
-      //store the key and the evaluated cell to the map
-      definition_stack.back()[key_cell->get_symbol()] = definition_cell;
-      return nil;
-////////////////////////////////////////<////////////////////////////////////////      
-    } else if (operation == "<") {
-      //for zero operand
-      if (sub_tree == nil) return new IntCell(1);
-
-      Cell* current_cell = sub_tree;
-      //while there's more than one operand left
-      Cell* result_cell;
-      while (current_cell->get_cdr()!=nil) {
-	if (!(result_cell = current_cell->get_car()->eval()) -> smaller_than(current_cell -> get_cdr() -> get_car()->eval())) {
-	  safe_delete(result_cell);
-	  return new IntCell(0); 
-	}
-	safe_delete(result_cell);
-	current_cell = current_cell->get_cdr();
-      }
-      //directly return 1, including the case where only one operand is supplied
-      return new IntCell(1);
-////////////////////////////////////////not////////////////////////////////////////      
-    } else if (operation == "not") {
-      //operand number check. throw error
-      if (sub_tree == nil || sub_tree->get_cdr()!=nil) throw OperandNumberMismatchError("not","exactly 1");
-
-      Cell* result_cell = sub_tree->get_car()->eval();
-      Cell* not_cell = result_cell->get_not();
-      safe_delete(result_cell);
-      return not_cell;
-////////////////////////////////////////print////////////////////////////////////////      
-    } else if (operation == "print") {
-      //limit to one operand
-      if (sub_tree == nil || sub_tree->get_cdr() != nil) throw OperandNumberMismatchError("print","exactly 1");
-
-      Cell* result_cell = sub_tree->get_car()->eval();
-      result_cell->print(cout);
-      cout<<endl;
-      safe_delete(result_cell);
-      return nil;
-////////////////////////////////////////eval////////////////////////////////////////      
-    } else if (operation == "eval") {
-      //limit to one operand
-      if (sub_tree == nil || sub_tree -> get_cdr() != nil) throw OperandNumberMismatchError("eval","exactly 1");
-
-      Cell* car_result = sub_tree->get_car()->eval();
-      Cell* eval_result = car_result->eval();
-      safe_delete(car_result);
-      return eval_result;
-////////////////////////////////////////lambda////////////////////////////////////////
-    } else if (operation == "lambda") {
-      //assert two or more operands
-      if (sub_tree == nil || sub_tree->get_cdr() == nil) throw OperandNumberMismatchError("lambda","2 or more");
-
-      //check the formals are valid
-      if (sub_tree->get_car()->is_cons()) {
-	for (Cell* i = sub_tree->get_car(); i != nil; i=i->get_cdr()){
-	  if (!i->get_car()->is_symbol()) throw OperandInvalidError("lambda");
-	}
-      } else if (!sub_tree->get_car()->is_symbol()) throw OperandInvalidError("lambda");
-    
-      //car of subtree as formals
-      //cdr of subtree directly as body
-      return new ProcedureCell(sub_tree->get_car()->copy(), sub_tree->get_cdr()->copy());
-////////////////////////////////////////apply////////////////////////////////////////
-    } else if (operation == "apply") {
-      //assert two operands
-      if (sub_tree == nil || sub_tree->get_cdr() == nil || sub_tree->get_cdr()->get_cdr() != nil) throw OperandNumberMismatchError("apply", "exactly 2");
-
-      //evaluate the first operand only once to get the func
-      Cell* func = nil;
-      Cell* param = nil;
-      Cell* apply_result = nil;
-
-      func = sub_tree->get_car()->eval();
-      try {
-	param = sub_tree->get_cdr()->get_car()->eval();
-	try {
-	  apply_result=func->apply(param);
-	} catch (...) {
-	  safe_delete(param);
-	  throw;
-	}
-	safe_delete(param);
+	//try to apply the function
+	apply_result = func->apply(sub_tree);
       } catch (...) {
 	safe_delete(func);
 	throw;
       }
+      //normal clean up
       safe_delete(func);
-      
-      return apply_result;
-    
-////////////////////////////////////////lookup dictionary////////////////////////////////////////       
-    } else {
-      Cell* func = nil;
-      Cell* apply_result = nil;
-      try {
-	//eval will help look up the dictionary, as defined in SymbolCell::eval()
-	//It will throw an error if the required expression is nowhere to look up
-	func = get_car()->eval();
-	try {
-	  //try to apply the function
-	  apply_result = func->apply(sub_tree);
-	} catch (...) {
-	  safe_delete(func);
-	  throw;
-	}
-	//normal clean up
-	safe_delete(func);
-      } catch (...) {
-	throw;
-      }
-      return apply_result;
+    } catch (...) {
+      throw;
     }
+    return apply_result;
   } else {
     throw runtime_error("root of tree invalid");
   }
@@ -1034,12 +612,582 @@ ProcedureCell::~ProcedureCell()
   safe_delete(formals_m);
   safe_delete(body_m);
 }
+///////////////////////////////////////BuiltinProcedureCell/////////////////////////////////////////
+BuiltinProcedureCell::BuiltinProcedureCell(Cell* (*my_func)(Cell* const)) : func_m(my_func) {}
+Cell* BuiltinProcedureCell::apply(Cell* const subtree) const
+{
+  return func_m(subtree);
+}
+Cell* BuiltinProcedureCell::copy() const
+{
+  return new BuiltinProcedureCell(func_m);
+}
+////////////////////////////////////////Builtin Procedures////////////////////////////////////////
+//////////////////////////////////////+//////////////////////////////////////////    
+Cell* cell_plus(Cell* const sub_tree)
+{
+  //Cell pointer to the current working cell
+  Cell* current_cell = sub_tree;
+  Cell* sum= new IntCell(0);
+  
+  //iterate every cons pair until meet a nil cdr
+  while (current_cell != nil) {
+    
+    //current_cell is not nil, and it should be a conspair
+    if (!current_cell->is_cons()) {
+      throw runtime_error("cdr must be nil or conspair");
+    }
+    
+    //pointer to the cell that contains the value to be added
+    //here eval could be used against a conspair or a int/double cell
+    Cell* value_cell = current_cell->get_car()->eval();
+    
+    if (value_cell==nil)throw runtime_error("add on nil");
+    if (value_cell->is_cons() || value_cell->is_symbol()){
+      safe_delete(value_cell);
+      throw runtime_error("add operand invalid");
+    }
+    
+    Cell* result = sum->add(value_cell);
+    safe_delete(sum);
+    safe_delete(value_cell);
+    sum = result;
+    
+    //move current_cell forward;
+    current_cell = current_cell->get_cdr();
+  }
+  
+  return sum;
+}
+////////////////////////////////////-////////////////////////////////////////////      
+Cell* cell_minus(Cell* const sub_tree)
+{
+
+  //error if no operand is supplied
+  if (sub_tree == nil) throw runtime_error("subtract on zero operand!");
+  
+  //Cell pointer to the current working cell
+  Cell* current_cell = sub_tree;
+  //Value Cell that stores minuend
+  Cell* minuend_cell;
+    
+  //if subtract only has one operand
+  if (sub_tree->get_cdr() == nil) {
+    if (!current_cell->is_cons()) throw runtime_error("s-expression invalid: cdr must be nil or cons!");
+    
+    Cell* value_cell = current_cell->get_car()->eval();
+
+    if (value_cell!=nil) {
+      if (value_cell->is_int()) {
+	return new IntCell(-value_cell->get_int());
+      } else if (value_cell->is_double()) {
+	return new DoubleCell(-value_cell->get_double());
+      } else {
+	//directly delete, for value_cell is ensured to be non nil
+	safe_delete(value_cell);
+	throw runtime_error("subtract operand invalid!");
+      }
+    } else {
+      throw runtime_error("subtract on nil cell");
+    }
+  } else {   
+    // subtract with two operands or more
+    
+    minuend_cell = current_cell->get_car()->eval();
+    if (minuend_cell==nil) throw runtime_error("subtract on nil cell");
+    current_cell = current_cell->get_cdr();
+
+    while (current_cell != nil) {
+      Cell* value_cell = current_cell->get_car()->eval();
+      
+      if (value_cell==nil) throw runtime_error("subtract on nil");
+      if (value_cell->is_cons() || value_cell->is_symbol()){
+	safe_delete(value_cell);
+	throw runtime_error("subtract operand invalid");
+      }
+      
+      Cell* result_cell = minuend_cell->subtract(value_cell);
+      safe_delete(minuend_cell);
+      safe_delete(value_cell);
+      minuend_cell = result_cell;
+
+      current_cell = current_cell->get_cdr();
+    }
+
+    return minuend_cell;
+  }
+}
+//////////////////////////////////////*//////////////////////////////////////////
+Cell* cell_multiply(Cell* const sub_tree)
+{
+  //Cell pointer to the current working cell
+  Cell* current_cell = sub_tree;
+  Cell* product = new IntCell(1);
+
+  //iterate every cons pair until meet a nil cdr
+  while (current_cell != nil) {
+
+    //current_cell is not nil, and it should be a conspair
+    if (!current_cell->is_cons()) {
+      throw runtime_error("cdr must be nil or conspair");
+    }
+
+    //pointer to the cell that contains the value to be added
+    //here eval could be used against a conspair or a int/double cell
+    Cell* value_cell = current_cell->get_car()->eval();
+
+    if (value_cell==nil) throw runtime_error("multiply on nil");
+    if (value_cell->is_cons() || value_cell->is_symbol()){
+      safe_delete(value_cell);
+      throw runtime_error("multiply operand invalid");
+    }
+          
+    Cell* result = product->multiply(value_cell);
+    safe_delete(product);
+    safe_delete(value_cell);
+    product = result;
+   
+    //move current_cell forward;
+    current_cell = current_cell->get_cdr();
+  }
+    
+  return product;
+}
+//////////////////////////////////// / ///////////////////////////////////////////
+Cell* cell_divide_by(Cell* const sub_tree)
+{
+  //error if no operand is supplied
+  if (sub_tree == nil) throw runtime_error("division on zero operand!");
+      
+  //Cell pointer to the current working cell
+  Cell* current_cell = sub_tree;
+  //Value Cell that stores minuend
+  Cell* dividend_cell;
+    
+  //if subtract only has one operand
+  if (sub_tree->get_cdr() == nil) {
+    if (!current_cell->is_cons()) throw runtime_error("s-expression invalid: cdr must be nil or cons!");
+    
+    Cell* value_cell = current_cell->get_car()->eval();
+
+    if (value_cell!=nil) {
+      if (value_cell->is_int()) {
+	return new IntCell(1/value_cell->get_int());
+      } else if (value_cell->is_double()) {
+	return new DoubleCell(1/value_cell->get_double());
+      } else {
+	//directly delete, for value_cell is ensured to be non nil
+	safe_delete(value_cell);
+	throw runtime_error("subtract operand invalid!");
+      }
+    } else {
+      throw runtime_error("subtract on nil cell");
+    }
+  } else {   
+    // subtract with two operands or more
+    
+    dividend_cell = current_cell->get_car()->eval();
+    if (dividend_cell==nil) throw runtime_error("subtract on nil cell");
+    current_cell = current_cell->get_cdr();
+
+    while (current_cell != nil) {
+      Cell* value_cell = current_cell->get_car()->eval();
+      
+      if (value_cell==nil) throw runtime_error("subtract on nil");
+      if (value_cell->is_cons() || value_cell->is_symbol()){
+	safe_delete(value_cell);
+	throw runtime_error("subtract operand invalid");
+      }
+      
+      Cell* result_cell = dividend_cell->divide_by(value_cell);
+      safe_delete(dividend_cell);
+      safe_delete(value_cell);
+      dividend_cell = result_cell;
+
+      current_cell = current_cell->get_cdr();
+    }
+	
+    return dividend_cell;
+  }
+}
+//////////////////////////////////////ceiling//////////////////////////////////////////      
+Cell* cell_ceiling(Cell* const sub_tree)
+{
+  //current working cell
+  Cell* current_cell = sub_tree;
+
+  if (current_cell == nil || !current_cell -> is_cons()) throw runtime_error("s-expression invalid: invalid ceiling operand!");
+
+  if (current_cell->get_cdr()!=nil) throw runtime_error("s-expression invalid: ceiling on more than one operands");
+    
+  //take the ceiling and return
+  Cell* returned_value = current_cell->get_car()->eval();
+  if (returned_value->is_double()){
+    int ceilinged_value = int(returned_value->get_double());
+    if (ceilinged_value < returned_value->get_double()) ++ceilinged_value;
+    safe_delete(returned_value);
+    return new IntCell(ceilinged_value);
+  } else {
+    safe_delete(returned_value);
+    throw runtime_error("s-expression invalid: ceiling operand invalid!");
+  }
+}
+/////////////////////////////////////floor///////////////////////////////////////////      
+Cell* cell_floor(Cell* const sub_tree)
+{
+  //current working cell
+  Cell* current_cell = sub_tree;
+
+  if (current_cell == nil || !current_cell -> is_cons()) throw runtime_error("s-expression invalid: invalid ceiling operand!");
+
+  if (current_cell->get_cdr()!=nil) throw runtime_error("s-expression invalid: ceiling on more than one operands");
+    
+  //take the floor and return
+  Cell* returned_value = current_cell->get_car()->eval();
+  if (returned_value->is_double()){
+    int ceilinged_value = int(returned_value->get_double());
+    safe_delete(returned_value);
+    return new IntCell(ceilinged_value);
+  } else {
+    safe_delete(returned_value);
+    throw runtime_error("s-expression invalid: floor operand invalid");
+  }
+}
+///////////////////////////////////////if/////////////////////////////////////////      
+Cell* cell_if(Cell* const sub_tree)
+{
+  //temporary Cell pointers;
+  Cell* condition = sub_tree;
+  if (condition==nil || !condition->is_cons()) throw runtime_error("s-expression invalid: if condition is not a conspair");
+  Cell* if_true = condition->get_cdr();
+  if (if_true==nil || !if_true->is_cons()) throw runtime_error("s-expression invalid: the true return value is not a cospair");
+  Cell* if_false = if_true->get_cdr(); 
+
+  //directly return the second parameter if the third doesn't exist
+  if (if_false==nil) {
+    return if_true->get_car()->eval();
+  } else {
+    if (if_false->get_cdr()!=nil) throw runtime_error("s-expression invalid: if operator on more than three operands");
+      
+    Cell* condition_cell = condition->get_car()->eval();
+    bool flag = false;
+      
+    //retrieve values according to their types
+    if (condition_cell==nil){
+      flag = false;
+    } else if (condition_cell->is_int()){
+      flag = condition_cell->get_int() ? true : false;
+    } else if (condition_cell->is_double()) {
+      flag = condition_cell->get_double() ? true : false;
+    } else if (condition_cell->is_symbol()) {
+      flag = condition_cell->get_symbol()!="" ? true : false;
+    } else {
+      safe_delete(condition_cell);
+      throw runtime_error("s-expression invalid: condition operand invalid to if");
+    }
+
+    safe_delete(condition_cell);
+      
+    return flag ? if_true->get_car()->eval() : if_false->get_car()->eval();
+  }
+}
+//////////////////////////////////////quote//////////////////////////////////////////      
+Cell* cell_quote(Cell* const sub_tree)
+{
+  //return sub_tree's cdr directly, by making a deep copy first
+  if (sub_tree==nil || !sub_tree->is_cons()) throw runtime_error("operand for quote invalid");
+  if (sub_tree->get_cdr()!=nil) throw runtime_error("operand for quote more than one!");
+  return sub_tree->get_car()->copy();
+}
+///////////////////////////////////////cons/////////////////////////////////////////
+Cell* cell_cons(Cell* const sub_tree)
+{
+  if (sub_tree == nil) throw runtime_error("operand for cons invalid");
+  //ConsCell pointers. 
+  Cell* car_tobe = sub_tree;
+  Cell* cdr_tobe = sub_tree->get_cdr();
+
+  if (cdr_tobe == nil) throw runtime_error("operand for cons invalid");
+  if (cdr_tobe->get_cdr() != nil) throw runtime_error("operand for cons more than two!");
+  
+  Cell* car_value = car_tobe->get_car()->eval();
+  Cell* cdr_value = cdr_tobe->get_car()->eval();
+
+  Cell* return_cell = new ConsCell(car_value, cdr_value);
+            
+  return return_cell;
+}
+//////////////////////////////////////car//////////////////////////////////////////      
+Cell* cell_car(Cell* const sub_tree)
+{
+  if (sub_tree == nil) throw runtime_error("zero operand for car");
+  if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for car");
+  //retrieve the cell upon which car should be taken
+  Cell* value_cell = sub_tree->get_car()->eval();
+  if (value_cell != nil) {
+    if (value_cell->is_cons()) {
+      Cell* value_car = value_cell->get_car()->copy();
+      safe_delete(value_cell);
+      return value_car;
+    } else {
+      safe_delete(value_cell); 
+      throw runtime_error("car on non-cons cell");
+    }
+  } else {
+    throw runtime_error ("car on nil");
+  }
+}
+///////////////////////////////////////cdr/////////////////////////////////////////      
+Cell* cell_cdr(Cell* const sub_tree)
+{
+  if (sub_tree == nil) throw runtime_error("zero operand for cdr");
+  if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for cdr");
+  //retrieve the cell upon which cdr should be taken
+  Cell* value_cell = sub_tree->get_car()->eval();
+  if (value_cell != nil) {
+    if (value_cell->is_cons()) {
+      Cell* value_cdr = value_cell->get_cdr()->copy();
+      safe_delete(value_cell);
+      return value_cdr;
+    } else {
+      safe_delete(value_cell); 
+      throw runtime_error("cdr on non-cons cell");
+    }
+  } else {
+    throw runtime_error ("cdr on nil");
+  }
+}
+////////////////////////////////////////nullp////////////////////////////////////////      
+Cell* cell_nullp(Cell* const sub_tree)
+{
+  if (sub_tree == nil) throw runtime_error("zero operand for nullp");
+  if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for nullp");
+
+  Cell* value_cell = sub_tree->get_car()->eval();
+  if (value_cell != nil) {
+    safe_delete(value_cell);
+    return new IntCell(0);
+  } else {
+    return new IntCell(1);
+  }
+}
+////////////////////////////////////////intp////////////////////////////////////////      
+Cell* cell_intp(Cell* const sub_tree)
+{
+  if (sub_tree == nil) throw runtime_error("zero operand for intp");
+  if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for intp");
+
+  Cell* value_cell = sub_tree->get_car()->eval();
+  if (value_cell != nil && value_cell -> is_int()) {
+    safe_delete(value_cell);
+    return new IntCell(1);
+  } else {
+    safe_delete(value_cell);
+    return new IntCell(0);
+  }
+}
+////////////////////////////////////////doublep////////////////////////////////////////      
+Cell* cell_doublep(Cell* const sub_tree)
+{
+  if (sub_tree == nil) throw runtime_error("zero operand for doublep");
+  if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for doublep");
+
+  Cell* value_cell = sub_tree->get_car()->eval();
+  if (value_cell != nil && value_cell -> is_double()) {
+    safe_delete(value_cell);
+    return new IntCell(1);
+  } else {
+    safe_delete(value_cell);
+    return new IntCell(0);
+  }
+}
+////////////////////////////////////////symbolp////////////////////////////////////////      
+Cell* cell_symbolp(Cell* const sub_tree)
+{
+  if (sub_tree == nil) throw runtime_error("zero operand for symbolp");
+  if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for symbolp");
+
+  Cell* value_cell = sub_tree->get_car()->eval();
+  if (value_cell != nil && value_cell -> is_symbol()) {
+    safe_delete(value_cell);
+    return new IntCell(1);
+  } else {
+    safe_delete(value_cell);
+    return new IntCell(0);
+  }
+}
+////////////////////////////////////////listp////////////////////////////////////////      
+Cell* cell_listp(Cell* const sub_tree)
+{
+  if (sub_tree == nil) throw runtime_error("zero operand for nullp");
+  if (sub_tree->get_cdr() != nil) throw runtime_error("more than one operands for nullp");
+
+  Cell* value_cell = sub_tree->get_car()->eval();
+  if (value_cell != nil && value_cell -> is_cons()) {
+    safe_delete(value_cell);
+    return new IntCell(1);
+  } else {
+    safe_delete(value_cell);
+    return new IntCell(0);
+  }
+}
+////////////////////////////////////////define////////////////////////////////////////      
+Cell* cell_define(Cell* const sub_tree)
+{
+  if (sub_tree == nil || sub_tree->get_cdr() == nil || sub_tree->get_cdr()->get_cdr()!=nil) throw OperandNumberMismatchError("define","2");
+
+  //retrieve the key
+  Cell* key_cell = sub_tree->get_car()->copy();
+  try {
+    if (key_cell == nil || !key_cell->is_symbol()) throw OperandInvalidError("define");
+    //look up the map if the key prexists
+    if (definition_stack.back().count(key_cell->get_symbol())!=0) throw runtime_error(key_cell->get_symbol()+" already exists in this scope!");
+  } catch (...) {
+    safe_delete(key_cell);
+    throw;
+  }
+  //retrieve the defintion
+  Cell* definition_cell = sub_tree->get_cdr()->get_car()->eval();
+  //if (definition_cell == nil) throw OperandInvalidError("define");     
+  //store the key and the evaluated cell to the map
+
+  definition_stack.back()[key_cell->get_symbol()] = definition_cell;
+  return nil;
+}
+////////////////////////////////////////<////////////////////////////////////////      
+Cell* cell_smaller(Cell* const sub_tree)
+{
+  //for zero operand
+  if (sub_tree == nil) return new IntCell(1);
+
+  Cell* current_cell = sub_tree;
+  //while there's more than one operand left
+  Cell* result_cell;
+  while (current_cell->get_cdr()!=nil) {
+    if (!(result_cell = current_cell->get_car()->eval()) -> smaller_than(current_cell -> get_cdr() -> get_car()->eval())) {
+      safe_delete(result_cell);
+      return new IntCell(0); 
+    }
+    safe_delete(result_cell);
+    current_cell = current_cell->get_cdr();
+  }
+  //directly return 1, including the case where only one operand is supplied
+  return new IntCell(1);
+}
+////////////////////////////////////////not////////////////////////////////////////      
+Cell* cell_not(Cell* const sub_tree)
+{
+  //operand number check. throw error
+  if (sub_tree == nil || sub_tree->get_cdr()!=nil) throw OperandNumberMismatchError("not","exactly 1");
+
+  Cell* result_cell = sub_tree->get_car()->eval();
+  Cell* not_cell = result_cell->get_not();
+  safe_delete(result_cell);
+  return not_cell;
+}
+////////////////////////////////////////print////////////////////////////////////////      
+Cell* cell_print(Cell* const sub_tree)
+{
+  //limit to one operand
+  if (sub_tree == nil || sub_tree->get_cdr() != nil) throw OperandNumberMismatchError("print","exactly 1");
+
+  Cell* result_cell = sub_tree->get_car()->eval();
+  result_cell->print(cout);
+  cout<<endl;
+  safe_delete(result_cell);
+  return nil;
+}
+////////////////////////////////////////eval////////////////////////////////////////      
+Cell* cell_eval(Cell* const sub_tree)
+{ 
+  //limit to one operand
+  if (sub_tree == nil || sub_tree -> get_cdr() != nil) throw OperandNumberMismatchError("eval","exactly 1");
+
+  Cell* car_result = sub_tree->get_car()->eval();
+  Cell* eval_result = car_result->eval();
+  safe_delete(car_result);
+  return eval_result;
+}
+////////////////////////////////////////lambda////////////////////////////////////////
+Cell* cell_lambda(Cell* const sub_tree)
+{
+  //assert two or more operands
+  if (sub_tree == nil || sub_tree->get_cdr() == nil) throw OperandNumberMismatchError("lambda","2 or more");
+  
+  //check the formals are valid
+  if (sub_tree->get_car()->is_cons()) {
+    for (Cell* i = sub_tree->get_car(); i != nil; i=i->get_cdr()){
+      if (!i->get_car()->is_symbol()) throw OperandInvalidError("lambda");
+    }
+  } else if (!sub_tree->get_car()->is_symbol()) throw OperandInvalidError("lambda");
+  
+  //car of subtree as formals
+  //cdr of subtree directly as body
+  return new ProcedureCell(sub_tree->get_car()->copy(), sub_tree->get_cdr()->copy());
+}
+////////////////////////////////////////apply////////////////////////////////////////
+Cell* cell_apply(Cell* const sub_tree)
+{
+  //assert two operands
+  if (sub_tree == nil || sub_tree->get_cdr() == nil || sub_tree->get_cdr()->get_cdr() != nil) throw OperandNumberMismatchError("apply", "exactly 2");
+
+  //evaluate the first operand only once to get the func
+  Cell* func = nil;
+  Cell* param = nil;
+  Cell* apply_result = nil;
+
+  func = sub_tree->get_car()->eval();
+  try {
+    param = sub_tree->get_cdr()->get_car()->eval();
+    try {
+      apply_result=func->apply(param);
+    } catch (...) {
+      safe_delete(param);
+      throw;
+    }
+    safe_delete(param);
+  } catch (...) {
+    safe_delete(func);
+    throw;
+  }
+  safe_delete(func);
+      
+  return apply_result;
+}  
+
+
+
 
 deque<hashtablemap<string,Cell*> > stack_initialize()
 {
   deque<hashtablemap<string,Cell*> > my_dq;
   hashtablemap<string,Cell*> my_map;
   //do something with my_map if necessary
+  my_map["+"]=new BuiltinProcedureCell(cell_plus);
+  my_map["-"]=new BuiltinProcedureCell(cell_minus);
+  my_map["*"]=new BuiltinProcedureCell(cell_multiply);
+  my_map["/"]=new BuiltinProcedureCell(cell_divide_by);
+  my_map["ceiling"]=new BuiltinProcedureCell(cell_ceiling);
+  my_map["floor"]=new BuiltinProcedureCell(cell_floor);
+  my_map["if"]=new BuiltinProcedureCell(cell_if);
+  my_map["quote"]=new BuiltinProcedureCell(cell_quote);
+  my_map["cons"]=new BuiltinProcedureCell(cell_cons);
+  my_map["car"]=new BuiltinProcedureCell(cell_car);
+  my_map["cdr"]=new BuiltinProcedureCell(cell_cdr);
+  my_map["nullp"]=new BuiltinProcedureCell(cell_nullp);
+  my_map["intp"]=new BuiltinProcedureCell(cell_intp);
+  my_map["doublep"]=new BuiltinProcedureCell(cell_doublep);
+  my_map["symbolp"]=new BuiltinProcedureCell(cell_symbolp);
+  my_map["listp"]=new BuiltinProcedureCell(cell_listp);
+  my_map["define"]=new BuiltinProcedureCell(cell_define);
+  my_map["<"]=new BuiltinProcedureCell(cell_smaller);
+  my_map["not"]=new BuiltinProcedureCell(cell_not);
+  my_map["print"]=new BuiltinProcedureCell(cell_print);
+  my_map["eval"]=new BuiltinProcedureCell(cell_eval);
+  my_map["lambda"]=new BuiltinProcedureCell(cell_lambda);
+  my_map["apply"]=new BuiltinProcedureCell(cell_apply);
+
+  
   my_dq.push_back(my_map);
   return my_dq;
 }
